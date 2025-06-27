@@ -23,6 +23,12 @@ enum WorkspaceType {
   TEAM     // 团队
 }
 
+/// 工作流状态枚举
+enum WorkflowStatus {
+  DRAFT     // 草稿
+  PUBLISHED // 已发布
+}
+
 /// 用户模型
 model User {
   id        String   @id @default(uuid())
@@ -70,6 +76,12 @@ model TeamMember {
   /// 关联的用户
   user User @relation(fields: [userId], references: [id])
 
+  // --- 新增反向关联 ---
+  assignedWorkflowSteps WorkflowStep[] // 被指派的流程步骤
+  directlyAssignedIssues Issue[]       @relation("DirectAssignedIssues") // 被直接指派的任务
+  createdIssues          Issue[]       @relation("CreatedIssues") // 创建的任务
+  issueActivities        IssueActivity[] // 参与的任务活动
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -91,8 +103,110 @@ model Workspace {
   /// 关联的团队 (团队空间)
   team Team? @relation(fields: [teamId], references: [id])
 
+  // --- 新增反向关联 ---
+  workflows Workflow[]
+  issues    Issue[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("workspaces")
+}
+
+// =================================================================
+// =================== Workflow & Issue Models =====================
+// =================================================================
+
+// 1. 工作流模板 (Workflow Template)
+// 这是用户在前端拖拽设计的“流程图”
+model Workflow {
+  id          String       @id @default(uuid())
+  name        String       // 例如: "新功能开发流程"
+  status      WorkflowStatus @default(DRAFT)
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
+  workspaceId String       @map("workspace_id")
+  steps       WorkflowStep[] @relation("WorkflowToSteps")
+  issues      Issue[]      // 所有使用此工作流的任务
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("workflows")
+}
+
+// 2. 工作流步骤 (Workflow Step)
+// 这是构成工作流的每一个节点
+model WorkflowStep {
+  id          String    @id @default(uuid())
+  name        String    // 例如: "API 设计" 或 "UI/UX 设计"
+  description String?   // 对这个步骤的说明
+  order       Int       // 步骤的顺序 (1, 2, 3...)
+  
+  workflow    Workflow  @relation("WorkflowToSteps", fields: [workflowId], references: [id])
+  workflowId  String    @map("workflow_id")
+
+  // 关键: 定义这个步骤由谁负责
+  // 这里我们关联到 TeamMember，这样就知道是哪个团队的哪个成员
+  assignee   TeamMember? @relation(fields: [assigneeId], references: [id])
+  assigneeId String?     @map("assignee_id")
+  
+  issues      Issue[]   @relation("CurrentStepIssues") // 所有正处于此步骤的任务
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("workflow_steps")
+}
+
+// 3. 任务 (Issue)
+// 任务实例，它会在工作流中流转
+model Issue {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String    @map("workspace_id")
+
+  // --- 关键的流转逻辑 ---
+  // 3a. 如果任务绑定了工作流
+  workflow      Workflow?     @relation(fields: [workflowId], references: [id])
+  workflowId    String?       @map("workflow_id") // 可选，因为任务可以不走流程
+
+  currentStep   WorkflowStep? @relation("CurrentStepIssues", fields: [currentStepId], references: [id])
+  currentStepId String?       @map("current_step_id") // 任务当前所在的步骤
+
+  // 3b. 如果任务是简单任务，直接指派给某个团队成员
+  directAssignee   TeamMember? @relation("DirectAssignedIssues", fields: [directAssigneeId], references: [id])
+  directAssigneeId String?     @map("direct_assignee_id")
+
+  // --- 任务创建者 ---
+  creator   TeamMember @relation("CreatedIssues", fields: [creatorId], references: [id])
+  creatorId String     @map("creator_id")
+
+  // --- 任务活动日志 ---
+  activities IssueActivity[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("issues")
+}
+
+// 4. 任务活动日志 (用于追踪历史)
+model IssueActivity {
+  id        String   @id @default(uuid())
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  issueId   String   @map("issue_id")
+  
+  actor     TeamMember @relation(fields: [actorId], references: [id]) // 操作者
+  actorId   String     @map("actor_id")
+  
+  fromStepName  String?  // "创建" or "API 设计"
+  toStepName    String   // "产品评审"
+  comment       String?  // 提交的交付物或说明
+  
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("issue_activities")
 }
