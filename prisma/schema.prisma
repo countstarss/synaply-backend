@@ -29,6 +29,22 @@ enum WorkflowStatus {
   PUBLISHED // 已发布
 }
 
+/// Issue 状态枚举
+enum IssueStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+/// Issue 优先级枚举
+enum IssuePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
 /// 用户模型
 model User {
   id        String   @id @default(uuid())
@@ -81,6 +97,7 @@ model TeamMember {
   directlyAssignedIssues Issue[]       @relation("DirectAssignedIssues") // 被直接指派的任务
   createdIssues          Issue[]       @relation("CreatedIssues") // 创建的任务
   issueActivities        IssueActivity[] // 参与的任务活动
+  comments               Comment[] // 新增：评论
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -161,34 +178,44 @@ model WorkflowStep {
 // 3. 任务 (Issue)
 // 任务实例，它会在工作流中流转
 model Issue {
-  id          String    @id @default(uuid())
-  title       String
-  description String?
-  
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  workspaceId String    @map("workspace_id")
+  id            String        @id @default(uuid())
+  title         String
+  description   String?
+  status        IssueStatus   @default(TODO) // 新增
+  priority      IssuePriority @default(NORMAL) // 新增
+  dueDate       DateTime?     @map("due_date") // 新增
+  startDate     DateTime?     @map("start_date") // 新增
+
+  workspace     Workspace     @relation(fields: [workspaceId], references: [id])
+  workspaceId   String        @map("workspace_id")
 
   // --- 关键的流转逻辑 ---
-  // 3a. 如果任务绑定了工作流
   workflow      Workflow?     @relation(fields: [workflowId], references: [id])
   workflowId    String?       @map("workflow_id") // 可选，因为任务可以不走流程
 
   currentStep   WorkflowStep? @relation("CurrentStepIssues", fields: [currentStepId], references: [id])
   currentStepId String?       @map("current_step_id") // 任务当前所在的步骤
 
-  // 3b. 如果任务是简单任务，直接指派给某个团队成员
   directAssignee   TeamMember? @relation("DirectAssignedIssues", fields: [directAssigneeId], references: [id])
   directAssigneeId String?     @map("direct_assignee_id")
 
-  // --- 任务创建者 ---
-  creator   TeamMember @relation("CreatedIssues", fields: [creatorId], references: [id])
-  creatorId String     @map("creator_id")
+  creator       TeamMember    @relation("CreatedIssues", fields: [creatorId], references: [id])
+  creatorId     String        @map("creator_id")
 
-  // --- 任务活动日志 ---
-  activities IssueActivity[]
+  activities    IssueActivity[]
+  comments      Comment[] // 新增
+  
+  // 子任务
+  subtasks      Issue[]       @relation("Subtask") // 新增
+  parentTaskId  String?       @map("parent_task_id") // 新增
+  parentTask    Issue?        @relation("Subtask", fields: [parentTaskId], references: [id]) // 新增
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  // 依赖
+  blockingIssues IssueDependency[] @relation("BlockingIssue") // 阻塞此任务的任务
+  dependsOnIssues IssueDependency[] @relation("DependsOnIssue") // 此任务依赖的任务
+
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
 
   @@map("issues")
 }
@@ -209,4 +236,37 @@ model IssueActivity {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("issue_activities")
+}
+
+// 5. 评论模型
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  issueId   String   @map("issue_id")
+  author    TeamMember @relation(fields: [authorId], references: [id])
+  authorId  String   @map("author_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("comments")
+}
+
+// 6. 任务依赖模型
+model IssueDependency {
+  id          String   @id @default(uuid())
+  
+  // 阻塞此任务的任务 (即此任务被 blockerIssueId 阻塞)
+  blockerIssueId String @map("blocker_issue_id")
+  blockerIssue   Issue  @relation("BlockingIssue", fields: [blockerIssueId], references: [id])
+
+  // 此任务依赖的任务 (即此任务依赖 dependsOnIssueId 完成)
+  dependsOnIssueId String @map("depends_on_issue_id")
+  dependsOnIssue   Issue  @relation("DependsOnIssue", fields: [dependsOnIssueId], references: [id])
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([blockerIssueId, dependsOnIssueId]) // 一个任务不能两次依赖同一个任务
+  @@map("issue_dependencies")
 }
