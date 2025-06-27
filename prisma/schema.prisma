@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// 用户角色枚举
+enum Role {
+  OWNER  // 拥有者
+  ADMIN  // 管理员
+  MEMBER // 成员
+}
+
+/// 工作空间类型枚举
+enum WorkspaceType {
+  PERSONAL // 个人
+  TEAM     // 团队
+}
+
+/// 用户模型
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  /// 关联的团队成员信息
+  teams TeamMember[]
+
+  /// 关联的工作空间
+  workspaces Workspace[]
+
+  @@map("users")
+}
+
+/// 团队模型
+model Team {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  /// 关联的团队成员
+  members TeamMember[]
+
+  /// 关联的工作空间
+  workspace Workspace?
+
+  @@map("teams")
+}
+
+/// 团队成员模型 (用户和团队的多对多关系)
+model TeamMember {
+  id     String @id @default(uuid())
+  teamId String @map("team_id")
+  userId String @map("user_id")
+  role   Role   @default(MEMBER)
+
+  /// 关联的团队
+  team Team @relation(fields: [teamId], references: [id])
+
+  /// 关联的用户
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+/// 工作空间模型
+model Workspace {
+  id     String        @id @default(uuid())
+  name   String
+  type   WorkspaceType
+  userId String?       @map("user_id") // 个人空间时, 关联到用户
+  teamId String?       @unique @map("team_id") // 团队空间时, 关联到团队
+
+  /// 关联的用户 (个人空间)
+  user User? @relation(fields: [userId], references: [id])
+
+  /// 关联的团队 (团队空间)
+  team Team? @relation(fields: [teamId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("workspaces")
+}
