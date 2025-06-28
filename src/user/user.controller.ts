@@ -1,7 +1,9 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 import { UserService } from './user.service';
 
+@ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -14,6 +16,11 @@ export class UserController {
    */
   @UseGuards(SupabaseAuthGuard)
   @Get('me')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: '获取当前用户详细信息' })
+  @ApiResponse({ status: 200, description: '返回当前用户在数据库中的详细信息' })
+  @ApiResponse({ status: 401, description: '未授权，JWT验证失败' })
+  @ApiResponse({ status: 404, description: '用户不存在' })
   async getMe(@Req() req) {
     // 从 JWT payload 中获取用户 ID
     const userId = req.user.sub;
