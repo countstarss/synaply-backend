@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // 配置Swagger
   const config = new DocumentBuilder()
     .setTitle('Synaply API')
@@ -20,13 +20,13 @@ async function bootstrap() {
         description: '输入JWT token',
         in: 'header',
       },
-      'JWT-auth'
+      'JWT-auth',
     )
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  
+
   await app.listen(5678);
 }
 bootstrap();

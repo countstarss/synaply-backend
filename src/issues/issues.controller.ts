@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  HttpCode,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { IssuesService } from './issues.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
@@ -17,13 +29,20 @@ export class IssuesController {
     @Req() req: Request,
   ) {
     // FIXME: 临时处理，后续需要修改 ,后面获取到用户的所有信息之后要挂载到上面req上
-    const creatorId = req.user?.teamMemberId || 'f17a0b65-be2b-496d-8bc2-72e339403a05'; // Replace with actual logic
-    return this.issuesService.create(creatorId, { ...createIssueDto, workspaceId });
+    const creatorId =
+      req.user?.teamMemberId || 'f17a0b65-be2b-496d-8bc2-72e339403a05'; // Replace with actual logic
+    return this.issuesService.create(creatorId, {
+      ...createIssueDto,
+      workspaceId,
+    });
   }
 
   @Get()
-  findAll(@Param('workspaceId') workspaceId: string) {
-    return this.issuesService.findAll(workspaceId);
+  findAll(
+    @Param('workspaceId') workspaceId: string,
+    @Query('projectId') projectId?: string,
+  ) {
+    return this.issuesService.findAll(workspaceId, projectId);
   }
 
   @Get(':id')
@@ -32,10 +51,7 @@ export class IssuesController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateIssueDto: UpdateIssueDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateIssueDto: UpdateIssueDto) {
     return this.issuesService.update(id, updateIssueDto);
   }
 
@@ -51,7 +67,8 @@ export class IssuesController {
     @Body() createCommentDto: CreateCommentDto,
     @Req() req: Request,
   ) {
-    const authorId = req.user?.teamMemberId || 'f17a0b65-be2b-496d-8bc2-72e339403a05'; // Replace with actual logic
+    const authorId =
+      req.user?.teamMemberId || 'f17a0b65-be2b-496d-8bc2-72e339403a05'; // Replace with actual logic
     return this.issuesService.addComment(issueId, authorId, createCommentDto);
   }
 

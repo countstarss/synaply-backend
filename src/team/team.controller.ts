@@ -1,4 +1,14 @@
-import { Controller, Post, Body, UseGuards, Req, Get, Param, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Get,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
@@ -77,7 +87,12 @@ export class TeamController {
     @Req() req,
   ) {
     const currentUserId = req.user.sub;
-    return this.teamService.updateMemberRole(teamId, memberId, role, currentUserId);
+    return this.teamService.updateMemberRole(
+      teamId,
+      memberId,
+      role,
+      currentUserId,
+    );
   }
 
   /**

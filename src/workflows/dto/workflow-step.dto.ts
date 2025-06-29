@@ -2,7 +2,7 @@ import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-  export class CreateWorkflowStepDto {
+export class CreateWorkflowStepDto {
   @ApiProperty({
     description: 'The name of the workflow step',
     example: 'Step 1',
@@ -28,7 +28,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
   order: number;
 
   @ApiPropertyOptional({
-    description: 'The assignee ID of the workflow step'
+    description: 'The assignee ID of the workflow step',
   })
   @IsOptional()
   @IsString()

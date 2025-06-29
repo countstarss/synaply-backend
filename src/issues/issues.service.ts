@@ -1,5 +1,8 @@
-
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
@@ -13,14 +16,30 @@ export class IssuesService {
 
   // MARK: - 创建任务
   async create(creatorId: string, createIssueDto: CreateIssueDto) {
-    const { workflowId, currentStepId, directAssigneeId, workspaceId, title, description, dueDate, startDate, priority, parentTaskId } = createIssueDto;
+    const {
+      workflowId,
+      currentStepId,
+      directAssigneeId,
+      workspaceId,
+      projectId,
+      title,
+      description,
+      dueDate,
+      startDate,
+      priority,
+      parentTaskId,
+    } = createIssueDto;
 
     if (workflowId && directAssigneeId) {
-      throw new BadRequestException('Cannot assign both a workflow and a direct assignee.');
+      throw new BadRequestException(
+        'Cannot assign both a workflow and a direct assignee.',
+      );
     }
 
     if (workflowId && !currentStepId) {
-      throw new BadRequestException('currentStepId is required when workflowId is provided.');
+      throw new BadRequestException(
+        'currentStepId is required when workflowId is provided.',
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -31,6 +50,7 @@ export class IssuesService {
           workspace: {
             connect: { id: workspaceId },
           },
+          project: projectId ? { connect: { id: projectId } } : undefined,
           creator: {
             connect: { id: creatorId },
           },
@@ -39,9 +59,15 @@ export class IssuesService {
           dueDate,
           startDate,
           workflow: workflowId ? { connect: { id: workflowId } } : undefined,
-          currentStep: currentStepId ? { connect: { id: currentStepId } } : undefined,
-          directAssignee: directAssigneeId ? { connect: { id: directAssigneeId } } : undefined,
-          parentTask: parentTaskId ? { connect: { id: parentTaskId } } : undefined,
+          currentStep: currentStepId
+            ? { connect: { id: currentStepId } }
+            : undefined,
+          directAssignee: directAssigneeId
+            ? { connect: { id: directAssigneeId } }
+            : undefined,
+          parentTask: parentTaskId
+            ? { connect: { id: parentTaskId } }
+            : undefined,
         },
       });
 
@@ -59,15 +85,19 @@ export class IssuesService {
   }
 
   // MARK: - 获取所有任务
-  async findAll(workspaceId: string) {
+  async findAll(workspaceId: string, projectId?: string) {
     return this.prisma.issue.findMany({
-      where: { workspaceId },
+      where: {
+        workspaceId,
+        projectId: projectId || undefined,
+      },
       include: {
         creator: { include: { user: true } },
         directAssignee: { include: { user: true } },
         workflow: true,
         currentStep: true,
         parentTask: true,
+        project: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -84,6 +114,7 @@ export class IssuesService {
         currentStep: true,
         parentTask: true,
         subtasks: true,
+        project: true,
         comments: { include: { author: { include: { user: true } } } },
         activities: { orderBy: { createdAt: 'asc' } },
         blockingIssues: { include: { blockerIssue: true } },
@@ -99,7 +130,16 @@ export class IssuesService {
 
   // MARK: - 更新任务
   async update(id: string, updateIssueDto: UpdateIssueDto) {
-    const { status, priority, dueDate, startDate, currentStepId, title, description, directAssigneeId } = updateIssueDto;
+    const {
+      status,
+      priority,
+      dueDate,
+      startDate,
+      currentStepId,
+      title,
+      description,
+      directAssigneeId,
+    } = updateIssueDto;
 
     const existingIssue = await this.prisma.issue.findUnique({
       where: { id },
@@ -120,8 +160,12 @@ export class IssuesService {
           priority: priority ?? existingIssue.priority,
           dueDate: dueDate ?? existingIssue.dueDate,
           startDate: startDate ?? existingIssue.startDate,
-          currentStep: currentStepId ? { connect: { id: currentStepId } } : undefined,
-          directAssignee: directAssigneeId ? { connect: { id: directAssigneeId } } : undefined,
+          currentStep: currentStepId
+            ? { connect: { id: currentStepId } }
+            : undefined,
+          directAssignee: directAssigneeId
+            ? { connect: { id: directAssigneeId } }
+            : undefined,
         },
       });
 
@@ -139,7 +183,9 @@ export class IssuesService {
       }
 
       if (currentStepId && currentStepId !== existingIssue.currentStepId) {
-        const newStep = await tx.workflowStep.findUnique({ where: { id: currentStepId } });
+        const newStep = await tx.workflowStep.findUnique({
+          where: { id: currentStepId },
+        });
         await tx.issueActivity.create({
           data: {
             issue: { connect: { id: updatedIssue.id } },
@@ -170,10 +216,7 @@ export class IssuesService {
     // Delete associated dependencies (where this issue is either blocker or dependsOn)
     await this.prisma.issueDependency.deleteMany({
       where: {
-        OR: [
-          { blockerIssueId: id },
-          { dependsOnIssueId: id },
-        ],
+        OR: [{ blockerIssueId: id }, { dependsOnIssueId: id }],
       },
     });
 
@@ -184,7 +227,11 @@ export class IssuesService {
   }
 
   // MARK: - 添加评论
-  async addComment(issueId: string, authorId: string, createCommentDto: CreateCommentDto) {
+  async addComment(
+    issueId: string,
+    authorId: string,
+    createCommentDto: CreateCommentDto,
+  ) {
     const { content } = createCommentDto;
     return this.prisma.comment.create({
       data: {
@@ -196,7 +243,10 @@ export class IssuesService {
   }
 
   // MARK: - 添加依赖
-  async addDependency(issueId: string, createIssueDependencyDto: CreateIssueDependencyDto) {
+  async addDependency(
+    issueId: string,
+    createIssueDependencyDto: CreateIssueDependencyDto,
+  ) {
     const { dependsOnIssueId } = createIssueDependencyDto;
 
     // Check if both issues exist
@@ -209,7 +259,9 @@ export class IssuesService {
       throw new NotFoundException(`Issue with ID ${issueId} not found`);
     }
     if (!dependsOnIssue) {
-      throw new NotFoundException(`DependsOnIssue with ID ${dependsOnIssueId} not found`);
+      throw new NotFoundException(
+        `DependsOnIssue with ID ${dependsOnIssueId} not found`,
+      );
     }
 
     // Prevent self-dependency
@@ -219,7 +271,12 @@ export class IssuesService {
 
     // Prevent circular dependency (simple check for direct circularity)
     const existingDependency = await this.prisma.issueDependency.findUnique({
-      where: { blockerIssueId_dependsOnIssueId: { blockerIssueId: dependsOnIssueId, dependsOnIssueId: issueId } },
+      where: {
+        blockerIssueId_dependsOnIssueId: {
+          blockerIssueId: dependsOnIssueId,
+          dependsOnIssueId: issueId,
+        },
+      },
     });
     if (existingDependency) {
       throw new BadRequestException('Circular dependency detected.');
@@ -237,15 +294,27 @@ export class IssuesService {
   async removeDependency(issueId: string, dependsOnIssueId: string) {
     // Check if the dependency exists
     const dependency = await this.prisma.issueDependency.findUnique({
-      where: { blockerIssueId_dependsOnIssueId: { blockerIssueId: issueId, dependsOnIssueId: dependsOnIssueId } },
+      where: {
+        blockerIssueId_dependsOnIssueId: {
+          blockerIssueId: issueId,
+          dependsOnIssueId: dependsOnIssueId,
+        },
+      },
     });
 
     if (!dependency) {
-      throw new NotFoundException(`Dependency from ${issueId} to ${dependsOnIssueId} not found.`);
+      throw new NotFoundException(
+        `Dependency from ${issueId} to ${dependsOnIssueId} not found.`,
+      );
     }
 
     return this.prisma.issueDependency.delete({
-      where: { blockerIssueId_dependsOnIssueId: { blockerIssueId: issueId, dependsOnIssueId: dependsOnIssueId } },
+      where: {
+        blockerIssueId_dependsOnIssueId: {
+          blockerIssueId: issueId,
+          dependsOnIssueId: dependsOnIssueId,
+        },
+      },
     });
   }
 }

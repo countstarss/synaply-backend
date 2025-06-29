@@ -4,7 +4,7 @@ import { IsEnum, IsOptional, IsString, IsDateString } from 'class-validator';
 import { IssuePriority, IssueStatus } from '@prisma/client';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
-  export class UpdateIssueDto extends PartialType(CreateIssueDto) {
+export class UpdateIssueDto extends PartialType(CreateIssueDto) {
   @ApiPropertyOptional({
     description: 'The title of the issue',
   })

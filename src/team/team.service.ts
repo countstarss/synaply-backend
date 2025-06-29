@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
@@ -58,7 +62,11 @@ export class TeamService {
    * @returns 邀请结果
    */
   // MARK: - 邀请加入团队
-  async inviteMember(teamId: string, inviteMemberDto: InviteMemberDto, inviterId: string) {
+  async inviteMember(
+    teamId: string,
+    inviteMemberDto: InviteMemberDto,
+    inviterId: string,
+  ) {
     const { email } = inviteMemberDto;
 
     // 检查邀请者是否是团队成员且有权限
@@ -66,8 +74,13 @@ export class TeamService {
       where: { teamId_userId: { teamId, userId: inviterId } },
     });
 
-    if (!inviterMember || (inviterMember.role !== Role.OWNER && inviterMember.role !== Role.ADMIN)) {
-      throw new BadRequestException('You are not authorized to invite members to this team.');
+    if (
+      !inviterMember ||
+      (inviterMember.role !== Role.OWNER && inviterMember.role !== Role.ADMIN)
+    ) {
+      throw new BadRequestException(
+        'You are not authorized to invite members to this team.',
+      );
     }
 
     // 查找被邀请用户
@@ -129,7 +142,7 @@ export class TeamService {
       where: { userId },
       include: { team: { include: { workspace: true } } },
     });
-    return teamMemberships.map(tm => tm.team);
+    return teamMemberships.map((tm) => tm.team);
   }
 
   /**
@@ -141,14 +154,25 @@ export class TeamService {
    * @returns 更新后的团队成员
    */
   // MARK: - 更新成员角色
-  async updateMemberRole(teamId: string, memberId: string, newRole: Role, currentUserId: string) {
+  async updateMemberRole(
+    teamId: string,
+    memberId: string,
+    newRole: Role,
+    currentUserId: string,
+  ) {
     // 检查当前操作用户是否是团队拥有者或管理员
     const currentUserMembership = await this.prisma.teamMember.findUnique({
       where: { teamId_userId: { teamId, userId: currentUserId } },
     });
 
-    if (!currentUserMembership || (currentUserMembership.role !== Role.OWNER && currentUserMembership.role !== Role.ADMIN)) {
-      throw new BadRequestException('You are not authorized to change member roles.');
+    if (
+      !currentUserMembership ||
+      (currentUserMembership.role !== Role.OWNER &&
+        currentUserMembership.role !== Role.ADMIN)
+    ) {
+      throw new BadRequestException(
+        'You are not authorized to change member roles.',
+      );
     }
 
     // 检查目标成员是否存在于该团队
@@ -166,9 +190,13 @@ export class TeamService {
         where: { teamId, role: Role.OWNER },
       });
       if (owners === 1 && targetMember.userId === currentUserId) {
-        throw new BadRequestException('Cannot demote the last owner of the team.');
+        throw new BadRequestException(
+          'Cannot demote the last owner of the team.',
+        );
       } else if (owners === 1 && targetMember.userId !== currentUserId) {
-        throw new BadRequestException('Only the owner can demote themselves if there are other owners.');
+        throw new BadRequestException(
+          'Only the owner can demote themselves if there are other owners.',
+        );
       }
     }
 
@@ -193,8 +221,14 @@ export class TeamService {
       where: { teamId_userId: { teamId, userId: currentUserId } },
     });
 
-    if (!currentUserMembership || (currentUserMembership.role !== Role.OWNER && currentUserMembership.role !== Role.ADMIN)) {
-      throw new BadRequestException('You are not authorized to remove members.');
+    if (
+      !currentUserMembership ||
+      (currentUserMembership.role !== Role.OWNER &&
+        currentUserMembership.role !== Role.ADMIN)
+    ) {
+      throw new BadRequestException(
+        'You are not authorized to remove members.',
+      );
     }
 
     // 检查目标成员是否存在于该团队
@@ -212,7 +246,9 @@ export class TeamService {
         where: { teamId, role: Role.OWNER },
       });
       if (owners === 1) {
-        throw new BadRequestException('Cannot remove the last owner of the team.');
+        throw new BadRequestException(
+          'Cannot remove the last owner of the team.',
+        );
       }
     }
 

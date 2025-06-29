@@ -123,11 +123,28 @@ model Workspace {
   // --- 新增反向关联 ---
   workflows Workflow[]
   issues    Issue[]
+  projects  Project[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("workspaces")
+}
+
+/// 项目模型 (可选层级)
+model Project {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String    @map("workspace_id")
+  
+  issues      Issue[]   // 属于此项目的所有任务
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("projects")
 }
 
 // =================================================================
@@ -188,6 +205,10 @@ model Issue {
 
   workspace     Workspace     @relation(fields: [workspaceId], references: [id])
   workspaceId   String        @map("workspace_id")
+
+  // 可选的项目关联
+  project       Project?      @relation(fields: [projectId], references: [id])
+  projectId     String?       @map("project_id")
 
   // --- 关键的流转逻辑 ---
   workflow      Workflow?     @relation(fields: [workflowId], references: [id])

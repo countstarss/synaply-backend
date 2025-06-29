@@ -1,4 +1,10 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsDateString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsDateString,
+} from 'class-validator';
 import { IssuePriority, IssueStatus } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -23,6 +29,13 @@ export class CreateIssueDto {
   @IsNotEmpty()
   @IsString()
   workspaceId: string;
+
+  @ApiPropertyOptional({
+    description: 'The project ID of the issue',
+  })
+  @IsOptional()
+  @IsString()
+  projectId?: string;
 
   @ApiPropertyOptional({
     description: 'The workflow ID of the issue',
