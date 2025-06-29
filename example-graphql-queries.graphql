@@ -1,0 +1,510 @@
+# Complex GraphQL Queries for Synaply
+
+# 1. Comprehensive Workspace Dashboard Query
+# This query fetches everything needed for a complete workspace dashboard
+query GetWorkspaceDashboard($workspaceId: ID!) {
+  # Get detailed workspace information
+  myWorkspacesWithDetails {
+    id
+    name
+    type
+    createdAt
+    updatedAt
+    
+    # Owner details
+    user {
+      id
+      email
+      supabaseId
+    }
+    
+    # Team information (if team workspace)
+    team {
+      id
+      name
+      description
+      
+      # All team members with roles
+      teamMembers {
+        id
+        role
+        joinedAt
+        user {
+          id
+          email
+        }
+      }
+    }
+    
+    # All projects in workspace
+    projects {
+      id
+      name
+      description
+      createdAt
+      updatedAt
+      
+      # Issues with full details
+      issues {
+        id
+        title
+        description
+        status
+        priority
+        dueDate
+        
+        # Creator and assignee
+        creator {
+          id
+          email
+        }
+        assignee {
+          id
+          email
+        }
+        
+        # Parent-child relationships
+        parent {
+          id
+          title
+        }
+        
+        # Dependencies
+        dependencies {
+          id
+          dependency {
+            id
+            title
+            status
+          }
+        }
+        
+        # Workflow association
+        workflowStep {
+          id
+          name
+          order
+          workflow {
+            id
+            name
+            status
+          }
+        }
+      }
+    }
+    
+    # Workflows in workspace
+    workflows {
+      id
+      name
+      description
+      status
+      
+      # All steps in order
+      steps {
+        id
+        name
+        description
+        order
+        assignee {
+          id
+          email
+        }
+      }
+    }
+  }
+  
+  # Get workspace statistics
+  workspaceStats(workspaceId: $workspaceId) {
+    totalProjects
+    totalIssues
+    
+    # Issues by status
+    issuesByStatus {
+      status
+      count
+    }
+    
+    # Issues by priority
+    issuesByPriority {
+      priority
+      count
+    }
+    
+    overdueCount
+    
+    # Upcoming deadlines
+    upcomingDeadlines {
+      id
+      title
+      dueDate
+      priority
+      assignee {
+        id
+        email
+      }
+    }
+    
+    teamMemberCount
+  }
+}
+
+# 2. Advanced Issue Search with Deep Filtering
+query SearchIssuesAdvanced(
+  $searchTerm: String!
+  $status: [IssueStatus!]
+  $priority: [IssuePriority!]
+  $assigneeId: ID
+  $projectId: ID
+  $workspaceId: ID
+) {
+  searchIssues(
+    searchTerm: $searchTerm
+    filters: {
+      status: $status
+      priority: $priority
+      assigneeId: $assigneeId
+      projectId: $projectId
+      workspaceId: $workspaceId
+    }
+  ) {
+    id
+    title
+    description
+    status
+    priority
+    dueDate
+    createdAt
+    updatedAt
+    
+    # Full creator details
+    creator {
+      id
+      email
+    }
+    
+    # Full assignee details
+    assignee {
+      id
+      email
+    }
+    
+    # Project context
+    project {
+      id
+      name
+      workspace {
+        id
+        name
+        type
+      }
+    }
+    
+    # Parent task if subtask
+    parent {
+      id
+      title
+      status
+    }
+    
+    # All subtasks
+    children {
+      id
+      title
+      status
+      priority
+      assignee {
+        id
+        email
+      }
+    }
+    
+    # Dependencies
+    dependencies {
+      id
+      dependency {
+        id
+        title
+        status
+        project {
+          id
+          name
+        }
+      }
+    }
+    
+    # Dependent issues
+    dependents {
+      id
+      issue {
+        id
+        title
+        status
+        project {
+          id
+          name
+        }
+      }
+    }
+    
+    # Recent comments
+    comments(limit: 5) {
+      id
+      content
+      createdAt
+      author {
+        id
+        email
+      }
+    }
+    
+    # Recent activity
+    activities(limit: 10) {
+      id
+      action
+      field
+      oldValue
+      newValue
+      createdAt
+      user {
+        id
+        email
+      }
+    }
+  }
+}
+
+# 3. Project Details with Full Dependency Graph
+query GetProjectWithDependencyGraph($projectId: ID!) {
+  projectDetails(projectId: $projectId) {
+    project {
+      id
+      name
+      description
+      createdAt
+      updatedAt
+      
+      # Workspace context
+      workspace {
+        id
+        name
+        type
+        team {
+          id
+          name
+          teamMembers {
+            id
+            role
+            user {
+              id
+              email
+            }
+          }
+        }
+      }
+    }
+    
+    # All issues with complete details
+    issues {
+      id
+      title
+      description
+      status
+      priority
+      dueDate
+      position
+      
+      creator {
+        id
+        email
+      }
+      
+      assignee {
+        id
+        email
+      }
+      
+      # Hierarchical structure
+      parent {
+        id
+        title
+      }
+      
+      children {
+        id
+        title
+        status
+        assignee {
+          id
+          email
+        }
+      }
+      
+      # Workflow integration
+      workflowStep {
+        id
+        name
+        order
+        workflow {
+          id
+          name
+          description
+          status
+        }
+      }
+      
+      # Full comment history
+      comments {
+        id
+        content
+        createdAt
+        updatedAt
+        author {
+          id
+          email
+        }
+      }
+      
+      # Complete activity log
+      activities {
+        id
+        action
+        field
+        oldValue
+        newValue
+        createdAt
+        user {
+          id
+          email
+        }
+      }
+    }
+    
+    # Dependency graph visualization data
+    dependencyGraph {
+      nodes {
+        id
+        title
+        status
+        priority
+        assignee {
+          id
+          email
+        }
+      }
+      
+      edges {
+        from
+        to
+      }
+    }
+  }
+}
+
+# 4. Team Workload Analysis
+query GetTeamWorkloadAnalysis($teamId: ID!) {
+  # Get team details
+  myWorkspacesWithDetails {
+    team {
+      id
+      name
+      description
+      teamMembers {
+        id
+        role
+        user {
+          id
+          email
+        }
+      }
+    }
+  }
+  
+  # Get workload distribution
+  teamWorkload(teamId: $teamId) {
+    member {
+      id
+      email
+    }
+    
+    # Issues by status
+    todoCount
+    inProgressCount
+    blockedCount
+    overdueCount
+    totalActive
+    
+    # Get actual issues for each member
+    # Note: This would require extending the schema
+    # but shows the concept
+  }
+}
+
+# 5. Multi-Workspace Overview Query
+# Fetch data across all accessible workspaces
+query GetMultiWorkspaceOverview {
+  myWorkspacesWithDetails {
+    id
+    name
+    type
+    
+    # Owner or team info
+    user {
+      id
+      email
+    }
+    
+    team {
+      id
+      name
+      teamMembers {
+        id
+        role
+        user {
+          id
+          email
+        }
+      }
+    }
+    
+    # Project summaries
+    projects {
+      id
+      name
+      
+      # Issue counts by status
+      issues {
+        id
+        status
+        priority
+        dueDate
+      }
+    }
+    
+    # Active workflows
+    workflows {
+      id
+      name
+      status
+      steps {
+        id
+        name
+        assignee {
+          id
+          email
+        }
+      }
+    }
+  }
+}
+
+# Example Variables for the queries above:
+# {
+#   "workspaceId": "workspace-123",
+#   "projectId": "project-456",
+#   "teamId": "team-789",
+#   "searchTerm": "bug",
+#   "status": ["TODO", "IN_PROGRESS"],
+#   "priority": ["HIGH", "URGENT"],
+#   "assigneeId": "user-123"
+# }

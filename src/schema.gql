@@ -1,0 +1,252 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Comment {
+  author: TeamMember!
+  authorId: ID!
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  issueId: ID!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DependencyEdge {
+  from: ID!
+  to: ID!
+  type: String!
+}
+
+type DependencyGraph {
+  edges: [DependencyEdge!]!
+  nodes: [DependencyNode!]!
+}
+
+type DependencyNode {
+  id: ID!
+  priority: IssuePriority!
+  status: IssueStatus!
+  title: String!
+}
+
+type Issue {
+  activities: [IssueActivity!]
+  blockingIssues: [IssueDependency!]
+  comments: [Comment!]
+  createdAt: DateTime!
+  creator: TeamMember!
+  creatorId: ID!
+  currentStep: WorkflowStep
+  currentStepId: ID
+  dependsOnIssues: [IssueDependency!]
+  description: String
+  directAssignee: TeamMember
+  directAssigneeId: ID
+  dueDate: DateTime
+  id: ID!
+  parentTask: Issue
+  parentTaskId: ID
+  priority: IssuePriority!
+  project: Project
+  projectId: ID
+  startDate: DateTime
+  status: IssueStatus!
+  subtasks: [Issue!]
+  title: String!
+  updatedAt: DateTime!
+  workflow: Workflow
+  workflowId: ID
+  workspace: Workspace!
+  workspaceId: ID!
+}
+
+type IssueActivity {
+  actor: TeamMember!
+  actorId: ID!
+  comment: String
+  createdAt: DateTime!
+  fromStepName: String
+  id: ID!
+  issueId: ID!
+  toStepName: String!
+}
+
+type IssueDependency {
+  blockerIssue: Issue
+  blockerIssueId: ID!
+  createdAt: DateTime!
+  dependsOnIssue: Issue
+  dependsOnIssueId: ID!
+  id: ID!
+}
+
+"""任务优先级"""
+enum IssuePriority {
+  HIGH
+  LOW
+  NORMAL
+  URGENT
+}
+
+input IssueSearchFilters {
+  assigneeId: ID
+  priority: IssuePriority
+  projectId: ID
+  status: IssueStatus
+  workspaceId: ID
+}
+
+"""任务状态"""
+enum IssueStatus {
+  BLOCKED
+  DONE
+  IN_PROGRESS
+  TODO
+}
+
+type PriorityCount {
+  count: Int!
+  priority: IssuePriority!
+}
+
+type Project {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  name: String!
+  updatedAt: DateTime!
+  workspace: Workspace!
+  workspaceId: ID!
+}
+
+type ProjectDetails {
+  createdAt: DateTime!
+  dependencyGraph: DependencyGraph!
+  description: String
+  id: ID!
+  issues: [Issue!]!
+  name: String!
+  updatedAt: DateTime!
+  workspace: Workspace!
+  workspaceId: ID!
+}
+
+type Query {
+  myWorkspacesWithDetails: [Workspace!]!
+  projectDetails(projectId: ID!): ProjectDetails!
+  searchIssues(filters: IssueSearchFilters, searchTerm: String!): [Issue!]!
+  teamWorkload(teamId: ID!): [TeamMemberWorkload!]!
+  workspaceStats(workspaceId: ID!): WorkspaceStats!
+}
+
+"""团队成员角色"""
+enum Role {
+  ADMIN
+  MEMBER
+  OWNER
+}
+
+type StatusCount {
+  count: Int!
+  status: IssueStatus!
+}
+
+type Team {
+  createdAt: DateTime!
+  id: ID!
+  members: [TeamMember!]
+  name: String!
+  updatedAt: DateTime!
+}
+
+type TeamMember {
+  createdAt: DateTime!
+  id: ID!
+  role: Role!
+  teamId: ID!
+  updatedAt: DateTime!
+  user: User!
+  userId: ID!
+}
+
+type TeamMemberWorkload {
+  blockedCount: Int!
+  inProgressCount: Int!
+  member: TeamMember!
+  overdueCount: Int!
+  todoCount: Int!
+  totalActiveIssues: Int!
+}
+
+type User {
+  avatarUrl: String
+  createdAt: DateTime!
+  email: String!
+  id: ID!
+  name: String
+  updatedAt: DateTime!
+}
+
+type Workflow {
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  status: WorkflowStatus!
+  steps: [WorkflowStep!]
+  updatedAt: DateTime!
+  workspace: Workspace!
+  workspaceId: ID!
+}
+
+"""工作流状态"""
+enum WorkflowStatus {
+  DRAFT
+  PUBLISHED
+}
+
+type WorkflowStep {
+  assignee: TeamMember
+  assigneeId: ID
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  name: String!
+  order: Int!
+  updatedAt: DateTime!
+  workflowId: ID!
+}
+
+type Workspace {
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  team: Team
+  teamId: ID
+  type: WorkspaceType!
+  updatedAt: DateTime!
+  user: User
+  userId: ID
+}
+
+type WorkspaceStats {
+  issuesByPriority: [PriorityCount!]!
+  issuesByStatus: [StatusCount!]!
+  overdueIssues: Int!
+  teamMembersCount: Int!
+  totalIssues: Int!
+  totalProjects: Int!
+  upcomingDeadlines: [Issue!]!
+  workspaceId: ID!
+}
+
+"""工作空间类型"""
+enum WorkspaceType {
+  PERSONAL
+  TEAM
+}

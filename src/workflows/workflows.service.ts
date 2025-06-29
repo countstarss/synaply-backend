@@ -8,6 +8,7 @@ import { WorkflowStatus } from '@prisma/client';
 export class WorkflowsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // MARK: - 创建工作流
   create(workspaceId: string, createWorkflowDto: CreateWorkflowDto) {
     const { name } = createWorkflowDto;
 
@@ -22,6 +23,7 @@ export class WorkflowsService {
     });
   }
 
+  // MARK: - 获取工作流列表
   async findAll(workspaceId: string) {
     return this.prisma.workflow.findMany({
       where: { workspaceId },
@@ -30,6 +32,7 @@ export class WorkflowsService {
     });
   }
 
+  // MARK: - 获取工作流
   async findOne(id: string) {
     const workflow = await this.prisma.workflow.findUnique({
       where: { id },
@@ -41,6 +44,7 @@ export class WorkflowsService {
     return workflow;
   }
 
+  // MARK: - 更新工作流
   async update(id: string, updateWorkflowDto: UpdateWorkflowDto) {
     const { name, status, steps } = updateWorkflowDto;
 
@@ -133,6 +137,7 @@ export class WorkflowsService {
     });
   }
 
+  // MARK: - 删除工作流
   async remove(id: string) {
     // First, delete all associated workflow steps
     await this.prisma.workflowStep.deleteMany({
@@ -145,6 +150,7 @@ export class WorkflowsService {
     });
   }
 
+  // MARK: - 发布工作流
   async publish(id: string) {
     const workflow = await this.prisma.workflow.findUnique({
       where: { id },
