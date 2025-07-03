@@ -3,15 +3,16 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreateIssueDependencyDto } from './dto/create-issue-dependency.dto';
 import { IssuePriority, IssueStatus } from '@prisma/client';
+import { IssueSearchFilters } from 'src/common/graphql/types/query-result.types';
 
 @Injectable()
-export class IssuesService {
+export class IssueService {
   constructor(private readonly prisma: PrismaService) {}
 
   // MARK: - 创建任务
@@ -315,6 +316,60 @@ export class IssuesService {
           dependsOnIssueId: dependsOnIssueId,
         },
       },
+    });
+  }
+
+  async searchIssues(
+    userId: string,
+    searchTerm: string,
+    filters?: IssueSearchFilters,
+  ) {
+    const accessibleWorkspaces = await this.prisma.workspace.findMany({
+      where: {
+        OR: [
+          { userId },
+          {
+            team: {
+              members: {
+                some: { userId },
+              },
+            },
+          },
+        ],
+      },
+      select: { id: true },
+    });
+
+    const workspaceIds = accessibleWorkspaces.map((w) => w.id);
+
+    const whereClause: any = {
+      workspaceId: { in: workspaceIds },
+      OR: [
+        { title: { contains: searchTerm, mode: 'insensitive' } },
+        { description: { contains: searchTerm, mode: 'insensitive' } },
+      ],
+    };
+
+    if (filters) {
+      if (filters.status) whereClause.status = filters.status;
+      if (filters.priority) whereClause.priority = filters.priority;
+      if (filters.assigneeId) whereClause.directAssigneeId = filters.assigneeId;
+      if (filters.projectId) whereClause.projectId = filters.projectId;
+      if (filters.workspaceId && workspaceIds.includes(filters.workspaceId)) {
+        whereClause.workspaceId = filters.workspaceId;
+      }
+    }
+
+    return this.prisma.issue.findMany({
+      where: whereClause,
+      include: {
+        workspace: true,
+        project: true,
+        creator: { include: { user: true } },
+        directAssignee: { include: { user: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 50,
     });
   }
 }

@@ -179,4 +179,29 @@ export class ProjectService {
 
     return workspace;
   }
+
+  async findProjectById(projectId: string, userId: string) {
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: projectId,
+        workspace: {
+          OR: [
+            { userId },
+            {
+              team: {
+                members: {
+                  some: { userId },
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found or access denied');
+    }
+    return project;
+  }
 }

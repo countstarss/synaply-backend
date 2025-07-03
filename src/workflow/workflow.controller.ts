@@ -9,13 +9,13 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { WorkflowsService } from './workflows.service';
+import { WorkflowService } from './workflow.service';
 import { CreateWorkflowDto } from './dto/create-workflow.dto';
 import { UpdateWorkflowDto } from './dto/update-workflow.dto';
 
 @Controller('workspaces/:workspaceId/workflows')
-export class WorkflowsController {
-  constructor(private readonly workflowsService: WorkflowsService) {}
+export class WorkflowController {
+  constructor(private readonly workflowsService: WorkflowService) {}
 
   @Post()
   create(

@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Workspace } from './workspace.type';
+import { Workspace } from 'src/workspace/graphql/workspace.type';
+import { Issue } from 'src/issue/graphql/issue.type';
 
 @ObjectType()
 export class Project {
@@ -17,6 +18,9 @@ export class Project {
 
   @Field(() => Workspace)
   workspace: Workspace;
+
+  @Field(() => [Issue])
+  issues: Issue[];
 
   @Field()
   createdAt: Date;

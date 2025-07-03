@@ -51,4 +51,21 @@ export class WorkspaceService {
       include: { user: true, team: true }, // 包含关联的用户或团队信息
     });
   }
+
+  async findUserWorkspaces(userId: string) {
+    return this.prisma.workspace.findMany({
+      where: {
+        OR: [
+          { userId },
+          {
+            team: {
+              members: {
+                some: { userId },
+              },
+            },
+          },
+        ],
+      },
+    });
+  }
 }

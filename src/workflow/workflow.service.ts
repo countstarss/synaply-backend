@@ -5,7 +5,7 @@ import { UpdateWorkflowDto } from './dto/update-workflow.dto';
 import { WorkflowStatus } from '@prisma/client';
 
 @Injectable()
-export class WorkflowsService {
+export class WorkflowService {
   constructor(private readonly prisma: PrismaService) {}
 
   // MARK: - 创建工作流

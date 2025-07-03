@@ -9,10 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { TeamModule } from './team/team.module';
 import { WorkspaceModule } from './workspace/workspace.module';
-import { WorkflowsModule } from './workflows/workflows.module';
-import { IssuesModule } from './issues/issues.module';
+import { WorkflowModule } from './workflow/workflow.module';
+import { IssueModule } from './issue/issue.module';
 import { ProjectModule } from './project/project.module';
-import { GraphqlModule } from './graphql/graphql.module';
 import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
 import { ConfigModule } from '@nestjs/config';
@@ -34,10 +33,9 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     TeamModule,
     WorkspaceModule,
-    WorkflowsModule,
-    IssuesModule,
+    WorkflowModule,
+    IssueModule,
     ProjectModule,
-    GraphqlModule,
     ChatModule,
     MessageModule,
   ],

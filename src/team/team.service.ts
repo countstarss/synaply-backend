@@ -259,4 +259,64 @@ export class TeamService {
 
     return { message: 'Member removed successfully.' };
   }
+
+  // MARK: - 获取团队成员
+  async getTeamMembers(teamId: string) {
+    return this.prisma.teamMember.findMany({
+      where: { teamId },
+      include: {
+        user: true,
+      },
+    });
+  }
+
+  // MARK: - 获取团队工作负载
+  async getTeamWorkload(teamId: string, userId: string) {
+    const membership = await this.prisma.teamMember.findFirst({
+      where: { teamId, userId },
+    });
+
+    if (!membership) {
+      throw new NotFoundException(
+        'Not a member of this team or team not found',
+      );
+    }
+
+    const members = await this.prisma.teamMember.findMany({
+      where: { teamId },
+    });
+
+    return Promise.all(
+      members.map(async (member) => {
+        const [todoCount, inProgressCount, blockedCount, overdueCount] =
+          await Promise.all([
+            this.prisma.issue.count({
+              where: { directAssigneeId: member.id, status: 'TODO' },
+            }),
+            this.prisma.issue.count({
+              where: { directAssigneeId: member.id, status: 'IN_PROGRESS' },
+            }),
+            this.prisma.issue.count({
+              where: { directAssigneeId: member.id, status: 'BLOCKED' },
+            }),
+            this.prisma.issue.count({
+              where: {
+                directAssigneeId: member.id,
+                status: { not: 'DONE' },
+                dueDate: { lt: new Date() },
+              },
+            }),
+          ]);
+
+        return {
+          member,
+          todoCount,
+          inProgressCount,
+          blockedCount,
+          overdueCount,
+          totalActiveIssues: todoCount + inProgressCount + blockedCount,
+        };
+      }),
+    );
+  }
 }

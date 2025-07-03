@@ -146,7 +146,7 @@ model Chat {
   @@map("chats")
 }
 
-/// MARK: - 聊天会话成员模型
+/// MARK: - 聊天会话成员
 model ChatMember {
   id     String @id @default(uuid())
   chatId String @map("chat_id")

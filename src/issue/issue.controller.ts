@@ -11,7 +11,7 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
-import { IssuesService } from './issues.service';
+import { IssueService } from './issue.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -19,8 +19,8 @@ import { CreateIssueDependencyDto } from './dto/create-issue-dependency.dto';
 import { Request } from 'express';
 
 @Controller('workspaces/:workspaceId/issues')
-export class IssuesController {
-  constructor(private readonly issuesService: IssuesService) {}
+export class IssueController {
+  constructor(private readonly issueService: IssueService) {}
 
   @Post()
   create(
@@ -31,7 +31,7 @@ export class IssuesController {
     // FIXME: 临时处理，后续需要修改 ,后面获取到用户的所有信息之后要挂载到上面req上
     const creatorId =
       req.user?.teamMemberId || 'f17a0b65-be2b-496d-8bc2-72e339403a05'; // Replace with actual logic
-    return this.issuesService.create(creatorId, {
+    return this.issueService.create(creatorId, {
       ...createIssueDto,
       workspaceId,
     });
@@ -42,23 +42,23 @@ export class IssuesController {
     @Param('workspaceId') workspaceId: string,
     @Query('projectId') projectId?: string,
   ) {
-    return this.issuesService.findAll(workspaceId, projectId);
+    return this.issueService.findAll(workspaceId, projectId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.issuesService.findOne(id);
+    return this.issueService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateIssueDto: UpdateIssueDto) {
-    return this.issuesService.update(id, updateIssueDto);
+    return this.issueService.update(id, updateIssueDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
-    return this.issuesService.remove(id);
+    return this.issueService.remove(id);
   }
 
   @Post(':issueId/comments')
@@ -69,7 +69,7 @@ export class IssuesController {
   ) {
     const authorId =
       req.user?.teamMemberId || 'f17a0b65-be2b-496d-8bc2-72e339403a05'; // Replace with actual logic
-    return this.issuesService.addComment(issueId, authorId, createCommentDto);
+    return this.issueService.addComment(issueId, authorId, createCommentDto);
   }
 
   @Post(':issueId/dependencies')
@@ -77,7 +77,7 @@ export class IssuesController {
     @Param('issueId') issueId: string,
     @Body() createIssueDependencyDto: CreateIssueDependencyDto,
   ) {
-    return this.issuesService.addDependency(issueId, createIssueDependencyDto);
+    return this.issueService.addDependency(issueId, createIssueDependencyDto);
   }
 
   @Delete(':issueId/dependencies/:dependsOnIssueId')
@@ -86,6 +86,6 @@ export class IssuesController {
     @Param('issueId') issueId: string,
     @Param('dependsOnIssueId') dependsOnIssueId: string,
   ) {
-    return this.issuesService.removeDependency(issueId, dependsOnIssueId);
+    return this.issueService.removeDependency(issueId, dependsOnIssueId);
   }
 }

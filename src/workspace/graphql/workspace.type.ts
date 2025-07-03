@@ -1,9 +1,9 @@
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
-import { WorkspaceType } from '@prisma/client';
-import { User } from './user.type';
-import { Team } from './team.type';
+import { WorkspaceType as PrismaWorkspaceType } from '@prisma/client';
+import { User } from 'src/user/graphql/user.model';
+import { Team } from 'src/team/graphql/team.model';
 
-registerEnumType(WorkspaceType, {
+registerEnumType(PrismaWorkspaceType, {
   name: 'WorkspaceType',
   description: '工作空间类型',
 });
@@ -16,8 +16,8 @@ export class Workspace {
   @Field()
   name: string;
 
-  @Field(() => WorkspaceType)
-  type: WorkspaceType;
+  @Field(() => PrismaWorkspaceType)
+  type: PrismaWorkspaceType;
 
   @Field(() => ID, { nullable: true })
   userId?: string;

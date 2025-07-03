@@ -1,9 +1,9 @@
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
 import { IssueStatus, IssuePriority } from '@prisma/client';
-import { Workspace } from './workspace.type';
-import { Project } from './project.type';
-import { TeamMember } from './team.type';
-import { Workflow, WorkflowStep } from './workflow.type';
+import { Workspace } from 'src/workspace/graphql/workspace.type';
+import { Project } from 'src/project/graphql/project.type';
+import { TeamMember } from 'src/team/graphql/team.model';
+import { Workflow, WorkflowStep } from 'src/workflow/graphql/workflow.type';
 
 registerEnumType(IssueStatus, {
   name: 'IssueStatus',
@@ -16,56 +16,17 @@ registerEnumType(IssuePriority, {
 });
 
 @ObjectType()
-export class Comment {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  content: string;
-
-  @Field(() => ID)
-  issueId: string;
-
-  @Field(() => ID)
-  authorId: string;
-
-  @Field(() => TeamMember)
-  author: TeamMember;
-
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updatedAt: Date;
+class Comment {
+  @Field(() => ID) id: string;
 }
-
 @ObjectType()
-export class IssueActivity {
-  @Field(() => ID)
-  id: string;
-
-  @Field(() => ID)
-  issueId: string;
-
-  @Field(() => ID)
-  actorId: string;
-
-  @Field(() => TeamMember)
-  actor: TeamMember;
-
-  @Field({ nullable: true })
-  fromStepName?: string;
-
-  @Field()
-  toStepName: string;
-
-  @Field({ nullable: true })
-  comment?: string;
-
-  @Field()
-  createdAt: Date;
+class IssueActivity {
+  @Field(() => ID) id: string;
 }
-
+@ObjectType()
+class IssueDependency {
+  @Field(() => ID) id: string;
+}
 
 @ObjectType()
 export class Issue {
@@ -152,26 +113,4 @@ export class Issue {
 
   @Field()
   updatedAt: Date;
-}
-
-
-@ObjectType()
-export class IssueDependency {
-  @Field(() => ID)
-  id: string;
-
-  @Field(() => ID)
-  blockerIssueId: string;
-
-  @Field(() => ID)
-  dependsOnIssueId: string;
-
-  @Field(() => Issue, { nullable: true })
-  blockerIssue?: Issue;
-
-  @Field(() => Issue, { nullable: true })
-  dependsOnIssue?: Issue;
-
-  @Field()
-  createdAt: Date;
 }
