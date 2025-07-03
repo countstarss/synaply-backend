@@ -12,20 +12,20 @@ datasource db {
 
 /// 用户角色枚举
 enum Role {
-  OWNER  // 拥有者
-  ADMIN  // 管理员
+  OWNER // 拥有者
+  ADMIN // 管理员
   MEMBER // 成员
 }
 
 /// 工作空间类型枚举
 enum WorkspaceType {
   PERSONAL // 个人
-  TEAM     // 团队
+  TEAM // 团队
 }
 
 /// 工作流状态枚举
 enum WorkflowStatus {
-  DRAFT     // 草稿
+  DRAFT // 草稿
   PUBLISHED // 已发布
 }
 
@@ -45,7 +45,21 @@ enum IssuePriority {
   URGENT
 }
 
-/// 用户模型
+/// 聊天类型枚举
+enum ChatType {
+  PRIVATE // 私聊
+  GROUP // 群聊
+}
+
+/// 消息类型枚举
+enum MessageType {
+  TEXT // 文本消息
+  IMAGE // 图片消息
+  FILE // 文件消息
+  SYSTEM // 系统消息 (例如: 成员加入/离开)
+}
+
+/// MARK: - 用户模型
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -63,7 +77,7 @@ model User {
   @@map("users")
 }
 
-/// 团队模型
+/// MARK: - 团队模型
 model Team {
   id        String   @id @default(uuid())
   name      String
@@ -79,7 +93,8 @@ model Team {
   @@map("teams")
 }
 
-/// 团队成员模型 (用户和团队的多对多关系)
+/// MARK: - 团队成员模型
+//  NOTE: 用户和团队的多对多关系
 model TeamMember {
   id     String @id @default(uuid())
   teamId String @map("team_id")
@@ -93,11 +108,16 @@ model TeamMember {
   user User @relation(fields: [userId], references: [id])
 
   // --- 新增反向关联 ---
-  assignedWorkflowSteps WorkflowStep[] // 被指派的流程步骤
-  directlyAssignedIssues Issue[]       @relation("DirectAssignedIssues") // 被直接指派的任务
-  createdIssues          Issue[]       @relation("CreatedIssues") // 创建的任务
+  assignedWorkflowSteps  WorkflowStep[] // 被指派的流程步骤
+  directlyAssignedIssues Issue[]         @relation("DirectAssignedIssues") // 被直接指派的任务
+  createdIssues          Issue[]         @relation("CreatedIssues") // 创建的任务
   issueActivities        IssueActivity[] // 参与的任务活动
   comments               Comment[] // 新增：评论
+
+  // --- 新增聊天相关反向关联 ---
+  createdChats    Chat[]       @relation("CreatedChats") // 创建的聊天会话
+  chatMemberships ChatMember[] @relation("ChatMemberships") // 参与的聊天会话
+  sentMessages    Message[]    @relation("SentMessages") // 发送的消息
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -106,7 +126,74 @@ model TeamMember {
   @@map("team_members")
 }
 
-/// 工作空间模型
+/// MARK: - 聊天会话模型
+model Chat {
+  id          String   @id @default(uuid())
+  type        ChatType
+  name        String?
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  members       ChatMember[]
+  messages      Message[]
+  lastMessageId String?      @unique @map("last_message_id")
+  lastMessage   Message?     @relation("LastChatMessage", fields: [lastMessageId], references: [id], onDelete: SetNull) // 当最后一条消息被删除时，设置为 null
+
+  creatorId String     @map("creator_id")
+  creator   TeamMember @relation("CreatedChats", fields: [creatorId], references: [id])
+
+  @@map("chats")
+}
+
+/// MARK: - 聊天会话成员模型
+model ChatMember {
+  id     String @id @default(uuid())
+  chatId String @map("chat_id")
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade) // 当聊天被删除时，成员也删除
+
+  teamMemberId String     @map("team_member_id")
+  teamMember   TeamMember @relation("ChatMemberships", fields: [teamMemberId], references: [id])
+
+  joinedAt          DateTime @default(now()) @map("joined_at")
+  lastReadMessageId String?  @map("last_read_message_id")
+  lastReadMessage   Message? @relation("LastReadMessage", fields: [lastReadMessageId], references: [id], onDelete: SetNull) // 当消息被删除时，设置为 null
+
+  isAdmin Boolean @default(false) @map("is_admin")
+
+  @@unique([chatId, teamMemberId]) // 一个成员在一个聊天中只能出现一次
+  @@map("chat_members")
+}
+
+/// MARK: - 消息模型
+model Message {
+  id     String @id @default(uuid())
+  chatId String @map("chat_id")
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade) // 当聊天被删除时，消息也删除
+
+  senderId String     @map("sender_id")
+  sender   TeamMember @relation("SentMessages", fields: [senderId], references: [id])
+
+  content   String
+  type      MessageType
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  isEdited  Boolean @default(false) @map("is_edited")
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  repliedToMessageId String?   @map("replied_to_message_id")
+  repliedToMessage   Message?  @relation("MessageReplies", fields: [repliedToMessageId], references: [id], onDelete: SetNull) // 当被回复的消息被删除时，设置为 null
+  replies            Message[] @relation("MessageReplies")
+
+  // 反向关联
+  chatLastMessage            Chat?        @relation("LastChatMessage")
+  chatMemberLastReadMessages ChatMember[] @relation("LastReadMessage")
+
+  @@map("messages")
+}
+
+/// MARK: - 工作空间模型
 model Workspace {
   id     String        @id @default(uuid())
   name   String
@@ -131,18 +218,18 @@ model Workspace {
   @@map("workspaces")
 }
 
-/// 项目模型 (可选层级)
+/// MARK: - 项目模型 (可选层级)
 model Project {
   id          String    @id @default(uuid())
   name        String
   description String?
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   workspaceId String    @map("workspace_id")
-  
-  issues      Issue[]   // 属于此项目的所有任务
-  
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  issues Issue[] // 属于此项目的所有任务
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("projects")
 }
@@ -154,13 +241,13 @@ model Project {
 // 1. 工作流模板 (Workflow Template)
 // 这是用户在前端拖拽设计的“流程图”
 model Workflow {
-  id          String       @id @default(uuid())
-  name        String       // 例如: "新功能开发流程"
+  id          String         @id @default(uuid())
+  name        String // 例如: "新功能开发流程"
   status      WorkflowStatus @default(DRAFT)
-  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
-  workspaceId String       @map("workspace_id")
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id])
+  workspaceId String         @map("workspace_id")
   steps       WorkflowStep[] @relation("WorkflowToSteps")
-  issues      Issue[]      // 所有使用此工作流的任务
+  issues      Issue[] // 所有使用此工作流的任务
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -171,20 +258,20 @@ model Workflow {
 // 2. 工作流步骤 (Workflow Step)
 // 这是构成工作流的每一个节点
 model WorkflowStep {
-  id          String    @id @default(uuid())
-  name        String    // 例如: "API 设计" 或 "UI/UX 设计"
-  description String?   // 对这个步骤的说明
-  order       Int       // 步骤的顺序 (1, 2, 3...)
-  
-  workflow    Workflow  @relation("WorkflowToSteps", fields: [workflowId], references: [id])
-  workflowId  String    @map("workflow_id")
+  id          String  @id @default(uuid())
+  name        String // 例如: "API 设计" 或 "UI/UX 设计"
+  description String? // 对这个步骤的说明
+  order       Int // 步骤的顺序 (1, 2, 3...)
+
+  workflow   Workflow @relation("WorkflowToSteps", fields: [workflowId], references: [id])
+  workflowId String   @map("workflow_id")
 
   // 关键: 定义这个步骤由谁负责
   // 这里我们关联到 TeamMember，这样就知道是哪个团队的哪个成员
   assignee   TeamMember? @relation(fields: [assigneeId], references: [id])
   assigneeId String?     @map("assignee_id")
-  
-  issues      Issue[]   @relation("CurrentStepIssues") // 所有正处于此步骤的任务
+
+  issues Issue[] @relation("CurrentStepIssues") // 所有正处于此步骤的任务
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -192,27 +279,27 @@ model WorkflowStep {
   @@map("workflow_steps")
 }
 
-// 3. 任务 (Issue)
+// MARK: - 3. 任务 (Issue)
 // 任务实例，它会在工作流中流转
 model Issue {
-  id            String        @id @default(uuid())
-  title         String
-  description   String?
-  status        IssueStatus   @default(TODO) // 新增
-  priority      IssuePriority @default(NORMAL) // 新增
-  dueDate       DateTime?     @map("due_date") // 新增
-  startDate     DateTime?     @map("start_date") // 新增
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  status      IssueStatus   @default(TODO) // 新增
+  priority    IssuePriority @default(NORMAL) // 新增
+  dueDate     DateTime?     @map("due_date") // 新增
+  startDate   DateTime?     @map("start_date") // 新增
 
-  workspace     Workspace     @relation(fields: [workspaceId], references: [id])
-  workspaceId   String        @map("workspace_id")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String    @map("workspace_id")
 
   // 可选的项目关联
-  project       Project?      @relation(fields: [projectId], references: [id])
-  projectId     String?       @map("project_id")
+  project   Project? @relation(fields: [projectId], references: [id])
+  projectId String?  @map("project_id")
 
   // --- 关键的流转逻辑 ---
-  workflow      Workflow?     @relation(fields: [workflowId], references: [id])
-  workflowId    String?       @map("workflow_id") // 可选，因为任务可以不走流程
+  workflow   Workflow? @relation(fields: [workflowId], references: [id])
+  workflowId String?   @map("workflow_id") // 可选，因为任务可以不走流程
 
   currentStep   WorkflowStep? @relation("CurrentStepIssues", fields: [currentStepId], references: [id])
   currentStepId String?       @map("current_step_id") // 任务当前所在的步骤
@@ -220,53 +307,54 @@ model Issue {
   directAssignee   TeamMember? @relation("DirectAssignedIssues", fields: [directAssigneeId], references: [id])
   directAssigneeId String?     @map("direct_assignee_id")
 
-  creator       TeamMember    @relation("CreatedIssues", fields: [creatorId], references: [id])
-  creatorId     String        @map("creator_id")
+  creator   TeamMember @relation("CreatedIssues", fields: [creatorId], references: [id])
+  creatorId String     @map("creator_id")
 
-  activities    IssueActivity[]
-  comments      Comment[] // 新增
-  
+  activities IssueActivity[]
+  comments   Comment[] // 新增
+
   // 子任务
-  subtasks      Issue[]       @relation("Subtask") // 新增
-  parentTaskId  String?       @map("parent_task_id") // 新增
-  parentTask    Issue?        @relation("Subtask", fields: [parentTaskId], references: [id]) // 新增
+  subtasks     Issue[] @relation("Subtask") // 新增
+  parentTaskId String? @map("parent_task_id") // 新增
+  parentTask   Issue?  @relation("Subtask", fields: [parentTaskId], references: [id]) // 新增
 
   // 依赖
-  blockingIssues IssueDependency[] @relation("BlockingIssue") // 阻塞此任务的任务
+  blockingIssues  IssueDependency[] @relation("BlockingIssue") // 阻塞此任务的任务
   dependsOnIssues IssueDependency[] @relation("DependsOnIssue") // 此任务依赖的任务
 
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("issues")
 }
 
-// 4. 任务活动日志 (用于追踪历史)
+// MARK: - 4. 任务活动日志
+// NOTE: 用于追踪历史
 model IssueActivity {
-  id        String   @id @default(uuid())
-  issue     Issue    @relation(fields: [issueId], references: [id])
-  issueId   String   @map("issue_id")
-  
-  actor     TeamMember @relation(fields: [actorId], references: [id]) // 操作者
-  actorId   String     @map("actor_id")
-  
-  fromStepName  String?  // "创建" or "API 设计"
-  toStepName    String   // "产品评审"
-  comment       String?  // 提交的交付物或说明
-  
+  id      String @id @default(uuid())
+  issue   Issue  @relation(fields: [issueId], references: [id])
+  issueId String @map("issue_id")
+
+  actor   TeamMember @relation(fields: [actorId], references: [id]) // 操作者
+  actorId String     @map("actor_id")
+
+  fromStepName String? // "创建" or "API 设计"
+  toStepName   String // "产品评审"
+  comment      String? // 提交的交付物或说明
+
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("issue_activities")
 }
 
-// 5. 评论模型
+// MARK: - 5. 评论模型
 model Comment {
-  id        String   @id @default(uuid())
-  content   String
-  issue     Issue    @relation(fields: [issueId], references: [id])
-  issueId   String   @map("issue_id")
-  author    TeamMember @relation(fields: [authorId], references: [id])
-  authorId  String   @map("author_id")
+  id       String     @id @default(uuid())
+  content  String
+  issue    Issue      @relation(fields: [issueId], references: [id])
+  issueId  String     @map("issue_id")
+  author   TeamMember @relation(fields: [authorId], references: [id])
+  authorId String     @map("author_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -274,10 +362,10 @@ model Comment {
   @@map("comments")
 }
 
-// 6. 任务依赖模型
+// MARK: - 6. 任务依赖模型
 model IssueDependency {
-  id          String   @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // 阻塞此任务的任务 (即此任务被 blockerIssueId 阻塞)
   blockerIssueId String @map("blocker_issue_id")
   blockerIssue   Issue  @relation("BlockingIssue", fields: [blockerIssueId], references: [id])
@@ -286,7 +374,7 @@ model IssueDependency {
   dependsOnIssueId String @map("depends_on_issue_id")
   dependsOnIssue   Issue  @relation("DependsOnIssue", fields: [dependsOnIssueId], references: [id])
 
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@unique([blockerIssueId, dependsOnIssueId]) // 一个任务不能两次依赖同一个任务
   @@map("issue_dependencies")
