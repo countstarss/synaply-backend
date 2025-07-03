@@ -1,7 +1,7 @@
 import { Resolver, Query, Context } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { SupabaseAuthGuard } from 'src/auth/supabase-auth.guard';
-import { User } from './user.model';
+import { User } from './user.type';
 import { UserService } from '../user.service';
 
 @Resolver(() => User)

@@ -2,7 +2,7 @@ import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
 import { IssueStatus, IssuePriority } from '@prisma/client';
 import { Workspace } from 'src/workspace/graphql/workspace.type';
 import { Project } from 'src/project/graphql/project.type';
-import { TeamMember } from 'src/team/graphql/team.model';
+import { TeamMember } from 'src/team/graphql/team.type';
 import { Workflow, WorkflowStep } from 'src/workflow/graphql/workflow.type';
 
 registerEnumType(IssueStatus, {

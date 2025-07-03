@@ -9,7 +9,7 @@ import { UseGuards } from '@nestjs/common';
 import { SupabaseAuthGuard } from 'src/auth/supabase-auth.guard';
 import { Workspace } from './workspace.type';
 import { WorkspaceService } from '../workspace.service';
-import { Team } from 'src/team/graphql/team.model';
+import { Team } from 'src/team/graphql/team.type';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Resolver(() => Workspace)

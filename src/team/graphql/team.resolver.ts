@@ -11,7 +11,6 @@ import { UseGuards } from '@nestjs/common';
 import { SupabaseAuthGuard } from 'src/auth/supabase-auth.guard';
 import { Team, TeamMember } from './team.type';
 import { TeamService } from '../team.service';
-import { User } from 'src/user/graphql/user.model';
 import { TeamMemberWorkload } from 'src/common/graphql/types/query-result.types';
 
 @Resolver(() => Team)

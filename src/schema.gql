@@ -2,38 +2,28 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Comment {
-  author: TeamMember!
-  authorId: ID!
-  content: String!
+type Chat {
   createdAt: DateTime!
+  description: String
   id: ID!
-  issueId: ID!
+  name: String
+  type: ChatType!
   updatedAt: DateTime!
+}
+
+enum ChatType {
+  GROUP
+  PRIVATE
+}
+
+type Comment {
+  id: ID!
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
-
-type DependencyEdge {
-  from: ID!
-  to: ID!
-  type: String!
-}
-
-type DependencyGraph {
-  edges: [DependencyEdge!]!
-  nodes: [DependencyNode!]!
-}
-
-type DependencyNode {
-  id: ID!
-  priority: IssuePriority!
-  status: IssueStatus!
-  title: String!
-}
 
 type Issue {
   activities: [IssueActivity!]
@@ -67,22 +57,10 @@ type Issue {
 }
 
 type IssueActivity {
-  actor: TeamMember!
-  actorId: ID!
-  comment: String
-  createdAt: DateTime!
-  fromStepName: String
   id: ID!
-  issueId: ID!
-  toStepName: String!
 }
 
 type IssueDependency {
-  blockerIssue: Issue
-  blockerIssueId: ID!
-  createdAt: DateTime!
-  dependsOnIssue: Issue
-  dependsOnIssueId: ID!
   id: ID!
 }
 
@@ -110,24 +88,23 @@ enum IssueStatus {
   TODO
 }
 
-type PriorityCount {
-  count: Int!
-  priority: IssuePriority!
+type Message {
+  chat: Chat!
+  content: String!
+  createdAt: DateTime!
+  id: ID!
+  type: MessageType!
+}
+
+enum MessageType {
+  FILE
+  IMAGE
+  SYSTEM
+  TEXT
 }
 
 type Project {
   createdAt: DateTime!
-  description: String
-  id: ID!
-  name: String!
-  updatedAt: DateTime!
-  workspace: Workspace!
-  workspaceId: ID!
-}
-
-type ProjectDetails {
-  createdAt: DateTime!
-  dependencyGraph: DependencyGraph!
   description: String
   id: ID!
   issues: [Issue!]!
@@ -138,11 +115,14 @@ type ProjectDetails {
 }
 
 type Query {
-  myWorkspacesWithDetails: [Workspace!]!
-  projectDetails(projectId: ID!): ProjectDetails!
+  chat(id: String!): Chat
+  chats(type: ChatType): [Chat!]!
+  me: User!
+  messages(chatId: String!, cursor: String, limit: Float): [Message!]!
+  myWorkspaces: [Workspace!]!
+  project(projectId: ID!): Project
   searchIssues(filters: IssueSearchFilters, searchTerm: String!): [Issue!]!
   teamWorkload(teamId: ID!): [TeamMemberWorkload!]!
-  workspaceStats(workspaceId: ID!): WorkspaceStats!
 }
 
 """团队成员角色"""
@@ -152,15 +132,10 @@ enum Role {
   OWNER
 }
 
-type StatusCount {
-  count: Int!
-  status: IssueStatus!
-}
-
 type Team {
   createdAt: DateTime!
   id: ID!
-  members: [TeamMember!]
+  members: [TeamMember!]!
   name: String!
   updatedAt: DateTime!
 }
@@ -194,32 +169,11 @@ type User {
 }
 
 type Workflow {
-  createdAt: DateTime!
   id: ID!
-  name: String!
-  status: WorkflowStatus!
-  steps: [WorkflowStep!]
-  updatedAt: DateTime!
-  workspace: Workspace!
-  workspaceId: ID!
-}
-
-"""工作流状态"""
-enum WorkflowStatus {
-  DRAFT
-  PUBLISHED
 }
 
 type WorkflowStep {
-  assignee: TeamMember
-  assigneeId: ID
-  createdAt: DateTime!
-  description: String
   id: ID!
-  name: String!
-  order: Int!
-  updatedAt: DateTime!
-  workflowId: ID!
 }
 
 type Workspace {
@@ -232,17 +186,6 @@ type Workspace {
   updatedAt: DateTime!
   user: User
   userId: ID
-}
-
-type WorkspaceStats {
-  issuesByPriority: [PriorityCount!]!
-  issuesByStatus: [StatusCount!]!
-  overdueIssues: Int!
-  teamMembersCount: Int!
-  totalIssues: Int!
-  totalProjects: Int!
-  upcomingDeadlines: [Issue!]!
-  workspaceId: ID!
 }
 
 """工作空间类型"""

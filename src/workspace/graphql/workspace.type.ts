@@ -1,7 +1,7 @@
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
 import { WorkspaceType as PrismaWorkspaceType } from '@prisma/client';
-import { User } from 'src/user/graphql/user.model';
-import { Team } from 'src/team/graphql/team.model';
+import { User } from 'src/user/graphql/user.type';
+import { Team } from 'src/team/graphql/team.type';
 
 registerEnumType(PrismaWorkspaceType, {
   name: 'WorkspaceType',
