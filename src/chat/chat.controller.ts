@@ -1,37 +1,50 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  Request,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateGroupChatDto, CreatePrivateChatDto } from './dto/create-chat.dto';
+import {
+  CreateGroupChatDto,
+  CreatePrivateChatDto,
+} from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { AddChatMembersDto } from './dto/add-chat-members.dto';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
-import { TeamMemberId } from '../common/decorators/team-member-id.decorator';
 
 @Controller('chats')
-@UseGuards(SupabaseAuthGuard) // 使用 SupabaseAuthGuard
+@UseGuards(SupabaseAuthGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post('group')
   createGroupChat(
-    @TeamMemberId() creatorId: string,
+    @Request() req,
     @Body() createGroupChatDto: CreateGroupChatDto,
   ) {
+    const creatorId = req.user.teamMemberId;
     return this.chatService.createGroupChat(creatorId, createGroupChatDto);
   }
 
   @Post('private')
   createPrivateChat(
-    @TeamMemberId() creatorId: string,
+    @Request() req,
     @Body() createPrivateChatDto: CreatePrivateChatDto,
   ) {
+    const creatorId = req.user.teamMemberId;
     return this.chatService.createPrivateChat(creatorId, createPrivateChatDto);
   }
 
   @Get()
-  findAllChats(
-    @TeamMemberId() teamMemberId: string,
-    @Query('type') type?: 'private' | 'group',
-  ) {
+  findAllChats(@Request() req, @Query('type') type?: 'private' | 'group') {
+    const teamMemberId = req.user.teamMemberId;
     return this.chatService.findAllChats(teamMemberId, type);
   }
 
@@ -70,10 +83,8 @@ export class ChatController {
   }
 
   @Post(':chatId/leave')
-  leaveGroupChat(
-    @Param('chatId') chatId: string,
-    @TeamMemberId() teamMemberId: string,
-  ) {
+  leaveGroupChat(@Request() req, @Param('chatId') chatId: string) {
+    const teamMemberId = req.user.teamMemberId;
     return this.chatService.leaveGroupChat(chatId, teamMemberId);
   }
 }

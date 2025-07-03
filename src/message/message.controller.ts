@@ -1,21 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
-import { TeamMemberId } from '../common/decorators/team-member-id.decorator';
 
 @Controller('chats/:chatId/messages')
-@UseGuards(SupabaseAuthGuard) // 使用 SupabaseAuthGuard
+@UseGuards(SupabaseAuthGuard)
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post()
   createMessage(
-    @TeamMemberId() senderId: string,
+    @Request() req,
     @Param('chatId') chatId: string,
     @Body() createMessageDto: CreateMessageDto,
   ) {
+    const senderId = req.user.teamMemberId;
+    // 修复参数顺序：正确的应该是 (senderId, chatId, dto)
     return this.messageService.createMessage(
       senderId,
       chatId,
@@ -29,6 +41,8 @@ export class MessageController {
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: number,
   ) {
+    // Note: This method in the service doesn't perform auth checks,
+    // but the Guard protects the route.
     return this.messageService.findMessagesByChatId(chatId, cursor, limit);
   }
 
@@ -36,21 +50,28 @@ export class MessageController {
   updateMessage(
     @Param('messageId') messageId: string,
     @Body() updateMessageDto: UpdateMessageDto,
+    // @Request() req, // teamMemberId check should be in service
   ) {
+    // const teamMemberId = req.user.teamMemberId;
     return this.messageService.updateMessage(messageId, updateMessageDto);
   }
 
   @Delete(':messageId')
-  deleteMessage(@Param('messageId') messageId: string) {
+  deleteMessage(
+    @Param('messageId') messageId: string,
+    // @Request() req, // teamMemberId check should be in service
+  ) {
+    // const teamMemberId = req.user.teamMemberId;
     return this.messageService.deleteMessage(messageId);
   }
 
   @Post(':messageId/read')
   markMessageAsRead(
+    @Request() req,
     @Param('chatId') chatId: string,
-    @TeamMemberId() teamMemberId: string,
     @Param('messageId') messageId: string,
   ) {
+    const teamMemberId = req.user.teamMemberId;
     return this.messageService.markMessageAsRead(
       chatId,
       teamMemberId,
