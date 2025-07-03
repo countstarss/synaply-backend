@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 配置Swagger
+  // Swagger 配置
   const config = new DocumentBuilder()
     .setTitle('Synaply API')
     .setDescription('Synaply项目的API文档')
@@ -22,10 +22,10 @@ async function bootstrap() {
       },
       'JWT-auth',
     )
+    .addBearerAuth()
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api-docs', app, document);
 
   await app.listen(5678);
 }

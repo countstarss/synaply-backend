@@ -14,13 +14,23 @@ import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiParam,
+} from '@nestjs/swagger';
 
+@ApiTags('Message')
+@ApiBearerAuth()
 @Controller('chats/:chatId/messages')
 @UseGuards(SupabaseAuthGuard)
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post()
+  @ApiOperation({ summary: '在指定聊天中发送消息' })
+  @ApiParam({ name: 'chatId', description: '目标聊天的ID' })
   createMessage(
     @Request() req,
     @Param('chatId') chatId: string,
@@ -36,6 +46,8 @@ export class MessageController {
   }
 
   @Get()
+  @ApiOperation({ summary: '获取指定聊天的消息列表（分页）' })
+  @ApiParam({ name: 'chatId', description: '目标聊天的ID' })
   findMessagesByChatId(
     @Param('chatId') chatId: string,
     @Query('cursor') cursor?: string,
@@ -47,6 +59,9 @@ export class MessageController {
   }
 
   @Patch(':messageId')
+  @ApiOperation({ summary: '编辑已发送的消息（仅限发送者）' })
+  @ApiParam({ name: 'chatId', description: '消息所在聊天的ID' })
+  @ApiParam({ name: 'messageId', description: '要编辑的消息的ID' })
   updateMessage(
     @Param('messageId') messageId: string,
     @Body() updateMessageDto: UpdateMessageDto,
@@ -57,6 +72,9 @@ export class MessageController {
   }
 
   @Delete(':messageId')
+  @ApiOperation({ summary: '删除已发送的消息（仅限发送者，软删除）' })
+  @ApiParam({ name: 'chatId', description: '消息所在聊天的ID' })
+  @ApiParam({ name: 'messageId', description: '要删除的消息的ID' })
   deleteMessage(
     @Param('messageId') messageId: string,
     // @Request() req, // teamMemberId check should be in service
@@ -66,6 +84,9 @@ export class MessageController {
   }
 
   @Post(':messageId/read')
+  @ApiOperation({ summary: '将消息标记为已读' })
+  @ApiParam({ name: 'chatId', description: '消息所在聊天的ID' })
+  @ApiParam({ name: 'messageId', description: '最后一条已读消息的ID' })
   markMessageAsRead(
     @Request() req,
     @Param('chatId') chatId: string,
