@@ -60,7 +60,7 @@ export class ProjectService {
 
   async findAll(workspaceId: string, userId: string) {
     // 验证用户有权访问该工作空间
-    const workspace = await this.validateWorkspaceAccess(workspaceId, userId);
+    await this.validateWorkspaceAccess(workspaceId, userId);
 
     return this.prisma.project.findMany({
       where: { workspaceId },

@@ -50,7 +50,7 @@ export class WorkflowService {
 
     return this.prisma.$transaction(async (tx) => {
       // 1. Update Workflow (name and status)
-      const updatedWorkflow = await tx.workflow.update({
+      await tx.workflow.update({
         where: { id },
         data: {
           name,

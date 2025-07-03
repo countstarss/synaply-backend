@@ -14,9 +14,10 @@ export class SupabaseAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // 判断请求类型，分别处理 HTTP 和 GraphQL 请求
-    const req = context.getType() === 'http'
-      ? context.switchToHttp().getRequest()
-      : GqlExecutionContext.create(context).getContext().req;
+    const req =
+      context.getType() === 'http'
+        ? context.switchToHttp().getRequest()
+        : GqlExecutionContext.create(context).getContext().req;
 
     // 获取 Authorization header 中的 token（Bearer xxx）
     const token = req.headers['authorization']?.replace('Bearer ', '');

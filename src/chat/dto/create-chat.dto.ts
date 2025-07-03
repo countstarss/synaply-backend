@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsOptional, IsArray, ArrayMinSize } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsArray,
+  ArrayMinSize,
+} from 'class-validator';
 
 export class CreateGroupChatDto {
   @IsString()

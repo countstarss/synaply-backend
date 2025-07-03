@@ -8,7 +8,9 @@ import { JwtModule } from '@nestjs/jwt';
   imports: [
     PrismaModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'super-secret-jwt-token-with-at-least-32-characters-long', // 确保与后端 JWT 密钥一致
+      secret:
+        process.env.JWT_SECRET ||
+        'super-secret-jwt-token-with-at-least-32-characters-long', // 确保与后端 JWT 密钥一致
       signOptions: { expiresIn: '1h' }, // 根据需要设置过期时间
     }),
   ],
