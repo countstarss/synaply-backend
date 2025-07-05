@@ -13,6 +13,7 @@ import { Role } from '@prisma/client';
 export class ProjectService {
   constructor(private prisma: PrismaService) {}
 
+  // MARK: 创建项目
   async create(
     createProjectDto: CreateProjectDto,
     workspaceId: string,
@@ -58,6 +59,7 @@ export class ProjectService {
     });
   }
 
+  // MARK: 获取项目列表
   async findAll(workspaceId: string, userId: string) {
     // 验证用户有权访问该工作空间
     await this.validateWorkspaceAccess(workspaceId, userId);
@@ -68,6 +70,7 @@ export class ProjectService {
     });
   }
 
+  // MARK: 获取项目详情
   async findOne(id: string, userId: string) {
     const project = await this.prisma.project.findUnique({
       where: { id },
@@ -94,6 +97,7 @@ export class ProjectService {
     return project;
   }
 
+  // MARK: 更新项目
   async update(id: string, updateProjectDto: UpdateProjectDto, userId: string) {
     const project = await this.findOne(id, userId);
 
@@ -116,6 +120,7 @@ export class ProjectService {
     });
   }
 
+  // MARK: 删除项目
   async remove(id: string, userId: string) {
     const project = await this.findOne(id, userId);
 
@@ -148,6 +153,7 @@ export class ProjectService {
     });
   }
 
+  // MARK: 验证用户有权访问工作空间
   private async validateWorkspaceAccess(workspaceId: string, userId: string) {
     const workspace = await this.prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -180,6 +186,7 @@ export class ProjectService {
     return workspace;
   }
 
+  // MARK: 根据ID获取项目
   async findProjectById(projectId: string, userId: string) {
     const project = await this.prisma.project.findFirst({
       where: {
@@ -200,7 +207,7 @@ export class ProjectService {
     });
 
     if (!project) {
-      throw new NotFoundException('Project not found or access denied');
+      throw new NotFoundException('项目不存在或无权限访问');
     }
     return project;
   }

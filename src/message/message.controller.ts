@@ -28,6 +28,7 @@ import {
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
+  // MARK: 在指定聊天中发送消息
   @Post()
   @ApiOperation({ summary: '在指定聊天中发送消息' })
   @ApiParam({ name: 'chatId', description: '目标聊天的ID' })
@@ -45,6 +46,8 @@ export class MessageController {
     );
   }
 
+  // MARK: 获取指定聊天的消息列表
+  // NOTE: （分页）
   @Get()
   @ApiOperation({ summary: '获取指定聊天的消息列表（分页）' })
   @ApiParam({ name: 'chatId', description: '目标聊天的ID' })
@@ -58,6 +61,7 @@ export class MessageController {
     return this.messageService.findMessagesByChatId(chatId, cursor, limit);
   }
 
+  // MARK: 编辑已发送的消息
   @Patch(':messageId')
   @ApiOperation({ summary: '编辑已发送的消息（仅限发送者）' })
   @ApiParam({ name: 'chatId', description: '消息所在聊天的ID' })
@@ -71,6 +75,7 @@ export class MessageController {
     return this.messageService.updateMessage(messageId, updateMessageDto);
   }
 
+  // MARK: 删除已发送的消息
   @Delete(':messageId')
   @ApiOperation({ summary: '删除已发送的消息（仅限发送者，软删除）' })
   @ApiParam({ name: 'chatId', description: '消息所在聊天的ID' })
@@ -83,6 +88,7 @@ export class MessageController {
     return this.messageService.deleteMessage(messageId);
   }
 
+  // MARK: 将消息标记为已读
   @Post(':messageId/read')
   @ApiOperation({ summary: '将消息标记为已读' })
   @ApiParam({ name: 'chatId', description: '消息所在聊天的ID' })

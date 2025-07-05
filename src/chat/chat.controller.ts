@@ -32,6 +32,7 @@ import {
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
+  // MARK: 创建群聊
   @Post('group')
   @ApiOperation({ summary: '创建群聊' })
   createGroupChat(
@@ -42,6 +43,7 @@ export class ChatController {
     return this.chatService.createGroupChat(creatorId, createGroupChatDto);
   }
 
+  // MARK: 创建或获取私聊
   @Post('private')
   @ApiOperation({ summary: '创建或获取私聊' })
   createPrivateChat(
@@ -52,6 +54,7 @@ export class ChatController {
     return this.chatService.createPrivateChat(creatorId, createPrivateChatDto);
   }
 
+  // MARK: 获取用户所有聊天
   @Get()
   @ApiOperation({ summary: '获取当前用户的所有聊天会话' })
   findAllChats(@Request() req, @Query('type') type?: 'private' | 'group') {
@@ -59,6 +62,7 @@ export class ChatController {
     return this.chatService.findAllChats(teamMemberId, type);
   }
 
+  // MARK: 获取单个聊天信息
   @Get(':chatId')
   @ApiOperation({ summary: '获取单个聊天会话的详细信息' })
   @ApiParam({ name: 'chatId', description: '聊天会话的ID' })
@@ -66,6 +70,7 @@ export class ChatController {
     return this.chatService.findOneChat(chatId);
   }
 
+  // MARK: 更新群聊信息
   @Patch(':chatId')
   @ApiOperation({ summary: '更新群聊信息（仅限管理员）' })
   @ApiParam({ name: 'chatId', description: '群聊的ID' })
@@ -76,6 +81,7 @@ export class ChatController {
     return this.chatService.updateChat(chatId, updateChatDto);
   }
 
+  // MARK: 删除聊天会话
   @Delete(':chatId')
   @ApiOperation({ summary: '删除聊天会话（仅限创建者）' })
   @ApiParam({ name: 'chatId', description: '聊天会话的ID' })
@@ -83,6 +89,7 @@ export class ChatController {
     return this.chatService.deleteChat(chatId);
   }
 
+  // MARK: 向群聊添加新成员
   @Post(':chatId/members')
   @ApiOperation({ summary: '向群聊添加新成员（仅限管理员）' })
   @ApiParam({ name: 'chatId', description: '群聊的ID' })
@@ -93,6 +100,7 @@ export class ChatController {
     return this.chatService.addMembersToGroupChat(chatId, addChatMembersDto);
   }
 
+  // MARK: 从群聊移除成员
   @Delete(':chatId/members/:teamMemberId')
   @ApiOperation({ summary: '从群聊移除成员（仅限管理员）' })
   @ApiParam({ name: 'chatId', description: '群聊的ID' })
@@ -107,6 +115,7 @@ export class ChatController {
     return this.chatService.removeMemberFromGroupChat(chatId, teamMemberId);
   }
 
+  // MARK: 当前用户退出群聊
   @Post(':chatId/leave')
   @ApiOperation({ summary: '当前用户退出群聊' })
   @ApiParam({ name: 'chatId', description: '群聊的ID' })

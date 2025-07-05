@@ -22,6 +22,7 @@ import { Request } from 'express';
 export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
+  // MARK: 创建任务
   @Post()
   create(
     @Param('workspaceId') workspaceId: string,
@@ -37,6 +38,7 @@ export class IssueController {
     });
   }
 
+  // MARK: 获取任务列表
   @Get()
   findAll(
     @Param('workspaceId') workspaceId: string,
@@ -45,22 +47,26 @@ export class IssueController {
     return this.issueService.findAll(workspaceId, projectId);
   }
 
+  // MARK: 获取任务详情
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.issueService.findOne(id);
   }
 
+  // MARK: 更新任务
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateIssueDto: UpdateIssueDto) {
     return this.issueService.update(id, updateIssueDto);
   }
 
+  // MARK: 删除任务
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.issueService.remove(id);
   }
 
+  // MARK: 添加评论
   @Post(':issueId/comments')
   addComment(
     @Param('issueId') issueId: string,
@@ -72,6 +78,7 @@ export class IssueController {
     return this.issueService.addComment(issueId, authorId, createCommentDto);
   }
 
+  // MARK: 添加依赖
   @Post(':issueId/dependencies')
   addDependency(
     @Param('issueId') issueId: string,
@@ -80,6 +87,7 @@ export class IssueController {
     return this.issueService.addDependency(issueId, createIssueDependencyDto);
   }
 
+  // MARK: 删除依赖
   @Delete(':issueId/dependencies/:dependsOnIssueId')
   @HttpCode(HttpStatus.NO_CONTENT)
   removeDependency(

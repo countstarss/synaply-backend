@@ -11,6 +11,7 @@ export class WorkspaceService {
    * @param userId 用户 ID
    * @returns 工作空间列表
    */
+  // MARK: 获取用户所有工作空间
   async getUserWorkspaces(userId: string) {
     // 获取个人工作空间
     const personalWorkspaces = await this.prisma.workspace.findMany({
@@ -45,6 +46,7 @@ export class WorkspaceService {
    * @param workspaceId 工作空间 ID
    * @returns 工作空间对象
    */
+  // MARK: 根据ID获取空间详情
   async getWorkspaceById(workspaceId: string) {
     return this.prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -52,6 +54,7 @@ export class WorkspaceService {
     });
   }
 
+  // MARK: 获取用户所有工作空间
   async findUserWorkspaces(userId: string) {
     return this.prisma.workspace.findMany({
       where: {

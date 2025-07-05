@@ -12,6 +12,7 @@ export class WorkspaceController {
    * @param req 请求对象，包含当前用户 ID
    * @returns 工作空间列表
    */
+  // MARK: 获取用户所有工作空间
   @Get()
   async getUserWorkspaces(@Req() req) {
     const userId = req.user.sub;
@@ -23,6 +24,7 @@ export class WorkspaceController {
    * @param workspaceId 工作空间 ID
    * @returns 工作空间对象
    */
+  // MARK: 根据ID获取空间详情
   @Get(':workspaceId')
   async getWorkspaceById(@Param('workspaceId') workspaceId: string) {
     return this.workspaceService.getWorkspaceById(workspaceId);

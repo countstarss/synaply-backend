@@ -8,6 +8,7 @@ import {
 import { IssuePriority, IssueStatus } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+// MARK: - CreateIssueDto
 export class CreateIssueDto {
   @ApiProperty({
     description: 'The title of the issue',

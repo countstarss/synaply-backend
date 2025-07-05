@@ -6,6 +6,7 @@ import {
 } from '@prisma/client';
 import { TeamMember } from '@prisma/client';
 
+// MARK: - Chat
 export class Chat implements PrismaChat {
   id: string;
   type: ChatType;
@@ -22,6 +23,7 @@ export class Chat implements PrismaChat {
   creator?: TeamMember;
 }
 
+// MARK: - ChatMember
 export class ChatMember implements PrismaChatMember {
   id: string;
   chatId: string;
@@ -35,6 +37,7 @@ export class ChatMember implements PrismaChatMember {
   lastReadMessage?: Message;
 }
 
+// MARK: - Message
 export class Message implements PrismaMessage {
   id: string;
   chatId: string;

@@ -23,6 +23,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
+  // MARK: 创建项目
   @Post()
   @ApiOperation({ summary: '创建项目' })
   create(
@@ -35,6 +36,7 @@ export class ProjectController {
     return this.projectService.create(createProjectDto, workspaceId, userId);
   }
 
+  // MARK: 获取工作空间下的所有项目
   @Get()
   @ApiOperation({ summary: '获取工作空间下的所有项目' })
   findAll(
@@ -45,6 +47,7 @@ export class ProjectController {
     return this.projectService.findAll(workspaceId, userId);
   }
 
+  // MARK: 获取项目详情
   @Get(':id')
   @ApiOperation({ summary: '获取项目详情' })
   findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
@@ -52,6 +55,7 @@ export class ProjectController {
     return this.projectService.findOne(id, userId);
   }
 
+  // MARK: 更新项目
   @Patch(':id')
   @ApiOperation({ summary: '更新项目' })
   update(
@@ -63,6 +67,7 @@ export class ProjectController {
     return this.projectService.update(id, updateProjectDto, userId);
   }
 
+  // MARK: 删除项目
   @Delete(':id')
   @ApiOperation({ summary: '删除项目' })
   remove(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
