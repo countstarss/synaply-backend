@@ -59,6 +59,19 @@ enum MessageType {
   SYSTEM // 系统消息 (例如: 成员加入/离开)
 }
 
+/// 内容可见性类型枚举
+/// 权限控制说明：
+/// - PRIVATE: 仅创建者可见和编辑
+/// - TEAM_READONLY: 团队成员可查看，但只有创建者可编辑
+/// - TEAM_EDITABLE: 团队成员可查看和编辑
+/// - PUBLIC: 完全公开（为未来扩展预留）
+enum VisibilityType {
+  PRIVATE // 仅创建者可见和编辑
+  TEAM_READONLY // 团队成员可查看，但不能编辑
+  TEAM_EDITABLE // 团队成员可查看和编辑
+  PUBLIC // 完全公开（为未来扩展预留）
+}
+
 /// MARK: - 用户模型
 model User {
   id        String   @id @default(uuid())
@@ -112,12 +125,16 @@ model TeamMember {
   directlyAssignedIssues Issue[]         @relation("DirectAssignedIssues") // 被直接指派的任务
   createdIssues          Issue[]         @relation("CreatedIssues") // 创建的任务
   issueActivities        IssueActivity[] // 参与的任务活动
-  comments               Comment[] // 新增：评论
+  comments               Comment[] // 评论
 
   // --- 新增聊天相关反向关联 ---
   createdChats    Chat[]       @relation("CreatedChats") // 创建的聊天会话
   chatMemberships ChatMember[] @relation("ChatMemberships") // 参与的聊天会话
   sentMessages    Message[]    @relation("SentMessages") // 发送的消息
+
+  // --- 新增：团队内容创建关联 ---
+  createdProjects  Project[]  @relation("CreatedProjects") // 创建的项目
+  createdWorkflows Workflow[] @relation("CreatedWorkflows") // 创建的工作流
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -226,6 +243,11 @@ model Project {
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   workspaceId String    @map("workspace_id")
 
+  // 新增：创建者和可见性控制
+  creator    TeamMember     @relation("CreatedProjects", fields: [creatorId], references: [id])
+  creatorId  String         @map("creator_id")
+  visibility VisibilityType @default(PRIVATE) // 项目可见性权限
+
   issues Issue[] // 属于此项目的所有任务
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -239,15 +261,21 @@ model Project {
 // =================================================================
 
 // 1. 工作流模板 (Workflow Template)
-// 这是用户在前端拖拽设计的“流程图”
+// 这是用户在前端拖拽设计的"流程图"
 model Workflow {
   id          String         @id @default(uuid())
   name        String // 例如: "新功能开发流程"
   status      WorkflowStatus @default(DRAFT)
   workspace   Workspace      @relation(fields: [workspaceId], references: [id])
   workspaceId String         @map("workspace_id")
-  steps       WorkflowStep[] @relation("WorkflowToSteps")
-  issues      Issue[] // 所有使用此工作流的任务
+
+  // 新增：创建者和可见性控制
+  creator    TeamMember     @relation("CreatedWorkflows", fields: [creatorId], references: [id])
+  creatorId  String         @map("creator_id")
+  visibility VisibilityType @default(PRIVATE) // 工作流可见性权限
+
+  steps  WorkflowStep[] @relation("WorkflowToSteps")
+  issues Issue[] // 所有使用此工作流的任务
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -285,10 +313,10 @@ model Issue {
   id          String        @id @default(uuid())
   title       String
   description String?
-  status      IssueStatus   @default(TODO) // 新增
-  priority    IssuePriority @default(NORMAL) // 新增
-  dueDate     DateTime?     @map("due_date") // 新增
-  startDate   DateTime?     @map("start_date") // 新增
+  status      IssueStatus   @default(TODO)
+  priority    IssuePriority @default(NORMAL)
+  dueDate     DateTime?     @map("due_date")
+  startDate   DateTime?     @map("start_date")
 
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   workspaceId String    @map("workspace_id")
@@ -310,13 +338,16 @@ model Issue {
   creator   TeamMember @relation("CreatedIssues", fields: [creatorId], references: [id])
   creatorId String     @map("creator_id")
 
+  // 新增：可见性控制（Issue默认跟随其所在的项目或工作流的设置）
+  visibility VisibilityType @default(PRIVATE) // 任务可见性权限
+
   activities IssueActivity[]
-  comments   Comment[] // 新增
+  comments   Comment[]
 
   // 子任务
-  subtasks     Issue[] @relation("Subtask") // 新增
-  parentTaskId String? @map("parent_task_id") // 新增
-  parentTask   Issue?  @relation("Subtask", fields: [parentTaskId], references: [id]) // 新增
+  subtasks     Issue[] @relation("Subtask")
+  parentTaskId String? @map("parent_task_id")
+  parentTask   Issue?  @relation("Subtask", fields: [parentTaskId], references: [id])
 
   // 依赖
   blockingIssues  IssueDependency[] @relation("BlockingIssue") // 阻塞此任务的任务
