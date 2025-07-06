@@ -5,6 +5,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // 配置CORS
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'], // 允许的前端域名
+    credentials: true, // 允许携带cookie
+  });
+
   // 配置Swagger
   const config = new DocumentBuilder()
     .setTitle('Synaply API')
