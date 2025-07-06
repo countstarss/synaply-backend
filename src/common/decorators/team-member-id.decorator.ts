@@ -2,9 +2,14 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
 export const TeamMemberId = createParamDecorator(
-  (data: unknown, context: ExecutionContext) => {
-    const ctx = GqlExecutionContext.create(context);
-    const request = ctx.getContext().req;
-    return request.user?.teamMemberId;
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.getType() === 'http'
+      ? ctx.switchToHttp().getRequest()
+      : GqlExecutionContext.create(ctx).getContext().req;
+
+    if (request.user && request.user.sub) {
+      return request.user.sub; // 返回 Supabase User ID
+    }
+    return null;
   },
 );

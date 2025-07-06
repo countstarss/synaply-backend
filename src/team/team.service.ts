@@ -270,6 +270,13 @@ export class TeamService {
     });
   }
 
+  // MARK: - 根据用户ID获取团队成员
+  async findTeamMemberByUserId(userId: string) {
+    return this.prisma.teamMember.findFirst({
+      where: { userId: userId },
+    });
+  }
+
   // MARK: - 获取团队工作负载
   async getTeamWorkload(teamId: string, userId: string) {
     const membership = await this.prisma.teamMember.findFirst({

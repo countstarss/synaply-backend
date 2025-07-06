@@ -237,4 +237,25 @@ export class TeamController {
     const currentUserId = req.user.sub;
     return this.teamService.removeMember(teamId, memberId, currentUserId);
   }
+
+  /**
+   * MARK: - 根据用户ID获取团队成员
+   * @param userId 用户 ID
+   * @returns 团队成员信息
+   */
+  @Get('by-user-id/:userId')
+  @ApiOperation({
+    summary: '根据用户ID获取团队成员',
+    description: '根据 Supabase 用户ID获取对应的团队成员信息',
+  })
+  @ApiParam({ name: 'userId', description: 'Supabase 用户ID' })
+  @ApiResponse({
+    status: 200,
+    description: '获取团队成员成功',
+    type: TeamMemberDto,
+  })
+  @ApiResponse({ status: 404, description: '团队成员不存在' })
+  async findTeamMemberByUserId(@Param('userId') userId: string) {
+    return this.teamService.findTeamMemberByUserId(userId);
+  }
 }

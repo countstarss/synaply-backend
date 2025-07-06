@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Request,
+  NotFoundException,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -20,25 +21,42 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
+import { PrismaService } from '../prisma/prisma.service'; // 导入 PrismaService
 
 @ApiTags('Message')
 @ApiBearerAuth()
 @Controller('chats/:chatId/messages')
 @UseGuards(SupabaseAuthGuard)
 export class MessageController {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly prisma: PrismaService, // 注入 PrismaService
+  ) {}
 
   // MARK: 在指定聊天中发送消息
   @Post()
   @ApiOperation({ summary: '在指定聊天中发送消息' })
   @ApiParam({ name: 'chatId', description: '目标聊天的ID' })
-  createMessage(
+  async createMessage(
     @Request() req,
     @Param('chatId') chatId: string,
     @Body() createMessageDto: CreateMessageDto,
   ) {
-    const senderId = req.user.teamMemberId;
-    // 修复参数顺序：正确的应该是 (senderId, chatId, dto)
+    const userId = req.user.sub as string; // 从 JWT payload 中获取 Supabase User ID
+
+    // 根据 userId 查询对应的 TeamMemberId
+    const teamMember = await this.prisma.teamMember.findFirst({
+      where: { userId: userId },
+    });
+
+    if (!teamMember) {
+      throw new NotFoundException(
+        'TeamMember not found for the authenticated user.',
+      );
+    }
+
+    const senderId = teamMember.id; // 获取 TeamMember 的 ID
+
     return this.messageService.createMessage(
       senderId,
       chatId,
@@ -98,7 +116,7 @@ export class MessageController {
     @Param('chatId') chatId: string,
     @Param('messageId') messageId: string,
   ) {
-    const teamMemberId = req.user.teamMemberId;
+    const teamMemberId = req.user.sub as string;
     return this.messageService.markMessageAsRead(
       chatId,
       teamMemberId,
