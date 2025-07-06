@@ -14,6 +14,7 @@ import { IssueModule } from './issue/issue.module';
 import { ProjectModule } from './project/project.module';
 import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
+import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -30,6 +31,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     PrismaModule,
     AuthModule,
+    CommonModule,
     UserModule,
     TeamModule,
     WorkspaceModule,

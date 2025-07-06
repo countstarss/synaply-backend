@@ -1,51 +1,152 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateWorkflowDto } from './dto/create-workflow.dto';
 import { UpdateWorkflowDto } from './dto/update-workflow.dto';
-import { WorkflowStatus } from '@prisma/client';
+import { WorkflowStatus, VisibilityType, Role } from '@prisma/client';
+import { TeamMemberService } from '../common/services/team-member.service';
+import { PermissionService } from '../common/services/permission.service';
 
 @Injectable()
 export class WorkflowService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly teamMemberService: TeamMemberService,
+    private readonly permissionService: PermissionService,
+  ) {}
 
   // MARK: - 创建工作流
-  create(workspaceId: string, createWorkflowDto: CreateWorkflowDto) {
-    const { name } = createWorkflowDto;
+  async create(
+    workspaceId: string,
+    createWorkflowDto: CreateWorkflowDto,
+    userId: string,
+  ) {
+    const { name, visibility = VisibilityType.PRIVATE } = createWorkflowDto;
+
+    // 验证工作空间访问权限并获取TeamMember ID
+    const { workspace, teamMemberId } =
+      await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+
+    // 检查创建权限：个人工作空间或团队工作空间的 OWNER/ADMIN
+    if (workspace.type === 'TEAM') {
+      const member = workspace.team.members.find(
+        (m: any) => m.userId === userId,
+      );
+      if (!member || member.role === Role.MEMBER) {
+        throw new ForbiddenException('只有 OWNER 或 ADMIN 可以创建工作流');
+      }
+    }
 
     return this.prisma.workflow.create({
       data: {
         name,
+        visibility,
         workspace: {
           connect: { id: workspaceId },
         },
-        // The status defaults to DRAFT as per the schema
+        creator: {
+          connect: { id: teamMemberId },
+        },
+      },
+      include: {
+        creator: {
+          include: { user: true },
+        },
+        workspace: true,
       },
     });
   }
 
   // MARK: - 获取工作流列表
-  async findAll(workspaceId: string) {
-    return this.prisma.workflow.findMany({
+  async findAll(workspaceId: string, userId: string) {
+    // 验证用户有权访问该工作空间
+    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+
+    // 获取用户有权限查看的工作流
+    const workflows = await this.prisma.workflow.findMany({
       where: { workspaceId },
-      include: { steps: { orderBy: { order: 'asc' } } },
+      include: {
+        creator: {
+          include: { user: true },
+        },
+        workspace: {
+          include: {
+            team: {
+              include: {
+                members: {
+                  where: { userId },
+                },
+              },
+            },
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
+
+    // 过滤用户有权限查看的工作流
+    const filteredWorkflows = [];
+    for (const workflow of workflows) {
+      const hasPermission =
+        await this.permissionService.checkResourcePermission(
+          userId,
+          'workflow',
+          workflow.id,
+          'read',
+        );
+      if (hasPermission) {
+        filteredWorkflows.push(workflow);
+      }
+    }
+
+    return filteredWorkflows;
   }
 
   // MARK: - 获取工作流
-  async findOne(id: string) {
+  async findOne(id: string, userId: string) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'workflow',
+      id,
+      'read',
+    );
+
     const workflow = await this.prisma.workflow.findUnique({
       where: { id },
-      include: { steps: { orderBy: { order: 'asc' } } },
+      include: {
+        steps: { orderBy: { order: 'asc' } },
+        creator: {
+          include: { user: true },
+        },
+        workspace: true,
+      },
     });
+
     if (!workflow) {
-      throw new NotFoundException(`Workflow with ID ${id} not found`);
+      throw new NotFoundException(`工作流 ${id} 不存在`);
     }
+
     return workflow;
   }
 
   // MARK: - 更新工作流
-  async update(id: string, updateWorkflowDto: UpdateWorkflowDto) {
+  async update(
+    id: string,
+    updateWorkflowDto: UpdateWorkflowDto,
+    userId: string,
+  ) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'workflow',
+      id,
+      'write',
+    );
+
     const { name, status, steps } = updateWorkflowDto;
 
     return this.prisma.$transaction(async (tx) => {
@@ -110,7 +211,7 @@ export class WorkflowService {
                 ? {
                     connect: { id: stepDto.assigneeId },
                   }
-                : undefined,
+                : { disconnect: true },
             },
           });
         }
@@ -132,13 +233,27 @@ export class WorkflowService {
       // Return the updated workflow with its current steps
       return tx.workflow.findUnique({
         where: { id },
-        include: { steps: { orderBy: { order: 'asc' } } },
+        include: {
+          steps: { orderBy: { order: 'asc' } },
+          creator: {
+            include: { user: true },
+          },
+          workspace: true,
+        },
       });
     });
   }
 
   // MARK: - 删除工作流
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'workflow',
+      id,
+      'delete',
+    );
+
     // First, delete all associated workflow steps
     await this.prisma.workflowStep.deleteMany({
       where: { workflowId: id },
@@ -151,23 +266,38 @@ export class WorkflowService {
   }
 
   // MARK: - 发布工作流
-  async publish(id: string) {
+  async publish(id: string, userId: string) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'workflow',
+      id,
+      'write',
+    );
+
     const workflow = await this.prisma.workflow.findUnique({
       where: { id },
       include: { steps: true },
     });
 
     if (!workflow) {
-      throw new NotFoundException(`Workflow with ID ${id} not found`);
+      throw new NotFoundException(`工作流 ${id} 不存在`);
     }
 
     if (workflow.steps.length === 0) {
-      throw new Error('Cannot publish a workflow without any steps.');
+      throw new ForbiddenException('不能发布没有步骤的工作流');
     }
 
     return this.prisma.workflow.update({
       where: { id },
       data: { status: WorkflowStatus.PUBLISHED },
+      include: {
+        steps: { orderBy: { order: 'asc' } },
+        creator: {
+          include: { user: true },
+        },
+        workspace: true,
+      },
     });
   }
 }

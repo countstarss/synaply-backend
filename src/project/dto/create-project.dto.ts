@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsEnum } from 'class-validator';
+import { VisibilityType } from '@prisma/client';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -15,4 +16,13 @@ export class CreateProjectDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @ApiPropertyOptional({
+    description: 'The visibility of the project',
+    enum: VisibilityType,
+    default: VisibilityType.PRIVATE,
+  })
+  @IsEnum(VisibilityType)
+  @IsOptional()
+  visibility?: VisibilityType;
 }

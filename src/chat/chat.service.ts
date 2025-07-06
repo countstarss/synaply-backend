@@ -41,10 +41,28 @@ export class ChatService {
     createPrivateChatDto: CreatePrivateChatDto,
   ) {
     const { targetMemberId } = createPrivateChatDto;
+
     // 检查是否已存在私聊
     const existingChat = await this.prisma.chat.findFirst({
       where: {
         type: 'PRIVATE',
+        AND: [
+          {
+            members: {
+              some: {
+                teamMemberId: creatorId,
+              },
+            },
+          },
+          {
+            members: {
+              some: {
+                teamMemberId: targetMemberId,
+              },
+            },
+          },
+        ],
+        // 确保聊天只有这两个成员
         members: {
           every: {
             teamMemberId: { in: [creatorId, targetMemberId] },
@@ -55,7 +73,10 @@ export class ChatService {
     });
 
     if (existingChat) {
-      return existingChat;
+      // 验证聊天确实只有两个成员
+      if (existingChat.members.length === 2) {
+        return existingChat;
+      }
     }
 
     // 创建新的私聊

@@ -8,15 +8,21 @@ import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreateIssueDependencyDto } from './dto/create-issue-dependency.dto';
-import { IssuePriority, IssueStatus } from '@prisma/client';
+import { IssuePriority, IssueStatus, VisibilityType } from '@prisma/client';
 import { IssueSearchFilters } from 'src/common/graphql/types/query-result.types';
+import { TeamMemberService } from '../common/services/team-member.service';
+import { PermissionService } from '../common/services/permission.service';
 
 @Injectable()
 export class IssueService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly teamMemberService: TeamMemberService,
+    private readonly permissionService: PermissionService,
+  ) {}
 
   // MARK: - 创建任务
-  async create(creatorId: string, createIssueDto: CreateIssueDto) {
+  async create(userId: string, createIssueDto: CreateIssueDto) {
     const {
       workflowId,
       currentStepId,
@@ -29,6 +35,7 @@ export class IssueService {
       startDate,
       priority,
       parentTaskId,
+      visibility = VisibilityType.PRIVATE,
     } = createIssueDto;
 
     if (workflowId && directAssigneeId) {
@@ -42,6 +49,12 @@ export class IssueService {
         'currentStepId is required when workflowId is provided.',
       );
     }
+
+    // 获取创建者的TeamMember ID
+    const creatorId = await this.teamMemberService.getTeamMemberIdByWorkspace(
+      userId,
+      workspaceId,
+    );
 
     return this.prisma.$transaction(async (tx) => {
       const issue = await tx.issue.create({
@@ -57,6 +70,7 @@ export class IssueService {
           },
           status: IssueStatus.TODO,
           priority: priority || IssuePriority.NORMAL,
+          visibility,
           dueDate,
           startDate,
           workflow: workflowId ? { connect: { id: workflowId } } : undefined,
@@ -69,6 +83,12 @@ export class IssueService {
           parentTask: parentTaskId
             ? { connect: { id: parentTaskId } }
             : undefined,
+        },
+        include: {
+          creator: {
+            include: { user: true },
+          },
+          workspace: true,
         },
       });
 
@@ -86,51 +106,120 @@ export class IssueService {
   }
 
   // MARK: - 获取所有任务
-  async findAll(workspaceId: string, projectId?: string) {
-    return this.prisma.issue.findMany({
+  async findAll(workspaceId: string, userId: string, projectId?: string) {
+    // 验证用户有权访问该工作空间
+    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+
+    // 获取用户有权限查看的任务
+    const issues = await this.prisma.issue.findMany({
       where: {
         workspaceId,
         projectId: projectId || undefined,
       },
       include: {
-        creator: { include: { user: true } },
-        directAssignee: { include: { user: true } },
+        creator: {
+          include: { user: true },
+        },
+        directAssignee: {
+          include: { user: true },
+        },
         workflow: true,
         currentStep: true,
         parentTask: true,
         project: true,
+        workspace: {
+          include: {
+            team: {
+              include: {
+                members: {
+                  where: { userId },
+                },
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    // 过滤用户有权限查看的任务
+    const filteredIssues = [];
+    for (const issue of issues) {
+      const hasPermission =
+        await this.permissionService.checkResourcePermission(
+          userId,
+          'issue',
+          issue.id,
+          'read',
+        );
+      if (hasPermission) {
+        filteredIssues.push(issue);
+      }
+    }
+
+    return filteredIssues;
   }
 
   // MARK: - 获取单个任务
-  async findOne(id: string) {
+  async findOne(id: string, userId: string) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      id,
+      'read',
+    );
+
     const issue = await this.prisma.issue.findUnique({
       where: { id },
       include: {
-        creator: { include: { user: true } },
-        directAssignee: { include: { user: true } },
+        creator: {
+          include: { user: true },
+        },
+        directAssignee: {
+          include: { user: true },
+        },
         workflow: true,
         currentStep: true,
         parentTask: true,
         subtasks: true,
         project: true,
-        comments: { include: { author: { include: { user: true } } } },
-        activities: { orderBy: { createdAt: 'asc' } },
-        blockingIssues: { include: { blockerIssue: true } },
-        dependsOnIssues: { include: { dependsOnIssue: true } },
+        comments: {
+          include: {
+            author: {
+              include: { user: true },
+            },
+          },
+        },
+        activities: {
+          orderBy: { createdAt: 'asc' },
+        },
+        blockingIssues: {
+          include: { blockerIssue: true },
+        },
+        dependsOnIssues: {
+          include: { dependsOnIssue: true },
+        },
       },
     });
 
     if (!issue) {
-      throw new NotFoundException(`Issue with ID ${id} not found`);
+      throw new NotFoundException(`任务 ${id} 不存在`);
     }
+
     return issue;
   }
 
   // MARK: - 更新任务
-  async update(id: string, updateIssueDto: UpdateIssueDto) {
+  async update(id: string, updateIssueDto: UpdateIssueDto, userId: string) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      id,
+      'write',
+    );
+
     const {
       status,
       priority,
@@ -144,11 +233,14 @@ export class IssueService {
 
     const existingIssue = await this.prisma.issue.findUnique({
       where: { id },
-      include: { currentStep: true },
+      include: {
+        currentStep: true,
+        creator: true,
+      },
     });
 
     if (!existingIssue) {
-      throw new NotFoundException(`Issue with ID ${id} not found`);
+      throw new NotFoundException(`任务 ${id} 不存在`);
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -175,7 +267,7 @@ export class IssueService {
         await tx.issueActivity.create({
           data: {
             issue: { connect: { id: updatedIssue.id } },
-            actor: { connect: { id: updatedIssue.creatorId } }, // Assuming creator is the actor for now
+            actor: { connect: { id: existingIssue.creatorId } },
             fromStepName: existingIssue.status,
             toStepName: status,
             comment: `Status changed from ${existingIssue.status} to ${status}.`,
@@ -190,7 +282,7 @@ export class IssueService {
         await tx.issueActivity.create({
           data: {
             issue: { connect: { id: updatedIssue.id } },
-            actor: { connect: { id: updatedIssue.creatorId } }, // Assuming creator is the actor for now
+            actor: { connect: { id: existingIssue.creatorId } },
             fromStepName: existingIssue.currentStep?.name || 'N/A',
             toStepName: newStep?.name || 'N/A',
             comment: `Moved to step: ${newStep?.name || 'N/A'}.`,
@@ -203,7 +295,15 @@ export class IssueService {
   }
 
   // MARK: - 删除任务
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      id,
+      'delete',
+    );
+
     // Delete associated comments
     await this.prisma.comment.deleteMany({
       where: { issueId: id },
@@ -230,9 +330,32 @@ export class IssueService {
   // MARK: - 添加评论
   async addComment(
     issueId: string,
-    authorId: string,
+    userId: string,
     createCommentDto: CreateCommentDto,
   ) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'write',
+    );
+
+    // 获取评论者的TeamMember ID
+    const issue = await this.prisma.issue.findUnique({
+      where: { id: issueId },
+      select: { workspaceId: true },
+    });
+
+    if (!issue) {
+      throw new NotFoundException('任务不存在');
+    }
+
+    const authorId = await this.teamMemberService.getTeamMemberIdByWorkspace(
+      userId,
+      issue.workspaceId,
+    );
+
     const { content } = createCommentDto;
     return this.prisma.comment.create({
       data: {
@@ -247,7 +370,16 @@ export class IssueService {
   async addDependency(
     issueId: string,
     createIssueDependencyDto: CreateIssueDependencyDto,
+    userId: string,
   ) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'write',
+    );
+
     const { dependsOnIssueId } = createIssueDependencyDto;
 
     // Check if both issues exist
@@ -257,17 +389,15 @@ export class IssueService {
     ]);
 
     if (!issue) {
-      throw new NotFoundException(`Issue with ID ${issueId} not found`);
+      throw new NotFoundException(`任务 ${issueId} 不存在`);
     }
     if (!dependsOnIssue) {
-      throw new NotFoundException(
-        `DependsOnIssue with ID ${dependsOnIssueId} not found`,
-      );
+      throw new NotFoundException(`依赖任务 ${dependsOnIssueId} 不存在`);
     }
 
     // Prevent self-dependency
     if (issueId === dependsOnIssueId) {
-      throw new BadRequestException('An issue cannot depend on itself.');
+      throw new BadRequestException('任务不能依赖自己');
     }
 
     // Prevent circular dependency (simple check for direct circularity)
@@ -280,41 +410,13 @@ export class IssueService {
       },
     });
     if (existingDependency) {
-      throw new BadRequestException('Circular dependency detected.');
+      throw new BadRequestException('检测到循环依赖');
     }
 
     return this.prisma.issueDependency.create({
       data: {
         blockerIssue: { connect: { id: issueId } },
         dependsOnIssue: { connect: { id: dependsOnIssueId } },
-      },
-    });
-  }
-
-  // MARK: - 移除依赖
-  async removeDependency(issueId: string, dependsOnIssueId: string) {
-    // Check if the dependency exists
-    const dependency = await this.prisma.issueDependency.findUnique({
-      where: {
-        blockerIssueId_dependsOnIssueId: {
-          blockerIssueId: issueId,
-          dependsOnIssueId: dependsOnIssueId,
-        },
-      },
-    });
-
-    if (!dependency) {
-      throw new NotFoundException(
-        `Dependency from ${issueId} to ${dependsOnIssueId} not found.`,
-      );
-    }
-
-    return this.prisma.issueDependency.delete({
-      where: {
-        blockerIssueId_dependsOnIssueId: {
-          blockerIssueId: issueId,
-          dependsOnIssueId: dependsOnIssueId,
-        },
       },
     });
   }
@@ -361,16 +463,37 @@ export class IssueService {
       }
     }
 
-    return this.prisma.issue.findMany({
+    const issues = await this.prisma.issue.findMany({
       where: whereClause,
       include: {
         workspace: true,
         project: true,
-        creator: { include: { user: true } },
-        directAssignee: { include: { user: true } },
+        creator: {
+          include: { user: true },
+        },
+        directAssignee: {
+          include: { user: true },
+        },
       },
       orderBy: { updatedAt: 'desc' },
       take: 50,
     });
+
+    // 过滤用户有权限查看的任务
+    const filteredIssues = [];
+    for (const issue of issues) {
+      const hasPermission =
+        await this.permissionService.checkResourcePermission(
+          userId,
+          'issue',
+          issue.id,
+          'read',
+        );
+      if (hasPermission) {
+        filteredIssues.push(issue);
+      }
+    }
+
+    return filteredIssues;
   }
 }

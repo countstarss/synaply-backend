@@ -5,7 +5,7 @@ import {
   IsString,
   IsDateString,
 } from 'class-validator';
-import { IssuePriority, IssueStatus } from '@prisma/client';
+import { IssuePriority, IssueStatus, VisibilityType } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // MARK: - CreateIssueDto
@@ -93,4 +93,13 @@ export class CreateIssueDto {
   @IsOptional()
   @IsString()
   parentTaskId?: string;
+
+  @ApiPropertyOptional({
+    description: 'The visibility of the issue',
+    enum: VisibilityType,
+    default: VisibilityType.PRIVATE,
+  })
+  @IsEnum(VisibilityType)
+  @IsOptional()
+  visibility?: VisibilityType;
 }

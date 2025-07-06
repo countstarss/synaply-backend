@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, IsEnum, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { VisibilityType } from '@prisma/client';
 
 export class CreateWorkflowDto {
   @ApiProperty({
@@ -9,4 +10,13 @@ export class CreateWorkflowDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  @ApiPropertyOptional({
+    description: 'The visibility of the workflow',
+    enum: VisibilityType,
+    default: VisibilityType.PRIVATE,
+  })
+  @IsEnum(VisibilityType)
+  @IsOptional()
+  visibility?: VisibilityType;
 }
