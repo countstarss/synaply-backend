@@ -19,7 +19,19 @@ export class ProjectService {
     private permissionService: PermissionService,
   ) {}
 
-  // MARK: 创建项目
+  /**
+   * MARK: - 创建项目
+   * @description
+   * 思考过程:
+   * 1. 目标: 在指定工作空间下创建一个新的项目。
+   * 2. 权限: 验证用户对工作空间的访问权限，并确保在团队工作空间中只有 OWNER 或 ADMIN 可以创建项目。
+   * 3. 关联: 将项目与工作空间和创建者 (TeamMember) 关联起来。
+   * 4. 默认值: `visibility` 字段可以有默认值。
+   * @param createProjectDto 创建项目的数据
+   * @param workspaceId 工作空间 ID
+   * @param userId 当前认证用户 ID (Supabase User ID)
+   * @returns 创建的项目对象
+   */
   async create(
     createProjectDto: CreateProjectDto,
     workspaceId: string,
@@ -63,7 +75,18 @@ export class ProjectService {
     });
   }
 
-  // MARK: 获取项目列表
+  /**
+   * MARK: - 获取项目列表
+   * @description
+   * 思考过程:
+   * 1. 目标: 获取指定工作空间下，当前用户有权限查看的所有项目列表。
+   * 2. 权限: 首先验证用户对工作空间的访问权限。然后，对于每个项目，使用 `PermissionService` 检查用户是否有读取权限。
+   * 3. 关联: 包含创建者和工作空间信息。
+   * 4. 排序: 默认按创建时间倒序排列。
+   * @param workspaceId 工作空间 ID
+   * @param userId 当前认证用户 ID (Supabase User ID)
+   * @returns 项目列表
+   */
   async findAll(workspaceId: string, userId: string) {
     // 验证用户有权访问该工作空间
     await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
@@ -108,7 +131,18 @@ export class ProjectService {
     return filteredProjects;
   }
 
-  // MARK: 获取项目详情
+  /**
+   * MARK: - 获取项目详情
+   * @description
+   * 思考过程:
+   * 1. 目标: 获取单个项目的详细信息。
+   * 2. 权限: 验证用户对该项目的读取权限。
+   * 3. 验证: 如果项目不存在，抛出 `NotFoundException`。
+   * 4. 关联: 包含创建者和工作空间信息。
+   * @param id 项目 ID
+   * @param userId 当前认证用户 ID (Supabase User ID)
+   * @returns 项目对象
+   */
   async findOne(id: string, userId: string) {
     // 验证权限
     await this.permissionService.validateResourcePermission(
@@ -145,7 +179,17 @@ export class ProjectService {
     return project;
   }
 
-  // MARK: 更新项目
+  /**
+   * MARK: - 更新项目
+   * @description
+   * 思考过程:
+   * 1. 目标: 更新指定项目的各项信息。
+   * 2. 权限: 验证用户对该项目的写入权限。
+   * @param id 项目 ID
+   * @param updateProjectDto 更新项目的数据
+   * @param userId 当前认证用户 ID (Supabase User ID)
+   * @returns 更新后的项目对象
+   */
   async update(id: string, updateProjectDto: UpdateProjectDto, userId: string) {
     // 验证权限
     await this.permissionService.validateResourcePermission(
@@ -167,7 +211,16 @@ export class ProjectService {
     });
   }
 
-  // MARK: 删除项目
+  /**
+   * MARK: - 删除项目
+   * @description
+   * 思考过程:
+   * 1. 目标: 删除指定项目。
+   * 2. 权限: 验证用户对该项目的删除权限。
+   * 3. 业务逻辑: 检查项目是否有关联的任务，如果有，则不允许删除，以维护数据完整性。
+   * @param id 项目 ID
+   * @param userId 当前认证用户 ID (Supabase User ID)
+   */
   async remove(id: string, userId: string) {
     // 验证权限
     await this.permissionService.validateResourcePermission(
@@ -193,7 +246,18 @@ export class ProjectService {
     });
   }
 
-  // MARK: 根据ID获取项目
+  /**
+   * MARK: - 根据 ID 获取项目
+   * @description
+   * 思考过程:
+   * 1. 目标: 根据项目 ID 获取项目详细信息，并验证用户权限。
+   * 2. 权限: 验证用户对该项目的读取权限。
+   * 3. 验证: 如果项目不存在，抛出 `NotFoundException`。
+   * 4. 关联: 包含创建者和工作空间信息。
+   * @param projectId 项目 ID
+   * @param userId 当前认证用户 ID (Supabase User ID)
+   * @returns 项目对象
+   */
   async findProjectById(projectId: string, userId: string) {
     // 验证权限
     await this.permissionService.validateResourcePermission(

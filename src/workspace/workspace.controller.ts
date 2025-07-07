@@ -18,11 +18,13 @@ export class WorkspaceController {
   constructor(private readonly workspaceService: WorkspaceService) {}
 
   /**
-   * 获取当前用户的所有工作空间（包括个人空间和所属团队的空间）
+   * MARK: - 获取用户所有工作空间
+   * GET /workspaces
+   * @summary 获取当前用户的所有工作空间
+   * @description 获取当前用户的所有工作空间，包括个人工作空间和所属团队的工作空间
    * @param req 请求对象，包含当前用户 ID
    * @returns 工作空间列表
    */
-  // MARK: 获取用户所有工作空间
   @Get()
   @ApiOperation({
     summary: '获取用户所有工作空间',
@@ -41,11 +43,13 @@ export class WorkspaceController {
   }
 
   /**
-   * 根据 ID 获取工作空间详情
+   * MARK: - 根据 ID 获取工作空间详情
+   * GET /workspaces/:workspaceId
+   * @summary 根据 ID 获取工作空间详情
+   * @description 根据工作空间ID获取详细信息，包括关联的用户或团队信息
    * @param workspaceId 工作空间 ID
    * @returns 工作空间对象
    */
-  // MARK: 根据ID获取空间详情
   @Get(':workspaceId')
   @ApiOperation({
     summary: '获取工作空间详情',

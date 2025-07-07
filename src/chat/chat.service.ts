@@ -12,6 +12,16 @@ export class ChatService {
   constructor(private prisma: PrismaService) {}
 
   // MARK: 创建群聊
+  /**
+   * INFO: 当创建群聊的时候, 首先需要memberIds 是否有效，并且 creatorId 必须在 memberIds 中
+   * 其次需要验证 memberIds 是否存在，并且 memberIds 中不能有重复的id
+   * 最后需要验证 memberIds 中是否存在 creatorId
+   * 如果以上条件都满足，则创建群聊
+   * 如果以上条件不满足，则抛出错误
+   * 创建的时候, 类型为 GROUP,name可以自动生成, 后续可以改
+   * 添加创建者信息, 并且默认是管理员
+   */
+
   async createGroupChat(
     creatorId: string,
     createGroupChatDto: CreateGroupChatDto,
@@ -36,6 +46,14 @@ export class ChatService {
   }
 
   // MARK: 创建私聊
+  /**
+   * INFO: 当创建私聊的时候, 首先需要验证 targetMemberId 是否有效
+   * 其次需要验证 creatorId 和 targetMemberId 是否存在
+   * 最后需要验证 creatorId 和 targetMemberId 是否已经存在私聊, 如果存在, 则返回已存在的私聊
+   * 如果以上条件都满足，则创建私聊
+   * 如果以上条件不满足，则抛出错误
+   * 创建的时候, 类型为 PRIVATE, 并且 creatorId 必须在 members 中
+   */
   async createPrivateChat(
     creatorId: string,
     createPrivateChatDto: CreatePrivateChatDto,

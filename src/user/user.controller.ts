@@ -14,8 +14,10 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /**
-   * 获取当前登录用户的信息
-   * 需要通过 SupabaseAuthGuard 验证 JWT
+   * MARK: - 获取当前用户详细信息
+   * GET /users/me
+   * @summary 获取当前认证用户的详细信息
+   * @description 通过验证请求头中的JWT，从数据库中返回当前用户的详细信息。
    * @param req 请求对象，其中包含 Supabase JWT payload (req.user)
    * @returns 当前用户在数据库中的详细信息
    */

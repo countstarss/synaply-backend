@@ -13,12 +13,18 @@ export class TeamService {
   constructor(private prisma: PrismaService) {}
 
   /**
-   * 创建团队
+   * MARK: - 创建团队
+   * @description
+   * 思考过程:
+   * 1. 目标: 创建一个新的团队，并自动为该团队创建关联的工作空间，同时将创建者设置为团队的 OWNER。
+   * 2. 权限: 任何认证用户都可以创建团队。
+   * 3. 验证: 检查团队名称是否已存在，避免重复创建。
+   * 4. 事务性: 团队、团队成员和工作空间的创建应是原子操作，确保数据一致性。
+   * 5. 关联: 使用 Prisma 的嵌套写入功能，一次性创建团队、成员和工作空间。
    * @param createTeamDto 团队创建 DTO
-   * @param ownerId 团队拥有者 ID
+   * @param ownerId 团队拥有者 ID (Supabase User ID)
    * @returns 创建的团队对象
    */
-  // MARK: - 创建团队
   async createTeam(createTeamDto: CreateTeamDto, ownerId: string) {
     const { name } = createTeamDto;
 
@@ -55,13 +61,18 @@ export class TeamService {
   }
 
   /**
-   * 邀请成员加入团队
+   * MARK: - 邀请成员加入团队
+   * @description
+   * 思考过程:
+   * 1. 目标: 将一个用户邀请到指定团队，并将其添加为团队成员。
+   * 2. 权限: 只有团队的 OWNER 或 ADMIN 才能邀请成员。
+   * 3. 验证: 检查邀请者权限；检查被邀请用户是否存在；检查用户是否已是团队成员。
+   * 4. 角色: 新成员默认角色为 MEMBER。
    * @param teamId 团队 ID
    * @param inviteMemberDto 邀请成员 DTO
-   * @param inviterId 邀请者 ID
+   * @param inviterId 邀请者 ID (Supabase User ID)
    * @returns 邀请结果
    */
-  // MARK: - 邀请加入团队
   async inviteMember(
     teamId: string,
     inviteMemberDto: InviteMemberDto,
@@ -114,11 +125,15 @@ export class TeamService {
   }
 
   /**
-   * 获取团队详情
+   * MARK: - 获取团队详情
+   * @description
+   * 思考过程:
+   * 1. 目标: 获取指定团队的详细信息，包括其所有成员（及成员的用户信息）和关联的工作空间。
+   * 2. 验证: 检查团队是否存在。
+   * 3. 关联: 使用 `include` 加载 `members` 和 `workspace` 关系，并通过嵌套 `include` 加载成员的用户信息。
    * @param teamId 团队 ID
    * @returns 团队对象
    */
-  // MARK: - 获取团队详情
   async getTeamById(teamId: string) {
     const team = await this.prisma.team.findUnique({
       where: { id: teamId },
@@ -132,11 +147,15 @@ export class TeamService {
   }
 
   /**
-   * 获取用户所属的所有团队
-   * @param userId 用户 ID
+   * MARK: - 获取用户所属的所有团队
+   * @description
+   * 思考过程:
+   * 1. 目标: 获取某个用户作为成员所属的所有团队列表。
+   * 2. 策略: 通过 `teamMember` 表查询该用户的所有成员关系，然后通过 `include` 加载关联的 `team` 信息。
+   * 3. 转换: 将 `teamMember` 数组映射为 `team` 数组。
+   * @param userId 用户 ID (Supabase User ID)
    * @returns 团队列表
    */
-  // MARK: - 用户所属团队
   async getUserTeams(userId: string) {
     const teamMemberships = await this.prisma.teamMember.findMany({
       where: { userId },
@@ -146,14 +165,19 @@ export class TeamService {
   }
 
   /**
-   * 更新团队成员角色
+   * MARK: - 更新团队成员角色
+   * @description
+   * 思考过程:
+   * 1. 目标: 更新团队中某个成员的角色。
+   * 2. 权限: 只有团队的 OWNER 或 ADMIN 才能执行此操作。
+   * 3. 验证: 检查操作者权限；检查目标成员是否存在于该团队。
+   * 4. 业务逻辑: 拥有者不能被随意降级，特别是当他是团队中唯一的拥有者时。
    * @param teamId 团队 ID
-   * @param memberId 成员 ID
+   * @param memberId 成员 ID (Supabase User ID)
    * @param newRole 新角色
-   * @param currentUserId 当前操作用户 ID
+   * @param currentUserId 当前操作用户 ID (Supabase User ID)
    * @returns 更新后的团队成员
    */
-  // MARK: - 更新成员角色
   async updateMemberRole(
     teamId: string,
     memberId: string,
@@ -208,13 +232,18 @@ export class TeamService {
   }
 
   /**
-   * 移除团队成员
+   * MARK: - 移除团队成员
+   * @description
+   * 思考过程:
+   * 1. 目标: 从团队中移除一个成员。
+   * 2. 权限: 只有团队的 OWNER 或 ADMIN 才能执行此操作。
+   * 3. 验证: 检查操作者权限；检查目标成员是否存在于该团队。
+   * 4. 业务逻辑: 拥有者不能被随意移除，特别是当他是团队中唯一的拥有者时。
    * @param teamId 团队 ID
-   * @param memberId 被移除成员 ID
-   * @param currentUserId 当前操作用户 ID
+   * @param memberId 被移除成员 ID (Supabase User ID)
+   * @param currentUserId 当前操作用户 ID (Supabase User ID)
    * @returns 移除结果
    */
-  // MARK: - 移除团队成员
   async removeMember(teamId: string, memberId: string, currentUserId: string) {
     // 检查当前操作用户是否是团队拥有者或管理员
     const currentUserMembership = await this.prisma.teamMember.findUnique({
@@ -260,7 +289,15 @@ export class TeamService {
     return { message: 'Member removed successfully.' };
   }
 
-  // MARK: - 获取团队成员
+  /**
+   * MARK: - 获取团队成员列表
+   * @description
+   * 思考过程:
+   * 1. 目标: 获取指定团队的所有成员信息，包括其关联的用户详情。
+   * 2. 策略: 使用 `findMany` 查询 `teamMember`，并通过 `include` 加载 `user` 关系。
+   * @param teamId 团队 ID
+   * @returns 团队成员列表
+   */
   async getTeamMembers(teamId: string) {
     return this.prisma.teamMember.findMany({
       where: { teamId },
@@ -270,14 +307,34 @@ export class TeamService {
     });
   }
 
-  // MARK: - 根据用户ID获取团队成员
+  /**
+   * MARK: - 根据用户 ID 获取团队成员
+   * @description
+   * 思考过程:
+   * 1. 目标: 根据 Supabase 的用户 ID (userId) 查找对应的团队成员 (TeamMember) 记录。
+   * 2. 策略: 使用 `findFirst`，因为一个用户在同一个团队中只会有一个 `TeamMember` 记录，但一个用户可能在多个团队中都有 `TeamMember` 记录。这里我们只返回找到的第一个。
+   * 3. 考虑: 如果一个用户属于多个团队，并且需要特定团队的 `TeamMember`，则需要额外的 `teamId` 参数。
+   * @param userId 用户 ID (Supabase User ID)
+   * @returns 团队成员对象或 null
+   */
   async findTeamMemberByUserId(userId: string) {
     return this.prisma.teamMember.findFirst({
       where: { userId: userId },
     });
   }
 
-  // MARK: - 获取团队工作负载
+  /**
+   * MARK: - 获取团队工作负载
+   * @description
+   * 思考过程:
+   * 1. 目标: 获取团队中每个成员的任务负载统计（待办、进行中、阻塞、逾期）。
+   * 2. 权限: 确保调用者是该团队的成员。
+   * 3. 策略: 首先验证调用者是否是团队成员；然后获取团队所有成员；最后为每个成员并行查询其不同状态的任务数量。
+   * 4. 性能: 使用 `Promise.all` 并行执行多个数据库查询，提高效率。
+   * @param teamId 团队 ID
+   * @param userId 调用者用户 ID (Supabase User ID)
+   * @returns 团队成员工作负载统计列表
+   */
   async getTeamWorkload(teamId: string, userId: string) {
     const membership = await this.prisma.teamMember.findFirst({
       where: { teamId, userId },

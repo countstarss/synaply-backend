@@ -70,6 +70,7 @@ export class ChatController {
   ) {}
 
   // MARK: 创建群聊
+  // INFO: POST /chats/group
   @Post('group')
   @ApiOperation({ summary: '创建群聊' })
   @ApiResponse({
@@ -89,6 +90,7 @@ export class ChatController {
   }
 
   // MARK: 创建或获取私聊
+  // INFO: POST /chats/private
   @Post('private')
   @ApiOperation({ summary: '创建或获取私聊' })
   @ApiResponse({
@@ -108,6 +110,7 @@ export class ChatController {
   }
 
   // MARK: 获取用户所有聊天
+  // INFO: GET /chats
   @Get()
   @ApiOperation({ summary: '获取当前用户的所有聊天会话' })
   @ApiQuery({ name: 'type', required: false, description: '聊天类型' })
@@ -128,6 +131,7 @@ export class ChatController {
   }
 
   // MARK: 获取单个聊天信息
+  // INFO: GET /chats/:chatId
   @Get(':chatId')
   @ApiOperation({ summary: '获取单个聊天会话的详细信息' })
   @ApiParam({ name: 'chatId', description: '聊天会话的ID' })
@@ -141,6 +145,7 @@ export class ChatController {
   }
 
   // MARK: 更新群聊信息
+  // INFO: PATCH /chats/:chatId
   @Patch(':chatId')
   @ApiOperation({ summary: '更新群聊信息（仅限管理员）' })
   @ApiParam({ name: 'chatId', description: '群聊的ID' })
@@ -157,6 +162,7 @@ export class ChatController {
   }
 
   // MARK: 删除聊天会话
+  // INFO: DELETE /chats/:chatId
   @Delete(':chatId')
   @ApiOperation({ summary: '删除聊天会话（仅限创建者）' })
   @ApiParam({ name: 'chatId', description: '聊天会话的ID' })
@@ -170,6 +176,7 @@ export class ChatController {
   }
 
   // MARK: 向群聊添加新成员
+  // INFO: POST /chats/:chatId/members
   @Post(':chatId/members')
   @ApiOperation({ summary: '向群聊添加新成员（仅限管理员）' })
   @ApiParam({ name: 'chatId', description: '群聊的ID' })
@@ -186,6 +193,7 @@ export class ChatController {
   }
 
   // MARK: 从群聊移除成员
+  // INFO: DELETE /chats/:chatId/members/:teamMemberId
   @Delete(':chatId/members/:teamMemberId')
   @ApiOperation({ summary: '从群聊移除成员（仅限管理员）' })
   @ApiParam({ name: 'chatId', description: '群聊的ID' })
@@ -206,6 +214,7 @@ export class ChatController {
   }
 
   // MARK: 当前用户退出群聊
+  // INFO: POST /chats/:chatId/leave
   @Post(':chatId/leave')
   @ApiOperation({ summary: '当前用户退出群聊' })
   @ApiParam({ name: 'chatId', description: '群聊的ID' })

@@ -38,6 +38,7 @@ export class TeamController {
 
   /**
    * MARK: - 创建团队
+   * POST /teams
    * @param createTeamDto 团队创建 DTO
    * @param req 请求对象，包含当前用户 ID
    * @returns 创建的团队信息
@@ -63,6 +64,7 @@ export class TeamController {
 
   /**
    * MARK: - 邀请加入团队
+   * POST /teams/:teamId/invite
    * @param teamId 团队 ID
    * @param inviteMemberDto 邀请成员 DTO
    * @param req 请求对象，包含当前用户 ID
@@ -93,6 +95,7 @@ export class TeamController {
 
   /**
    * MARK: - 获取团队详情
+   * GET /teams/:teamId
    * @param teamId 团队 ID
    * @returns 团队详情，包含成员和工作空间
    */
@@ -114,6 +117,7 @@ export class TeamController {
 
   /**
    * MARK: - 获取团队成员列表
+   * GET /teams/:teamId/members
    * @param teamId 团队 ID
    * @returns 团队成员列表
    */
@@ -134,7 +138,9 @@ export class TeamController {
 
   /**
    * MARK: - 所属所有团队
-   * NOTE: 获取当前用户所属的所有团队
+   * GET /teams
+   * @summary 获取当前用户所属的所有团队
+   * @description 获取当前用户作为成员的所有团队列表
    * @param req 请求对象，包含当前用户 ID
    * @returns 用户所属团队列表
    */
@@ -155,6 +161,7 @@ export class TeamController {
 
   /**
    * MARK: - 更新成员角色
+   * PATCH /teams/:teamId/members/:memberId/role
    * @param teamId 团队 ID
    * @param memberId 成员 ID
    * @param role 新角色
@@ -207,6 +214,7 @@ export class TeamController {
 
   /**
    * MARK: - 移除团队成员
+   * DELETE /teams/:teamId/members/:memberId
    * @param teamId 团队 ID
    * @param memberId 被移除成员 ID
    * @param req 请求对象，包含当前用户 ID
@@ -240,6 +248,9 @@ export class TeamController {
 
   /**
    * MARK: - 根据用户ID获取团队成员
+   * GET /teams/by-user-id/:userId
+   * @summary 根据用户ID获取团队成员
+   * @description 根据 Supabase 用户ID获取对应的团队成员信息
    * @param userId 用户 ID
    * @returns 团队成员信息
    */
