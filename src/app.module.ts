@@ -12,8 +12,6 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { IssueModule } from './issue/issue.module';
 import { ProjectModule } from './project/project.module';
-import { ChatModule } from './chat/chat.module';
-import { MessageModule } from './message/message.module';
 import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
 
@@ -38,8 +36,6 @@ import { ConfigModule } from '@nestjs/config';
     WorkflowModule,
     IssueModule,
     ProjectModule,
-    ChatModule,
-    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

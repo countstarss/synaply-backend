@@ -127,11 +127,6 @@ model TeamMember {
   issueActivities        IssueActivity[] // 参与的任务活动
   comments               Comment[] // 评论
 
-  // --- 新增聊天相关反向关联 ---
-  createdChats    Chat[]       @relation("CreatedChats") // 创建的聊天会话
-  chatMemberships ChatMember[] @relation("ChatMemberships") // 参与的聊天会话
-  sentMessages    Message[]    @relation("SentMessages") // 发送的消息
-
   // --- 新增：团队内容创建关联 ---
   createdProjects  Project[]  @relation("CreatedProjects") // 创建的项目
   createdWorkflows Workflow[] @relation("CreatedWorkflows") // 创建的工作流
@@ -141,73 +136,6 @@ model TeamMember {
 
   @@unique([teamId, userId])
   @@map("team_members")
-}
-
-/// MARK: - 聊天会话模型
-model Chat {
-  id          String   @id @default(uuid())
-  type        ChatType
-  name        String?
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  members       ChatMember[]
-  messages      Message[]
-  lastMessageId String?      @unique @map("last_message_id")
-  lastMessage   Message?     @relation("LastChatMessage", fields: [lastMessageId], references: [id], onDelete: SetNull) // 当最后一条消息被删除时，设置为 null
-
-  creatorId String     @map("creator_id")
-  creator   TeamMember @relation("CreatedChats", fields: [creatorId], references: [id])
-
-  @@map("chats")
-}
-
-/// MARK: - 聊天会话成员
-model ChatMember {
-  id     String @id @default(uuid())
-  chatId String @map("chat_id")
-  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade) // 当聊天被删除时，成员也删除
-
-  teamMemberId String     @map("team_member_id")
-  teamMember   TeamMember @relation("ChatMemberships", fields: [teamMemberId], references: [id])
-
-  joinedAt          DateTime @default(now()) @map("joined_at")
-  lastReadMessageId String?  @map("last_read_message_id")
-  lastReadMessage   Message? @relation("LastReadMessage", fields: [lastReadMessageId], references: [id], onDelete: SetNull) // 当消息被删除时，设置为 null
-
-  isAdmin Boolean @default(false) @map("is_admin")
-
-  @@unique([chatId, teamMemberId]) // 一个成员在一个聊天中只能出现一次
-  @@map("chat_members")
-}
-
-/// MARK: - 消息模型
-model Message {
-  id     String @id @default(uuid())
-  chatId String @map("chat_id")
-  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade) // 当聊天被删除时，消息也删除
-
-  senderId String     @map("sender_id")
-  sender   TeamMember @relation("SentMessages", fields: [senderId], references: [id])
-
-  content   String
-  type      MessageType
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt @map("updated_at")
-
-  isEdited  Boolean @default(false) @map("is_edited")
-  isDeleted Boolean @default(false) @map("is_deleted")
-
-  repliedToMessageId String?   @map("replied_to_message_id")
-  repliedToMessage   Message?  @relation("MessageReplies", fields: [repliedToMessageId], references: [id], onDelete: SetNull) // 当被回复的消息被删除时，设置为 null
-  replies            Message[] @relation("MessageReplies")
-
-  // 反向关联
-  chatLastMessage            Chat?        @relation("LastChatMessage")
-  chatMemberLastReadMessages ChatMember[] @relation("LastReadMessage")
-
-  @@map("messages")
 }
 
 /// MARK: - 工作空间模型
