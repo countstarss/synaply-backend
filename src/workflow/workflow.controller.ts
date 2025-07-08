@@ -81,22 +81,22 @@ export class WorkflowController {
    * MARK: - 更新工作流
    * PATCH /workspaces/:workspaceId/workflows/:id
    * @summary 更新指定工作流
-   * @description 更新指定 ID 的工作流的名称、描述或步骤。
+   * @description 更新指定 ID 的工作流的名称、描述或JSON数据。
    * @param id 工作流 ID
    * @param updateWorkflowDto 更新工作流的数据
    * @param req 请求对象，包含当前用户 ID
    * @returns 更新后的工作流对象
    */
-  // @Patch(':id')
-  // @ApiOperation({ summary: '更新工作流' })
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateWorkflowDto: UpdateWorkflowDto,
-  //   @Req() req,
-  // ) {
-  //   const userId = req.user.sub;
-  //   return this.workflowsService.update(id, updateWorkflowDto, userId);
-  // }
+  @Patch(':id')
+  @ApiOperation({ summary: '更新工作流' })
+  update(
+    @Param('id') id: string,
+    @Body() updateWorkflowDto: UpdateWorkflowDto,
+    @Req() req,
+  ) {
+    const userId = req.user.sub;
+    return this.workflowsService.update(id, updateWorkflowDto, userId);
+  }
 
   /**
    * MARK: - 删除工作流

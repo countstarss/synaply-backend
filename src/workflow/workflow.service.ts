@@ -132,11 +132,10 @@ export class WorkflowService {
    * MARK: - 获取工作流详情
    * @description
    * 思考过程:
-   * 1. 目标: 获取单个工作流的详细信息，包括其步骤、创建者和所属工作空间。
+   * 1. 目标: 获取单个工作流的详细信息，包括创建者和所属工作空间。
    * 2. 权限: 验证用户对该工作流的读取权限。
    * 3. 验证: 如果工作流不存在，抛出 `NotFoundException`。
-   * 4. 关联: 包含 `steps`、`creator` 和 `workspace` 信息。
-   * 5. 排序: 步骤按 `order` 字段升序排列。
+   * 4. 关联: 包含 `creator` 和 `workspace` 信息。
    * @param id 工作流 ID
    * @param userId 当前认证用户 ID (Supabase User ID)
    * @returns 工作流对象
@@ -153,7 +152,6 @@ export class WorkflowService {
     const workflow = await this.prisma.workflow.findUnique({
       where: { id },
       include: {
-        steps: { orderBy: { order: 'asc' } },
         creator: {
           include: { user: true },
         },
@@ -172,24 +170,50 @@ export class WorkflowService {
    * MARK: - 更新工作流
    * @description
    * 思考过程:
-   * 1. 目标: 更新指定工作流的名称、状态和步骤。
+   * 1. 目标: 更新指定工作流的基本信息和JSON数据。
    * 2. 权限: 验证用户对该工作流的写入权限。
-   * 3. 事务性: 工作流和其步骤的更新应是原子操作，使用 Prisma 事务确保数据一致性。
-   * 4. 步骤管理: 需要处理步骤的创建、更新和删除。通过比较现有步骤和传入的步骤列表来确定哪些需要操作。
-   * 5. 关联: 步骤的 `assignee` 可以连接或断开。
+   * 3. 数据更新: 更新工作流的基本信息和JSON结构数据。
    * @param id 工作流 ID
    * @param updateWorkflowDto 更新工作流的数据
    * @param userId 当前认证用户 ID (Supabase User ID)
    * @returns 更新后的工作流对象
    */
+  async update(id: string, updateWorkflowDto: UpdateWorkflowDto, userId: string) {
+    // 验证权限
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'workflow',
+      id,
+      'write',
+    );
+
+    const workflow = await this.prisma.workflow.findUnique({
+      where: { id },
+    });
+
+    if (!workflow) {
+      throw new NotFoundException(`工作流 ${id} 不存在`);
+    }
+
+    return this.prisma.workflow.update({
+      where: { id },
+      data: updateWorkflowDto,
+      include: {
+        creator: {
+          include: { user: true },
+        },
+        workspace: true,
+      },
+    });
+  }
 
   /**
    * MARK: - 删除工作流
    * @description
    * 思考过程:
-   * 1. 目标: 删除指定的工作流及其所有关联的步骤。
+   * 1. 目标: 删除指定的工作流。
    * 2. 权限: 验证用户对该工作流的删除权限。
-   * 3. 级联删除: Prisma 默认不支持多级级联删除，所以需要手动先删除子记录（步骤），再删除父记录（工作流）。
+   * 3. 级联删除: 检查是否有关联的issues，如果有则不能删除。
    * @param id 工作流 ID
    * @param userId 当前认证用户 ID (Supabase User ID)
    */
@@ -202,12 +226,16 @@ export class WorkflowService {
       'delete',
     );
 
-    // First, delete all associated workflow steps
-    await this.prisma.workflowStep.deleteMany({
+    // 检查是否有关联的issues
+    const relatedIssues = await this.prisma.issue.findMany({
       where: { workflowId: id },
     });
 
-    // Then, delete the workflow itself
+    if (relatedIssues.length > 0) {
+      throw new ForbiddenException('不能删除有关联任务的工作流');
+    }
+
+    // 删除工作流
     return this.prisma.workflow.delete({
       where: { id },
     });
@@ -219,7 +247,7 @@ export class WorkflowService {
    * 思考过程:
    * 1. 目标: 将一个草稿状态的工作流发布为已发布状态。
    * 2. 权限: 验证用户对该工作流的写入权限。
-   * 3. 业务逻辑: 只有包含至少一个步骤的工作流才能被发布，防止发布空的工作流。
+   * 3. 业务逻辑: 只有包含步骤（totalSteps > 0）的工作流才能被发布。
    * 4. 状态更新: 将 `status` 字段更新为 `PUBLISHED`。
    * @param id 工作流 ID
    * @param userId 当前认证用户 ID (Supabase User ID)
@@ -236,14 +264,13 @@ export class WorkflowService {
 
     const workflow = await this.prisma.workflow.findUnique({
       where: { id },
-      include: { steps: true },
     });
 
     if (!workflow) {
       throw new NotFoundException(`工作流 ${id} 不存在`);
     }
 
-    if (workflow.steps.length === 0) {
+    if (workflow.totalSteps === 0) {
       throw new ForbiddenException('不能发布没有步骤的工作流');
     }
 
@@ -251,7 +278,6 @@ export class WorkflowService {
       where: { id },
       data: { status: WorkflowStatus.PUBLISHED },
       include: {
-        steps: { orderBy: { order: 'asc' } },
         creator: {
           include: { user: true },
         },

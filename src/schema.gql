@@ -58,14 +58,6 @@ enum IssuePriority {
   URGENT
 }
 
-input IssueSearchFilters {
-  assigneeId: ID
-  priority: IssuePriority
-  projectId: ID
-  status: IssueStatus
-  workspaceId: ID
-}
-
 """任务状态"""
 enum IssueStatus {
   BLOCKED
@@ -89,7 +81,6 @@ type Query {
   me: User!
   myWorkspaces: [Workspace!]!
   project(projectId: ID!): Project
-  searchIssues(filters: IssueSearchFilters, searchTerm: String!): [Issue!]!
   teamWorkload(teamId: ID!): [TeamMemberWorkload!]!
 }
 

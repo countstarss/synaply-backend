@@ -87,9 +87,7 @@ export class IssueService {
           dueDate,
           startDate,
           workflow: workflowId ? { connect: { id: workflowId } } : undefined,
-          currentStep: currentStepId
-            ? { connect: { id: currentStepId } }
-            : undefined,
+          currentStepId: currentStepId || null,
           directAssignee: directAssigneeId
             ? { connect: { id: directAssigneeId } }
             : undefined,
@@ -149,7 +147,6 @@ export class IssueService {
           include: { user: true },
         },
         workflow: true,
-        currentStep: true,
         parentTask: true,
         project: true,
         workspace: {
