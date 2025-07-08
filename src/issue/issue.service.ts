@@ -217,9 +217,7 @@ export class IssueService {
           include: { user: true },
         },
         workflow: true,
-        currentStep: true,
         parentTask: true,
-        subtasks: true,
         project: true,
         comments: {
           include: {
@@ -283,7 +281,6 @@ export class IssueService {
     const existingIssue = await this.prisma.issue.findUnique({
       where: { id },
       include: {
-        currentStep: true,
         creator: true,
       },
     });
@@ -325,16 +322,16 @@ export class IssueService {
       }
 
       if (currentStepId && currentStepId !== existingIssue.currentStepId) {
-        const newStep = await tx.workflowStep.findUnique({
+        const newStep = await tx.issue.findFirst({
           where: { id: currentStepId },
         });
         await tx.issueActivity.create({
           data: {
             issue: { connect: { id: updatedIssue.id } },
             actor: { connect: { id: existingIssue.creatorId } },
-            fromStepName: existingIssue.currentStep?.name || 'N/A',
-            toStepName: newStep?.name || 'N/A',
-            comment: `Moved to step: ${newStep?.name || 'N/A'}.`,
+            fromStepName: existingIssue.currentStepId || 'N/A',
+            toStepName: currentStepId || 'N/A',
+            comment: `Moved to step: ${currentStepId || 'N/A'}.`,
           },
         });
       }
