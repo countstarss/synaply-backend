@@ -2,20 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Chat {
-  createdAt: DateTime!
-  description: String
-  id: ID!
-  name: String
-  type: ChatType!
-  updatedAt: DateTime!
-}
-
-enum ChatType {
-  GROUP
-  PRIVATE
-}
-
 type Comment {
   id: ID!
 }
@@ -88,21 +74,6 @@ enum IssueStatus {
   TODO
 }
 
-type Message {
-  chat: Chat!
-  content: String!
-  createdAt: DateTime!
-  id: ID!
-  type: MessageType!
-}
-
-enum MessageType {
-  FILE
-  IMAGE
-  SYSTEM
-  TEXT
-}
-
 type Project {
   createdAt: DateTime!
   description: String
@@ -115,10 +86,7 @@ type Project {
 }
 
 type Query {
-  chat(id: String!): Chat
-  chats(type: ChatType): [Chat!]!
   me: User!
-  messages(chatId: String!, cursor: String, limit: Float): [Message!]!
   myWorkspaces: [Workspace!]!
   project(projectId: ID!): Project
   searchIssues(filters: IssueSearchFilters, searchTerm: String!): [Issue!]!

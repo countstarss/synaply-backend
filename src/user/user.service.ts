@@ -2,6 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User } from '@prisma/client';
 
+// 公开用户信息类型
+export interface PublicUser {
+  id: string;
+  name: string | null;
+  avatarUrl: string | null;
+  createdAt: Date;
+}
+
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -21,6 +29,35 @@ export class UserService {
       where: { id },
       include: { workspaces: true }, // 包含工作空间信息
     });
+  }
+
+  /**
+   * MARK: - 根据用户ID获取公开信息
+   * @description
+   * 思考过程:
+   * 1. 目标: 获取用户的公开信息，不包含敏感数据如邮箱
+   * 2. 策略: 使用 Prisma 的 `findUnique` 方法，只选择公开字段
+   * 3. 考虑: 如果用户不存在，抛出 NotFoundException
+   * @param id 用户 ID
+   * @returns 用户公开信息
+   */
+  async findPublicUserById(id: string): Promise<PublicUser> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatarUrl: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('用户不存在');
+    }
+
+    return user;
   }
 
   /**
