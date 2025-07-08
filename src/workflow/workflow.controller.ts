@@ -87,16 +87,16 @@ export class WorkflowController {
    * @param req 请求对象，包含当前用户 ID
    * @returns 更新后的工作流对象
    */
-  @Patch(':id')
-  @ApiOperation({ summary: '更新工作流' })
-  update(
-    @Param('id') id: string,
-    @Body() updateWorkflowDto: UpdateWorkflowDto,
-    @Req() req,
-  ) {
-    const userId = req.user.sub;
-    return this.workflowsService.update(id, updateWorkflowDto, userId);
-  }
+  // @Patch(':id')
+  // @ApiOperation({ summary: '更新工作流' })
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateWorkflowDto: UpdateWorkflowDto,
+  //   @Req() req,
+  // ) {
+  //   const userId = req.user.sub;
+  //   return this.workflowsService.update(id, updateWorkflowDto, userId);
+  // }
 
   /**
    * MARK: - 删除工作流

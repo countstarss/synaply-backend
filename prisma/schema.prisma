@@ -92,61 +92,68 @@ model Project {
 }
 
 model Workflow {
-  id          String         @id @default(uuid())
-  name        String
-  workspaceId String         @map("workspace_id")
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
-  status      WorkflowStatus @default(DRAFT)
-  creatorId   String         @map("creator_id")
-  visibility  VisibilityType @default(PRIVATE)
-  assigneeMap Json?
-  json        Json?
-  totalSteps  Int            @default(0)
-  version     String         @default("v1")
-  issues      Issue[]
-  creator     TeamMember     @relation("CreatedWorkflows", fields: [creatorId], references: [id])
-  workspace   Workspace      @relation(fields: [workspaceId], references: [id])
+  id                String         @id @default(uuid())
+  name              String
+  workspaceId       String         @map("workspace_id")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  status            WorkflowStatus @default(DRAFT)
+  creatorId         String         @map("creator_id")
+  visibility        VisibilityType @default(PRIVATE)
+  assigneeMap       Json?
+  json              Json?
+  totalSteps        Int            @default(0)
+  currentStepIndex  Int            @default(0)
+  currentStepStatus IssueStatus    @default(TODO)
+  version           String         @default("v1")
+  isSystemTemplate  Boolean        @default(false) // 是否为系统级模板
+
+  issues    Issue[]
+  creator   TeamMember @relation("CreatedWorkflows", fields: [creatorId], references: [id])
+  workspace Workspace  @relation(fields: [workspaceId], references: [id])
 
   @@map("workflows")
 }
 
 model Issue {
-  id               String             @id @default(uuid())
-  title            String
-  description      String?
-  workspaceId      String             @map("workspace_id")
-  workflowId       String?            @map("workflow_id")
-  directAssigneeId String?            @map("direct_assignee_id")
-  creatorId        String             @map("creator_id")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-  dueDate          DateTime?          @map("due_date")
-  parentTaskId     String?            @map("parent_task_id")
-  priority         IssuePriority      @default(NORMAL)
-  startDate        DateTime?          @map("start_date")
-  status           IssueStatus        @default(TODO)
-  projectId        String?            @map("project_id")
-  visibility       VisibilityType     @default(PRIVATE)
-  currentStepId    String?            @map("current_step_id")
-  progressLog      Json?
-  workflowSnapshot Json?
-  comments         Comment[]
-  activities       IssueActivity[]
-  blockingIssues   IssueDependency[]  @relation("BlockingIssue")
-  dependsOnIssues  IssueDependency[]  @relation("DependsOnIssue")
-  progressLogs     IssueProgressLog[]
-  creator          TeamMember         @relation("CreatedIssues", fields: [creatorId], references: [id])
-  directAssignee   TeamMember?        @relation("DirectAssignedIssues", fields: [directAssigneeId], references: [id])
-  parentTask       Issue?             @relation("Subtask", fields: [parentTaskId], references: [id])
-  subtasks         Issue[]            @relation("Subtask")
-  project          Project?           @relation(fields: [projectId], references: [id])
-  workflow         Workflow?          @relation(fields: [workflowId], references: [id])
-  workspace        Workspace          @relation(fields: [workspaceId], references: [id])
+  id                       String             @id @default(uuid())
+  title                    String
+  description              String?
+  workspaceId              String             @map("workspace_id")
+  workflowId               String?            @map("workflow_id")
+  directAssigneeId         String?            @map("direct_assignee_id")
+  creatorId                String             @map("creator_id")
+  createdAt                DateTime           @default(now()) @map("created_at")
+  updatedAt                DateTime           @updatedAt @map("updated_at")
+  dueDate                  DateTime?          @map("due_date")
+  parentTaskId             String?            @map("parent_task_id")
+  priority                 IssuePriority      @default(NORMAL)
+  startDate                DateTime?          @map("start_date")
+  status                   IssueStatus        @default(TODO)
+  projectId                String?            @map("project_id")
+  visibility               VisibilityType     @default(PRIVATE)
+  currentStepId            String?            @map("current_step_id")
+  workflowSnapshot         Json?
+  workflowCompleted        Boolean            @default(false)
+  workflowCurrentStepIndex Int                @default(0)
+  currentAssigneeId        String?            @map("current_assignee_id")
+  comments                 Comment[]
+  activities               IssueActivity[]
+  blockingIssues           IssueDependency[]  @relation("BlockingIssue")
+  dependsOnIssues          IssueDependency[]  @relation("DependsOnIssue")
+  progressLogs             IssueProgressLog[]
+  creator                  TeamMember         @relation("CreatedIssues", fields: [creatorId], references: [id])
+  directAssignee           TeamMember?        @relation("DirectAssignedIssues", fields: [directAssigneeId], references: [id])
+  parentTask               Issue?             @relation("Subtask", fields: [parentTaskId], references: [id])
+  subtasks                 Issue[]            @relation("Subtask")
+  project                  Project?           @relation(fields: [projectId], references: [id])
+  workflow                 Workflow?          @relation(fields: [workflowId], references: [id])
+  workspace                Workspace          @relation(fields: [workspaceId], references: [id])
 
   @@map("issues")
 }
 
+// NOTE: 流程行为日志
 model IssueActivity {
   id           String     @id @default(uuid())
   issueId      String     @map("issue_id")
@@ -166,6 +173,7 @@ model Comment {
   content   String
   issueId   String     @map("issue_id")
   authorId  String     @map("author_id")
+  parentId  String?
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
   author    TeamMember @relation(fields: [authorId], references: [id])
@@ -186,6 +194,7 @@ model IssueDependency {
   @@map("issue_dependencies")
 }
 
+// NOTE: 每步成果记录
 model IssueProgressLog {
   id          String      @id @default(uuid())
   issueId     String      @map("issue_id")
@@ -196,6 +205,7 @@ model IssueProgressLog {
   assigneeId  String?     @map("assignee_id")
   actorId     String      @map("actor_id")
   comment     String?
+  isRejected  Boolean?
   attachments Json?
   createdAt   DateTime    @default(now()) @map("created_at")
   actor       TeamMember  @relation("ProgressLogActor", fields: [actorId], references: [id])
