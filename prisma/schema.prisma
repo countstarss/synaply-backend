@@ -182,15 +182,16 @@ model IssueActivity {
 }
 
 model Comment {
-  id        String     @id @default(uuid())
-  content   String
-  issueId   String     @map("issue_id")
-  authorId  String     @map("author_id")
-  parentId  String?
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
-  author    TeamMember @relation(fields: [authorId], references: [id])
-  issue     Issue      @relation(fields: [issueId], references: [id])
+  id          String     @id @default(uuid())
+  content     String
+  issueId     String     @map("issue_id")
+  workspaceId String     @map("workspace_id")
+  authorId    String     @map("author_id")
+  parentId    String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  author      TeamMember @relation(fields: [authorId], references: [id])
+  issue       Issue      @relation(fields: [issueId], references: [id])
 
   @@map("comments")
 }
