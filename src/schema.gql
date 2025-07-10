@@ -55,6 +55,7 @@ enum IssuePriority {
 
 """任务状态"""
 enum IssueStatus {
+  AMOST_DONE
   BLOCKED
   DONE
   IN_PROGRESS

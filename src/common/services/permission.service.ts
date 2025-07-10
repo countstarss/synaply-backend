@@ -186,15 +186,16 @@ export class PermissionService {
     // 根据可见性类型判断权限
     switch (visibility) {
       case VisibilityType.PRIVATE:
-        // 私有：只有创建者可以访问
+        // 私有：只有创建者可以访问 (已在前面处理)
         return false;
 
       case VisibilityType.TEAM_READONLY:
-        // 团队只读：团队成员可以查看，但不能编辑
+        // 团队只读：团队成员可以查看，但不能编辑。管理员/所有者可以编辑。
         if (operation === 'read') {
           return true;
         }
-        return false;
+        // 对于 write/delete 操作，检查是否是管理员/所有者
+        return this.hasAdminPermission(userId, workspace);
 
       case VisibilityType.TEAM_EDITABLE:
         // 团队可编辑：团队成员可以查看和编辑

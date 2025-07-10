@@ -45,7 +45,10 @@ model TeamMember {
   team             Team       @relation(fields: [teamId], references: [id])
   user             User       @relation(fields: [userId], references: [id])
   createdWorkflows Workflow[] @relation("CreatedWorkflows")
-  // Project          Project[]
+
+  Issue           Issue[]
+  IssueStepRecord IssueStepRecord[]
+  IssueActivity   IssueActivity[]
 
   @@unique([teamId, userId])
   @@map("team_members")
@@ -115,16 +118,67 @@ model Issue {
   title            String
   description      String?
   workspaceId      String    @map("workspace_id")
-  // workflowId       String?   @map("workflow_id")
+  workflowId       String?   @map("workflow_id")
   directAssigneeId String?   @map("direct_assignee_id")
   creatorId        String    @map("creator_id")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
   dueDate          DateTime? @map("due_date")
-  workspace        Workspace @relation(fields: [workspaceId], references: [id])
-  Comment          Comment[]
+
+  totalSteps        Int           @default(0)
+  currentStepId     String?       @map("current_step_id") // 用于快速标识当前步骤（配合 snapshot 解析）
+  currentStepIndex  Int           @default(0)
+  currentStepStatus IssueStatus   @default(TODO)
+  workflowSnapshot  Json?
+  priority          IssuePriority @default(NORMAL)
+  issueType         IssueType     @default(NORMAL)
+
+  // Relations
+  comments        Comment[]
+  workspace       Workspace         @relation(fields: [workspaceId], references: [id])
+  TeamMember      TeamMember?       @relation(fields: [teamMemberId], references: [id])
+  teamMemberId    String?
+  IssueStepRecord IssueStepRecord[]
+  IssueActivity   IssueActivity[]
 
   @@map("issues")
+}
+
+// NOTE: 用来记录issue step的信息
+model IssueStepRecord {
+  id          String     @id @default(uuid())
+  issueId     String     @map("issue_id")
+  stepId      String // 来自 snapshot JSON 中的某个节点 ID
+  stepName    String
+  index       Int
+  resultText  String?
+  attachments Json? // 存图片、文件、link 等
+  assigneeId  String     @map("assignee_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  issue       Issue      @relation(fields: [issueId], references: [id])
+  assignee    TeamMember @relation(fields: [assigneeId], references: [id])
+}
+
+// NOTE: 用来记录issue的操作历史，比如：
+// 1. 创建issue
+// 2. 更新issue
+// 3. 删除issue
+// 4. 更新issue的step
+// 5. 更新issue的assignee
+model IssueActivity {
+  id        String   @id @default(uuid())
+  issueId   String   @map("issue_id")
+  actorId   String   @map("actor_id") // 操作人（TeamMember）
+  action    String   @map("action") // 操作描述（可预设或自由填写）
+  metadata  Json?    @map("metadata") // 附带数据（如字段变更前后值）
+  createdAt DateTime @default(now()) @map("created_at")
+
+  issue Issue      @relation(fields: [issueId], references: [id])
+  actor TeamMember @relation(fields: [actorId], references: [id])
+
+  @@index([issueId])
+  @@index([actorId])
+  @@map("issue_activities")
 }
 
 model Comment {
@@ -164,6 +218,7 @@ enum WorkflowStatus {
 enum IssueStatus {
   TODO
   IN_PROGRESS
+  AMOST_DONE
   BLOCKED
   DONE
 }
@@ -174,6 +229,12 @@ enum IssuePriority {
   NORMAL
   HIGH
   URGENT
+}
+
+/// Issue 类型枚举
+enum IssueType {
+  NORMAL
+  WORKFLOW
 }
 
 /// 内容可见性类型枚举
