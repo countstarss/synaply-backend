@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { TeamMemberService } from '../common/services/team-member.service';
 import { CreateWorkflowIssueDto } from './dto/create-workflow-issue.dto';
+import { CreateIssueStepRecordDto } from './dto/create-issue-step-record.dto';
+import { CreateIssueActivityDto } from './dto/create-issue-activity.dto';
 
 @Injectable()
 export class IssueService {
@@ -136,6 +139,85 @@ export class IssueService {
 
     return this.prisma.issue.delete({
       where: { id: issueId },
+    });
+  }
+
+  /**
+   * MARK: - 创建 StepRecord
+   */
+  async addStepRecord(
+    userId: string,
+    workspaceId: string,
+    issueId: string,
+    dto: CreateIssueStepRecordDto,
+  ) {
+    // 权限验证
+    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+
+    // 将传入的 assigneeId (Supabase userId) 转为 TeamMemberId
+    const assigneeTeamMemberId =
+      await this.teamMemberService.getTeamMemberIdByWorkspace(
+        dto.assigneeId,
+        workspaceId,
+      );
+
+    return this.prisma.issueStepRecord.create({
+      data: {
+        issueId,
+        stepId: dto.stepId,
+        stepName: dto.stepName,
+        index: dto.index,
+        resultText: dto.resultText,
+        attachments: dto.attachments as Prisma.InputJsonValue,
+        assigneeId: assigneeTeamMemberId,
+      },
+    });
+  }
+
+  async listStepRecords(userId: string, workspaceId: string, issueId: string) {
+    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    return this.prisma.issueStepRecord.findMany({
+      where: { issueId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  /**
+   * MARK: - 创建 IssueActivity
+   */
+  async addIssueActivity(
+    userId: string,
+    workspaceId: string,
+    issueId: string,
+    dto: CreateIssueActivityDto,
+  ) {
+    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+
+    // 获取操作者 teamMemberId
+    const actorId = await this.teamMemberService.getTeamMemberIdByWorkspace(
+      userId,
+      workspaceId,
+    );
+
+    return this.prisma.issueActivity.create({
+      data: {
+        issueId,
+        actorId,
+        action: dto.action,
+        metadata: dto.metadata as Prisma.InputJsonValue,
+      },
+    });
+  }
+
+  async listIssueActivities(
+    userId: string,
+    workspaceId: string,
+    issueId: string,
+  ) {
+    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    return this.prisma.issueActivity.findMany({
+      where: { issueId },
+      orderBy: { createdAt: 'desc' },
     });
   }
 }

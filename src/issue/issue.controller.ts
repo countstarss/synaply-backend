@@ -16,6 +16,8 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CreateWorkflowIssueDto } from './dto/create-workflow-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
+import { CreateIssueStepRecordDto } from './dto/create-issue-step-record.dto';
+import { CreateIssueActivityDto } from './dto/create-issue-activity.dto';
 
 @ApiTags('issues')
 @ApiBearerAuth()
@@ -100,5 +102,59 @@ export class IssueController {
   ) {
     const userId = req.user?.sub;
     return this.issueService.remove(userId, workspaceId, id);
+  }
+
+  /* ------------------------ Issue Step Records ------------------------ */
+
+  // MARK: - 添加步骤记录
+  @Post(':id/steps')
+  @ApiOperation({ summary: '添加步骤记录' })
+  addStepRecord(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Body() dto: CreateIssueStepRecordDto,
+    @Req() req: Request,
+  ) {
+    const userId = req.user?.sub;
+    return this.issueService.addStepRecord(userId, workspaceId, id, dto);
+  }
+
+  // MARK: - 获取步骤记录列表
+  @Get(':id/steps')
+  @ApiOperation({ summary: '步骤记录列表' })
+  listStepRecords(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    const userId = req.user?.sub;
+    return this.issueService.listStepRecords(userId, workspaceId, id);
+  }
+
+  /* ------------------------ Issue Activities ------------------------ */
+
+  // MARK: - 添加 Issue 活动
+  @Post(':id/activities')
+  @ApiOperation({ summary: '添加 Issue 活动' })
+  addIssueActivity(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Body() dto: CreateIssueActivityDto,
+    @Req() req: Request,
+  ) {
+    const userId = req.user?.sub;
+    return this.issueService.addIssueActivity(userId, workspaceId, id, dto);
+  }
+
+  // MARK: - 获取活动列表
+  @Get(':id/activities')
+  @ApiOperation({ summary: 'Issue 活动列表' })
+  listIssueActivities(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    const userId = req.user?.sub;
+    return this.issueService.listIssueActivities(userId, workspaceId, id);
   }
 }
