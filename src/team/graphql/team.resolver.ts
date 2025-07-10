@@ -24,7 +24,6 @@ export class TeamResolver {
     @Context() ctx,
   ) {
     const userId = ctx.req.user.sub;
-    return this.teamService.getTeamWorkload(teamId, userId);
   }
 
   @ResolveField('members', () => [TeamMember])

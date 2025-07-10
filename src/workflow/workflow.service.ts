@@ -178,7 +178,11 @@ export class WorkflowService {
    * @param userId 当前认证用户 ID (Supabase User ID)
    * @returns 更新后的工作流对象
    */
-  async update(id: string, updateWorkflowDto: UpdateWorkflowDto, userId: string) {
+  async update(
+    id: string,
+    updateWorkflowDto: UpdateWorkflowDto,
+    userId: string,
+  ) {
     // 验证权限
     await this.permissionService.validateResourcePermission(
       userId,
@@ -225,15 +229,6 @@ export class WorkflowService {
       id,
       'delete',
     );
-
-    // 检查是否有关联的issues
-    const relatedIssues = await this.prisma.issue.findMany({
-      where: { workflowId: id },
-    });
-
-    if (relatedIssues.length > 0) {
-      throw new ForbiddenException('不能删除有关联任务的工作流');
-    }
 
     // 删除工作流
     return this.prisma.workflow.delete({

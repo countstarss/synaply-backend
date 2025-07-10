@@ -35,22 +35,17 @@ model Team {
 
 /// MARK: - 团队成员模型
 model TeamMember {
-  id                     String             @id @default(uuid())
-  teamId                 String             @map("team_id")
-  userId                 String             @map("user_id")
-  role                   Role               @default(MEMBER)
-  createdAt              DateTime           @default(now()) @map("created_at")
-  updatedAt              DateTime           @updatedAt @map("updated_at")
-  comments               Comment[]
-  issueActivities        IssueActivity[]
-  progressLogs           IssueProgressLog[] @relation("ProgressLogActor")
-  assignedProgress       IssueProgressLog[]
-  createdIssues          Issue[]            @relation("CreatedIssues")
-  directlyAssignedIssues Issue[]            @relation("DirectAssignedIssues")
-  createdProjects        Project[]          @relation("CreatedProjects")
-  team                   Team               @relation(fields: [teamId], references: [id])
-  user                   User               @relation(fields: [userId], references: [id])
-  createdWorkflows       Workflow[]         @relation("CreatedWorkflows")
+  id               String     @id @default(uuid())
+  teamId           String     @map("team_id")
+  userId           String     @map("user_id")
+  role             Role       @default(MEMBER)
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+  comments         Comment[]
+  team             Team       @relation(fields: [teamId], references: [id])
+  user             User       @relation(fields: [userId], references: [id])
+  createdWorkflows Workflow[] @relation("CreatedWorkflows")
+  // Project          Project[]
 
   @@unique([teamId, userId])
   @@map("team_members")
@@ -84,8 +79,8 @@ model Project {
   updatedAt   DateTime       @updatedAt @map("updated_at")
   creatorId   String         @map("creator_id")
   visibility  VisibilityType @default(PRIVATE)
-  issues      Issue[]
-  creator     TeamMember     @relation("CreatedProjects", fields: [creatorId], references: [id])
+  // issues      Issue[]
+  // creator     TeamMember     @relation("CreatedProjects", fields: [creatorId], references: [id])
   workspace   Workspace      @relation(fields: [workspaceId], references: [id])
 
   @@map("projects")
@@ -108,7 +103,7 @@ model Workflow {
   version           String         @default("v1")
   isSystemTemplate  Boolean        @default(false) // 是否为系统级模板
 
-  issues    Issue[]
+  // issues    Issue[]
   creator   TeamMember @relation("CreatedWorkflows", fields: [creatorId], references: [id])
   workspace Workspace  @relation(fields: [workspaceId], references: [id])
 
@@ -116,56 +111,20 @@ model Workflow {
 }
 
 model Issue {
-  id                       String             @id @default(uuid())
-  title                    String
-  description              String?
-  workspaceId              String             @map("workspace_id")
-  workflowId               String?            @map("workflow_id")
-  directAssigneeId         String?            @map("direct_assignee_id")
-  creatorId                String             @map("creator_id")
-  createdAt                DateTime           @default(now()) @map("created_at")
-  updatedAt                DateTime           @updatedAt @map("updated_at")
-  dueDate                  DateTime?          @map("due_date")
-  parentTaskId             String?            @map("parent_task_id")
-  priority                 IssuePriority      @default(NORMAL)
-  startDate                DateTime?          @map("start_date")
-  status                   IssueStatus        @default(TODO)
-  projectId                String?            @map("project_id")
-  visibility               VisibilityType     @default(PRIVATE)
-  currentStepId            String?            @map("current_step_id")
-  workflowSnapshot         Json?
-  workflowCompleted        Boolean            @default(false)
-  workflowCurrentStepIndex Int                @default(0)
-  currentAssigneeId        String?            @map("current_assignee_id")
-  comments                 Comment[]
-  activities               IssueActivity[]
-  blockingIssues           IssueDependency[]  @relation("BlockingIssue")
-  dependsOnIssues          IssueDependency[]  @relation("DependsOnIssue")
-  progressLogs             IssueProgressLog[]
-  creator                  TeamMember         @relation("CreatedIssues", fields: [creatorId], references: [id])
-  directAssignee           TeamMember?        @relation("DirectAssignedIssues", fields: [directAssigneeId], references: [id])
-  parentTask               Issue?             @relation("Subtask", fields: [parentTaskId], references: [id])
-  subtasks                 Issue[]            @relation("Subtask")
-  project                  Project?           @relation(fields: [projectId], references: [id])
-  workflow                 Workflow?          @relation(fields: [workflowId], references: [id])
-  workspace                Workspace          @relation(fields: [workspaceId], references: [id])
+  id               String    @id @default(uuid())
+  title            String
+  description      String?
+  workspaceId      String    @map("workspace_id")
+  // workflowId       String?   @map("workflow_id")
+  directAssigneeId String?   @map("direct_assignee_id")
+  creatorId        String    @map("creator_id")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  dueDate          DateTime? @map("due_date")
+  workspace        Workspace @relation(fields: [workspaceId], references: [id])
+  Comment          Comment[]
 
   @@map("issues")
-}
-
-// NOTE: 流程行为日志
-model IssueActivity {
-  id           String     @id @default(uuid())
-  issueId      String     @map("issue_id")
-  actorId      String     @map("actor_id")
-  fromStepName String?
-  toStepName   String
-  comment      String?
-  createdAt    DateTime   @default(now()) @map("created_at")
-  actor        TeamMember @relation(fields: [actorId], references: [id])
-  issue        Issue      @relation(fields: [issueId], references: [id])
-
-  @@map("issue_activities")
 }
 
 model Comment {
@@ -180,39 +139,6 @@ model Comment {
   issue     Issue      @relation(fields: [issueId], references: [id])
 
   @@map("comments")
-}
-
-model IssueDependency {
-  id               String   @id @default(uuid())
-  blockerIssueId   String   @map("blocker_issue_id")
-  dependsOnIssueId String   @map("depends_on_issue_id")
-  createdAt        DateTime @default(now()) @map("created_at")
-  blockerIssue     Issue    @relation("BlockingIssue", fields: [blockerIssueId], references: [id])
-  dependsOnIssue   Issue    @relation("DependsOnIssue", fields: [dependsOnIssueId], references: [id])
-
-  @@unique([blockerIssueId, dependsOnIssueId])
-  @@map("issue_dependencies")
-}
-
-// NOTE: 每步成果记录
-model IssueProgressLog {
-  id          String      @id @default(uuid())
-  issueId     String      @map("issue_id")
-  stepId      String
-  stepName    String
-  fromStatus  String?
-  toStatus    String
-  assigneeId  String?     @map("assignee_id")
-  actorId     String      @map("actor_id")
-  comment     String?
-  isRejected  Boolean?
-  attachments Json?
-  createdAt   DateTime    @default(now()) @map("created_at")
-  actor       TeamMember  @relation("ProgressLogActor", fields: [actorId], references: [id])
-  assignee    TeamMember? @relation(fields: [assigneeId], references: [id])
-  issue       Issue       @relation(fields: [issueId], references: [id])
-
-  @@map("issue_progress_logs")
 }
 
 /// 用户角色枚举
@@ -248,20 +174,6 @@ enum IssuePriority {
   NORMAL
   HIGH
   URGENT
-}
-
-/// 聊天类型枚举
-enum ChatType {
-  PRIVATE
-  GROUP
-}
-
-/// 消息类型枚举
-enum MessageType {
-  TEXT
-  IMAGE
-  FILE
-  SYSTEM
 }
 
 /// 内容可见性类型枚举

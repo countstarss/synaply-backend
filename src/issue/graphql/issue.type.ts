@@ -1,9 +1,9 @@
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
 import { IssueStatus, IssuePriority } from '@prisma/client';
 import { Workspace } from 'src/workspace/graphql/workspace.type';
-import { Project } from 'src/project/graphql/project.type';
+// import { Project } from 'src/project/graphql/project.type';
 import { TeamMember } from 'src/team/graphql/team.type';
-import { Workflow, WorkflowStep } from 'src/workflow/graphql/workflow.type';
+// import { Workflow, WorkflowStep } from 'src/workflow/graphql/workflow.type';
 
 registerEnumType(IssueStatus, {
   name: 'IssueStatus',
@@ -60,21 +60,20 @@ export class Issue {
   @Field(() => ID, { nullable: true })
   projectId?: string;
 
-  @Field(() => Project, { nullable: true })
-  project?: Project;
+  // @Field(() => Project, { nullable: true })
+  // project?: Project;
+
+  // @Field(() => ID, { nullable: true })
+  // workflowId?: string;
+
+  // @Field(() => Workflow, { nullable: true })
+  // workflow?: Workflow;
 
   @Field(() => ID, { nullable: true })
-  workflowId?: string;
+  // currentStepId?: string;
 
-  @Field(() => Workflow, { nullable: true })
-  workflow?: Workflow;
-
-  @Field(() => ID, { nullable: true })
-  currentStepId?: string;
-
-  @Field(() => WorkflowStep, { nullable: true })
-  currentStep?: WorkflowStep;
-
+  // @Field(() => WorkflowStep, { nullable: true })
+  // currentStep?: WorkflowStep;
   @Field(() => ID, { nullable: true })
   directAssigneeId?: string;
 

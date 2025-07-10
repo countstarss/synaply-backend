@@ -11,7 +11,7 @@ import { TeamModule } from './team/team.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { IssueModule } from './issue/issue.module';
-import { ProjectModule } from './project/project.module';
+// import { ProjectModule } from './project/project.module';
 import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
 
@@ -35,7 +35,7 @@ import { ConfigModule } from '@nestjs/config';
     WorkspaceModule,
     WorkflowModule,
     IssueModule,
-    ProjectModule,
+    // ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

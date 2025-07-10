@@ -1,6 +1,13 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateWorkflowDto } from './create-workflow.dto';
-import { IsEnum, IsOptional, IsNumber, IsString, IsBoolean, IsObject } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsNumber,
+  IsString,
+  IsBoolean,
+  IsObject,
+} from 'class-validator';
 import { WorkflowStatus } from '@prisma/client';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 

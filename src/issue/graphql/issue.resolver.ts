@@ -1,4 +1,4 @@
-import { Resolver, Query, Args, Context } from '@nestjs/graphql';
+import { Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { SupabaseAuthGuard } from 'src/auth/supabase-auth.guard';
 import { Issue } from 'src/issue/graphql/issue.type';

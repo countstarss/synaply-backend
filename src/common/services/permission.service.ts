@@ -59,9 +59,6 @@ export class PermissionService {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        creator: {
-          include: { user: true },
-        },
         workspace: {
           include: {
             team: {
@@ -82,7 +79,7 @@ export class PermissionService {
 
     return this.evaluatePermission(
       userId,
-      project.creator.userId,
+      project.creatorId,
       project.visibility,
       project.workspace,
       operation,
@@ -100,9 +97,6 @@ export class PermissionService {
     const workflow = await this.prisma.workflow.findUnique({
       where: { id: workflowId },
       include: {
-        creator: {
-          include: { user: true },
-        },
         workspace: {
           include: {
             team: {
@@ -123,7 +117,7 @@ export class PermissionService {
 
     return this.evaluatePermission(
       userId,
-      workflow.creator.userId,
+      workflow.creatorId,
       workflow.visibility,
       workflow.workspace,
       operation,
@@ -141,9 +135,6 @@ export class PermissionService {
     const issue = await this.prisma.issue.findUnique({
       where: { id: issueId },
       include: {
-        creator: {
-          include: { user: true },
-        },
         workspace: {
           include: {
             team: {
@@ -164,8 +155,8 @@ export class PermissionService {
 
     return this.evaluatePermission(
       userId,
-      issue.creator.userId,
-      issue.visibility,
+      issue.creatorId,
+      VisibilityType.PRIVATE,
       issue.workspace,
       operation,
     );

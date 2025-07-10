@@ -114,9 +114,7 @@ export function createPermissionChecker(
 /**
  * 权限检查装饰器（用于控制器方法）
  */
-export function requirePermission(
-  permission: 'view' | 'edit' | 'delete' | 'changeVisibility',
-) {
+export function requirePermission() {
   return function (
     target: any,
     propertyKey: string,
