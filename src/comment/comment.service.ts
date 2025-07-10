@@ -66,6 +66,7 @@ export class CommentService {
           include: {
             user: {
               select: {
+                email: true,
                 name: true,
                 avatarUrl: true,
               },
@@ -96,6 +97,7 @@ export class CommentService {
             user: {
               select: {
                 name: true,
+                email: true,
                 avatarUrl: true,
               },
             },
@@ -124,7 +126,11 @@ export class CommentService {
       updatedAt: comment.updatedAt,
       author: {
         id: comment.author.id,
-        name: comment.author.user?.name,
+        name:
+          comment.author.user?.name ||
+          comment.author.user?.email?.split('@')[0] ||
+          '未知用户',
+        email: comment.author.user?.email,
         avatarUrl: comment.author.user?.avatarUrl,
       },
     };

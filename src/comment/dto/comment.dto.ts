@@ -7,6 +7,9 @@ export class TeamMemberDto {
   @ApiProperty({ description: '用户名称' })
   name?: string;
 
+  @ApiPropertyOptional({ description: '用户邮箱' })
+  email?: string;
+
   @ApiProperty({ description: '用户头像' })
   avatarUrl?: string;
 }
