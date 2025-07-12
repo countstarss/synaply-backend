@@ -45,4 +45,39 @@ export class TaskService {
       },
     });
   }
+
+  /**
+   * 更新任务
+   */
+  async updateTask(
+    workspaceId: string,
+    taskId: string,
+    dto: Partial<CreateTaskDto>,
+  ) {
+    // @ts-ignore
+    return this.prisma.task.update({
+      where: {
+        id: taskId,
+      },
+      data: {
+        ...dto,
+        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+      },
+      include: {
+        calendar: true,
+      },
+    });
+  }
+
+  /**
+   * 删除任务
+   */
+  async deleteTask(workspaceId: string, taskId: string) {
+    // @ts-ignore
+    return this.prisma.task.delete({
+      where: {
+        id: taskId,
+      },
+    });
+  }
 }

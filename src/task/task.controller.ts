@@ -6,10 +6,13 @@ import {
   Param,
   Req,
   UseGuards,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @UseGuards(SupabaseAuthGuard)
 @Controller('workspaces/:workspaceId/tasks')
@@ -35,5 +38,28 @@ export class TaskController {
   @Get()
   async getTasks(@Param('workspaceId') workspaceId: string) {
     return this.taskService.getTasksByWorkspace(workspaceId);
+  }
+
+  /**
+   * 更新任务
+   */
+  @Patch(':taskId')
+  async updateTask(
+    @Param('workspaceId') workspaceId: string,
+    @Param('taskId') taskId: string,
+    @Body() dto: UpdateTaskDto,
+  ) {
+    return this.taskService.updateTask(workspaceId, taskId, dto);
+  }
+
+  /**
+   * 删除任务
+   */
+  @Delete(':taskId')
+  async deleteTask(
+    @Param('workspaceId') workspaceId: string,
+    @Param('taskId') taskId: string,
+  ) {
+    return this.taskService.deleteTask(workspaceId, taskId);
   }
 }

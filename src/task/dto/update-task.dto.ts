@@ -1,8 +1,9 @@
-import { IsString, IsOptional, IsISO8601 } from 'class-validator';
+import { IsOptional, IsString, IsISO8601 } from 'class-validator';
 
-export class CreateTaskDto {
+export class UpdateTaskDto {
+  @IsOptional()
   @IsString()
-  title: string;
+  title?: string;
 
   @IsOptional()
   @IsString()
