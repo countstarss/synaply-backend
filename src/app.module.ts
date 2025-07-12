@@ -15,6 +15,8 @@ import { IssueModule } from './issue/issue.module';
 import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommentModule } from './comment/comment.module';
+import { CalendarModule } from './calendar/calendar.module';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { CommentModule } from './comment/comment.module';
     WorkflowModule,
     IssueModule,
     CommentModule,
+    CalendarModule,
+    TaskModule,
     // ProjectModule,
   ],
   controllers: [AppController],

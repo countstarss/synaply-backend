@@ -49,6 +49,7 @@ model TeamMember {
   Issue           Issue[]
   IssueStepRecord IssueStepRecord[]
   IssueActivity   IssueActivity[]
+  Task            Task[]
 
   @@unique([teamId, userId])
   @@map("team_members")
@@ -68,6 +69,7 @@ model Workspace {
   workflows Workflow[]
   team      Team?         @relation(fields: [teamId], references: [id])
   user      User?         @relation(fields: [userId], references: [id])
+  calendar  Calendar?
 
   @@map("workspaces")
 }
@@ -194,6 +196,45 @@ model Comment {
   issue       Issue      @relation(fields: [issueId], references: [id])
 
   @@map("comments")
+}
+
+/// MARK: - 日历模型
+model Calendar {
+  id          String   @id @default(uuid())
+  name        String
+  workspaceId String   @unique @map("workspace_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tasks     Task[]
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@map("calendars")
+}
+
+/// MARK: - 任务模型
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  calendarId  String     @map("calendar_id")
+  dueDate     DateTime?
+  status      TaskStatus @default(PENDING)
+  createdById String?    @map("created_by_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  calendar  Calendar    @relation(fields: [calendarId], references: [id])
+  createdBy TeamMember? @relation(fields: [createdById], references: [id])
+
+  @@map("tasks")
+}
+
+/// Task 状态枚举
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
 }
 
 /// 用户角色枚举

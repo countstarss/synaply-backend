@@ -30,6 +30,11 @@ export class AuthService {
           create: {
             name: `${email} 的个人空间`,
             type: WorkspaceType.PERSONAL,
+            calendar: {
+              create: {
+                name: `${email} 的日历`,
+              },
+            },
           },
         },
       },
