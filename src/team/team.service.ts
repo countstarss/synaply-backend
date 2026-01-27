@@ -281,10 +281,124 @@ export class TeamService {
       }
     }
 
-    // 移除成员
-    await this.prisma.teamMember.delete({
-      where: { id: targetMember.id },
-    });
+    // 在删除成员前，需要先处理所有关联数据
+    // 使用事务确保数据一致性
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // 1. 删除该成员创建的评论（因为 Comment.authorId 有外键约束 ON DELETE RESTRICT）
+        // 必须先删除所有评论，否则无法删除 TeamMember
+        // 验证：先检查是否有评论存在
+        const commentCount = await tx.comment.count({
+          where: { authorId: targetMember.id },
+        });
+        if (commentCount > 0) {
+          const deletedComments = await tx.comment.deleteMany({
+            where: { authorId: targetMember.id },
+          });
+          console.log(`Deleted ${deletedComments.count} comments for member ${targetMember.id}`);
+          // 验证删除是否成功
+          const remainingComments = await tx.comment.count({
+            where: { authorId: targetMember.id },
+          });
+          if (remainingComments > 0) {
+            throw new Error(`Failed to delete all comments. ${remainingComments} comments still exist.`);
+          }
+        }
+
+        // 2. 删除该成员的问题活动记录（因为 IssueActivity.actorId 有外键约束）
+        const deletedActivities = await tx.issueActivity.deleteMany({
+          where: { actorId: targetMember.id },
+        });
+        console.log(`Deleted ${deletedActivities.count} issue activities for member ${targetMember.id}`);
+
+        // 3. 删除该成员的问题步骤记录（因为 IssueStepRecord.assigneeId 有外键约束）
+        const deletedStepRecords = await tx.issueStepRecord.deleteMany({
+          where: { assigneeId: targetMember.id },
+        });
+        console.log(`Deleted ${deletedStepRecords.count} issue step records for member ${targetMember.id}`);
+
+        // 4. Issue.teamMemberId 有 ON DELETE SET NULL，会自动处理，无需手动操作
+
+        // 5. 将该成员创建的工作流转移给团队的其他管理员或拥有者
+        // 先找到团队的其他管理员或拥有者
+        const otherAdminOrOwner = await tx.teamMember.findFirst({
+          where: {
+            teamId,
+            id: { not: targetMember.id },
+            role: { in: [Role.OWNER, Role.ADMIN] },
+          },
+        });
+
+        if (otherAdminOrOwner) {
+          // 转移工作流所有权
+          const updatedWorkflows = await tx.workflow.updateMany({
+            where: { creatorId: targetMember.id },
+            data: { creatorId: otherAdminOrOwner.id },
+          });
+          console.log(`Transferred ${updatedWorkflows.count} workflows to member ${otherAdminOrOwner.id}`);
+        } else {
+          // 如果没有其他管理员，检查是否有工作流需要转移
+          const workflowCount = await tx.workflow.count({
+            where: { creatorId: targetMember.id },
+          });
+          if (workflowCount > 0) {
+            throw new BadRequestException(
+              'Cannot remove member: they are the creator of workflows and there are no other admins to transfer ownership.',
+            );
+          }
+        }
+
+        // 6. Task.createdById 是可选的，设置为 null
+        const updatedTasks = await tx.task.updateMany({
+          where: { createdById: targetMember.id },
+          data: { createdById: null },
+        });
+        console.log(`Updated ${updatedTasks.count} tasks for member ${targetMember.id}`);
+
+        // 7. 删除该成员的通知记录（因为 notifications.receiverId 有外键约束）
+        // 注意：如果 schema.prisma 中没有 Notification 模型，使用原始 SQL
+        try {
+          const deletedNotifications = await tx.$executeRaw`
+            DELETE FROM notifications WHERE receiver_id = ${targetMember.id}
+          `;
+          console.log(`Deleted ${deletedNotifications} notifications for member ${targetMember.id}`);
+        } catch (error) {
+          // 如果表不存在或模型不存在，尝试使用 Prisma 客户端（如果已生成）
+          // 或者忽略错误（如果通知系统尚未实现）
+          console.warn(`Could not delete notifications: ${error.message}`);
+          // 尝试使用 Prisma 客户端（如果模型存在）
+          try {
+            const deletedNotifications = await (tx as any).notification?.deleteMany({
+              where: { receiverId: targetMember.id },
+            });
+            if (deletedNotifications) {
+              console.log(`Deleted ${deletedNotifications.count} notifications via Prisma client`);
+            }
+          } catch (e) {
+            // 如果都失败了，记录警告但继续执行
+            console.warn(`Notification deletion failed, but continuing: ${e.message}`);
+          }
+        }
+
+        // 8. 最后删除团队成员记录
+        // 此时所有外键约束应该都已解决
+        await tx.teamMember.delete({
+          where: { id: targetMember.id },
+        });
+        console.log(`Successfully deleted team member ${targetMember.id}`);
+      });
+    } catch (error) {
+      // 如果是已知的业务异常，直接抛出
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      // 其他错误记录并重新抛出
+      console.error('Error removing team member:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      throw new BadRequestException(
+        `Failed to remove member: ${error.message}`,
+      );
+    }
 
     return { message: 'Member removed successfully.' };
   }
