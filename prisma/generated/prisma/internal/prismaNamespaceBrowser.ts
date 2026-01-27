@@ -58,6 +58,10 @@ export const ModelName = {
   Project: 'Project',
   Workflow: 'Workflow',
   Issue: 'Issue',
+  IssueState: 'IssueState',
+  Label: 'Label',
+  IssueLabel: 'IssueLabel',
+  IssueAssignee: 'IssueAssignee',
   IssueStepRecord: 'IssueStepRecord',
   IssueActivity: 'IssueActivity',
   Comment: 'Comment',
@@ -121,6 +125,7 @@ export const WorkspaceScalarFieldEnum = {
   type: 'type',
   userId: 'userId',
   teamId: 'teamId',
+  issuePrefix: 'issuePrefix',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -174,6 +179,12 @@ export const IssueScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   dueDate: 'dueDate',
+  stateId: 'stateId',
+  projectId: 'projectId',
+  visibility: 'visibility',
+  creatorMemberId: 'creatorMemberId',
+  key: 'key',
+  sequence: 'sequence',
   totalSteps: 'totalSteps',
   currentStepId: 'currentStepId',
   currentStepIndex: 'currentStepIndex',
@@ -185,6 +196,54 @@ export const IssueScalarFieldEnum = {
 } as const
 
 export type IssueScalarFieldEnum = (typeof IssueScalarFieldEnum)[keyof typeof IssueScalarFieldEnum]
+
+
+export const IssueStateScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  color: 'color',
+  category: 'category',
+  position: 'position',
+  isDefault: 'isDefault',
+  isArchived: 'isArchived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IssueStateScalarFieldEnum = (typeof IssueStateScalarFieldEnum)[keyof typeof IssueStateScalarFieldEnum]
+
+
+export const LabelScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  color: 'color',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LabelScalarFieldEnum = (typeof LabelScalarFieldEnum)[keyof typeof LabelScalarFieldEnum]
+
+
+export const IssueLabelScalarFieldEnum = {
+  id: 'id',
+  issueId: 'issueId',
+  labelId: 'labelId',
+  createdAt: 'createdAt'
+} as const
+
+export type IssueLabelScalarFieldEnum = (typeof IssueLabelScalarFieldEnum)[keyof typeof IssueLabelScalarFieldEnum]
+
+
+export const IssueAssigneeScalarFieldEnum = {
+  id: 'id',
+  issueId: 'issueId',
+  memberId: 'memberId',
+  assignedAt: 'assignedAt'
+} as const
+
+export type IssueAssigneeScalarFieldEnum = (typeof IssueAssigneeScalarFieldEnum)[keyof typeof IssueAssigneeScalarFieldEnum]
 
 
 export const IssueStepRecordScalarFieldEnum = {

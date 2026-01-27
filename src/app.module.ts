@@ -11,6 +11,7 @@ import { TeamModule } from './team/team.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { IssueModule } from './issue/issue.module';
+import { IssueStateModule } from './issue-state/issue-state.module';
 // import { ProjectModule } from './project/project.module';
 import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
@@ -38,6 +39,7 @@ import { TaskModule } from './task/task.module';
     WorkspaceModule,
     WorkflowModule,
     IssueModule,
+    IssueStateModule,
     CommentModule,
     CalendarModule,
     TaskModule,

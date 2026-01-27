@@ -50,6 +50,8 @@ model TeamMember {
   IssueStepRecord IssueStepRecord[]
   IssueActivity   IssueActivity[]
   Task            Task[]
+  createdIssues   Issue[]           @relation("CreatedIssues")
+  assignedIssues  IssueAssignee[]
 
   @@unique([teamId, userId])
   @@map("team_members")
@@ -57,19 +59,22 @@ model TeamMember {
 
 /// MARK: - 工作空间模型
 model Workspace {
-  id        String        @id @default(uuid())
-  name      String
-  type      WorkspaceType
-  userId    String?       @map("user_id")
-  teamId    String?       @unique @map("team_id")
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
-  issues    Issue[]
-  projects  Project[]
-  workflows Workflow[]
-  team      Team?         @relation(fields: [teamId], references: [id])
-  user      User?         @relation(fields: [userId], references: [id])
-  calendar  Calendar?
+  id          String        @id @default(uuid())
+  name        String
+  type        WorkspaceType
+  userId      String?       @map("user_id")
+  teamId      String?       @unique @map("team_id")
+  issuePrefix String?       @map("issue_prefix") // Issue 编号前缀，如 "SYN"、"BE"
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  issues      Issue[]
+  projects    Project[]
+  workflows   Workflow[]
+  team        Team?         @relation(fields: [teamId], references: [id])
+  user        User?         @relation(fields: [userId], references: [id])
+  calendar    Calendar?
+  issueStates IssueState[]
+  labels      Label[]
 
   @@map("workspaces")
 }
@@ -84,8 +89,7 @@ model Project {
   updatedAt   DateTime       @updatedAt @map("updated_at")
   creatorId   String         @map("creator_id")
   visibility  VisibilityType @default(PRIVATE)
-  // issues      Issue[]
-  // creator     TeamMember     @relation("CreatedProjects", fields: [creatorId], references: [id])
+  issues      Issue[]
   workspace   Workspace      @relation(fields: [workspaceId], references: [id])
 
   @@map("projects")
@@ -127,6 +131,15 @@ model Issue {
   updatedAt        DateTime  @updatedAt @map("updated_at")
   dueDate          DateTime? @map("due_date")
 
+  // P0 新增字段
+  stateId         String?        @map("state_id") // 关联 IssueState，主状态
+  projectId       String?        @map("project_id") // 可选归属项目
+  visibility      VisibilityType @default(TEAM_EDITABLE) // 可见性控制
+  creatorMemberId String?        @map("creator_member_id") // 创建者 TeamMember ID
+  key             String?        @unique // Issue 编号，如 "SYN-123"
+  sequence        Int? // workspace 内自增序号
+
+  // Workflow 相关字段 (保留，用于 WORKFLOW 类型)
   totalSteps        Int           @default(0)
   currentStepId     String?       @map("current_step_id") // 用于快速标识当前步骤（配合 snapshot 解析）
   currentStepIndex  Int           @default(0)
@@ -142,8 +155,83 @@ model Issue {
   teamMemberId    String?
   IssueStepRecord IssueStepRecord[]
   IssueActivity   IssueActivity[]
+  state           IssueState?       @relation(fields: [stateId], references: [id])
+  project         Project?          @relation(fields: [projectId], references: [id])
+  creatorMember   TeamMember?       @relation("CreatedIssues", fields: [creatorMemberId], references: [id])
+  assignees       IssueAssignee[]
+  labels          IssueLabel[]
 
+  @@index([workspaceId])
+  @@index([stateId])
+  @@index([projectId])
+  @@index([creatorMemberId])
   @@map("issues")
+}
+
+/// MARK: - Issue 状态配置模型 (Linear 风格动态状态)
+model IssueState {
+  id          String             @id @default(uuid())
+  workspaceId String             @map("workspace_id")
+  name        String // 状态名称，如 "待处理"、"进行中"
+  color       String             @default("#6B7280") // 状态颜色
+  category    IssueStateCategory @default(TODO) // 状态分类，用于聚合统计
+  position    Int                @default(0) // 排序位置
+  isDefault   Boolean            @default(false) @map("is_default") // 是否为新建 Issue 默认状态
+  isArchived  Boolean            @default(false) @map("is_archived") // 软删除标记
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  issues    Issue[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+  @@map("issue_states")
+}
+
+/// MARK: - 标签模型
+model Label {
+  id          String   @id @default(uuid())
+  workspaceId String   @map("workspace_id")
+  name        String
+  color       String   @default("#6B7280")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id])
+  issues    IssueLabel[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+  @@map("labels")
+}
+
+/// MARK: - Issue 标签关联表
+model IssueLabel {
+  id        String   @id @default(uuid())
+  issueId   String   @map("issue_id")
+  labelId   String   @map("label_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@unique([issueId, labelId])
+  @@map("issue_labels")
+}
+
+/// MARK: - Issue 分配人关联表
+model IssueAssignee {
+  id         String   @id @default(uuid())
+  issueId    String   @map("issue_id")
+  memberId   String   @map("member_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  issue  Issue      @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  member TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([issueId, memberId])
+  @@map("issue_assignees")
 }
 
 // NOTE: 用来记录issue step的信息
@@ -256,13 +344,22 @@ enum WorkflowStatus {
   PUBLISHED
 }
 
-/// Issue 状态枚举
+/// Issue 状态枚举 (保留用于 Workflow Step 状态)
 enum IssueStatus {
   TODO
   IN_PROGRESS
   AMOST_DONE
   BLOCKED
   DONE
+}
+
+/// Issue 状态分类枚举 (用于 IssueState 的分类聚合)
+enum IssueStateCategory {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELED
 }
 
 /// Issue 优先级枚举

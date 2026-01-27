@@ -8,6 +8,7 @@ import {
   UseGuards,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { IssueService } from './issue.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
@@ -18,6 +19,7 @@ import { CreateWorkflowIssueDto } from './dto/create-workflow-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { CreateIssueStepRecordDto } from './dto/create-issue-step-record.dto';
 import { CreateIssueActivityDto } from './dto/create-issue-activity.dto';
+import { QueryIssueDto } from './dto/query-issue.dto';
 
 @ApiTags('issues')
 @ApiBearerAuth()
@@ -65,12 +67,27 @@ export class IssueController {
   /**
    * MARK: - 获取任务列表
    * GET /workspaces/:workspaceId/issues
+   * 支持 scope、stateId、projectId、assigneeId、labelId 等过滤参数
    */
   @Get()
-  @ApiOperation({ summary: '获取任务列表 (简化版)' })
-  findAll(@Param('workspaceId') workspaceId: string, @Req() req: Request) {
+  @ApiOperation({ summary: '获取任务列表 (支持 scope 过滤)' })
+  findAll(
+    @Param('workspaceId') workspaceId: string,
+    @Query() query: QueryIssueDto,
+    @Req() req: Request,
+  ) {
     const userId = req.user?.sub;
-    return this.issueService.findAll(workspaceId, userId);
+    return this.issueService.findAll(workspaceId, userId, query);
+  }
+
+  /**
+   * MARK: - 获取单个任务
+   * GET /workspaces/:workspaceId/issues/:id
+   */
+  @Get(':id')
+  @ApiOperation({ summary: '获取单个任务详情' })
+  findOne(@Param('id') id: string) {
+    return this.issueService.findOne(id);
   }
 
   /**

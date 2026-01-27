@@ -54,6 +54,17 @@ export const IssueStatus = {
 export type IssueStatus = (typeof IssueStatus)[keyof typeof IssueStatus]
 
 
+export const IssueStateCategory = {
+  BACKLOG: 'BACKLOG',
+  TODO: 'TODO',
+  IN_PROGRESS: 'IN_PROGRESS',
+  DONE: 'DONE',
+  CANCELED: 'CANCELED'
+} as const
+
+export type IssueStateCategory = (typeof IssueStateCategory)[keyof typeof IssueStateCategory]
+
+
 export const IssuePriority = {
   LOW: 'LOW',
   NORMAL: 'NORMAL',

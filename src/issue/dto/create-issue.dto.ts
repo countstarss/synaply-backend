@@ -4,8 +4,12 @@ import {
   IsOptional,
   IsString,
   IsDateString,
+  IsArray,
 } from 'class-validator';
-// import { IssuePriority, IssueStatus, VisibilityType } from '../../../prisma/generated/prisma/client';
+import {
+  IssuePriority,
+  VisibilityType,
+} from '../../../prisma/generated/prisma/enums';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // MARK: - CreateIssueDto
@@ -44,4 +48,53 @@ export class CreateIssueDto {
   @IsOptional()
   @IsDateString()
   dueDate?: Date;
+
+  // P0 新增字段
+  @ApiPropertyOptional({
+    description: 'The state ID of the issue',
+  })
+  @IsOptional()
+  @IsString()
+  stateId?: string;
+
+  @ApiPropertyOptional({
+    description: 'The project ID of the issue',
+  })
+  @IsOptional()
+  @IsString()
+  projectId?: string;
+
+  @ApiPropertyOptional({
+    description: 'The visibility of the issue',
+    enum: VisibilityType,
+  })
+  @IsOptional()
+  @IsEnum(VisibilityType)
+  visibility?: VisibilityType;
+
+  @ApiPropertyOptional({
+    description: 'The priority of the issue',
+    enum: IssuePriority,
+  })
+  @IsOptional()
+  @IsEnum(IssuePriority)
+  priority?: IssuePriority;
+
+  @ApiPropertyOptional({
+    description: 'Assignee member IDs',
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  assigneeIds?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Label IDs',
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  labelIds?: string[];
 }

@@ -73,6 +73,26 @@ export type Workflow = Prisma.WorkflowModel
  */
 export type Issue = Prisma.IssueModel
 /**
+ * Model IssueState
+ * MARK: - Issue 状态配置模型 (Linear 风格动态状态)
+ */
+export type IssueState = Prisma.IssueStateModel
+/**
+ * Model Label
+ * MARK: - 标签模型
+ */
+export type Label = Prisma.LabelModel
+/**
+ * Model IssueLabel
+ * MARK: - Issue 标签关联表
+ */
+export type IssueLabel = Prisma.IssueLabelModel
+/**
+ * Model IssueAssignee
+ * MARK: - Issue 分配人关联表
+ */
+export type IssueAssignee = Prisma.IssueAssigneeModel
+/**
  * Model IssueStepRecord
  * 
  */
