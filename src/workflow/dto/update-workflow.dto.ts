@@ -8,7 +8,7 @@ import {
   IsBoolean,
   IsObject,
 } from 'class-validator';
-import { WorkflowStatus } from '@prisma/client';
+import { WorkflowStatus } from '../../../prisma/generated/prisma/client';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateWorkflowDto extends PartialType(CreateWorkflowDto) {

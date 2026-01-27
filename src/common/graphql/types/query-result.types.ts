@@ -1,5 +1,8 @@
 import { ObjectType, Field, InputType, Int, ID } from '@nestjs/graphql';
-import { IssueStatus, IssuePriority } from '@prisma/client';
+import {
+  IssueStatus,
+  IssuePriority,
+} from '../../../../prisma/generated/prisma/client';
 import { TeamMember } from 'src/team/graphql/team.type';
 
 @InputType()

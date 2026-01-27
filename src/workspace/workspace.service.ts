@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { WorkspaceType } from '@prisma/client';
+import { WorkspaceType } from '../../prisma/generated/prisma/client';
 
 @Injectable()
 export class WorkspaceService {

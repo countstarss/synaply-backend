@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../prisma/generated/prisma/client';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { TeamMemberService } from '../common/services/team-member.service';
 import { CreateWorkflowIssueDto } from './dto/create-workflow-issue.dto';

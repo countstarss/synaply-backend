@@ -6,7 +6,11 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateWorkflowDto } from './dto/create-workflow.dto';
 import { UpdateWorkflowDto } from './dto/update-workflow.dto';
-import { WorkflowStatus, VisibilityType, Role } from '@prisma/client';
+import {
+  WorkflowStatus,
+  VisibilityType,
+  Role,
+} from '../../prisma/generated/prisma/client';
 import { TeamMemberService } from '../common/services/team-member.service';
 import { PermissionService } from '../common/services/permission.service';
 

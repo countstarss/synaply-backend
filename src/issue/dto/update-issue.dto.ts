@@ -1,5 +1,5 @@
 import { IsOptional, IsString, IsInt } from 'class-validator';
-import { IssueStatus } from '@prisma/client';
+import { IssueStatus } from '../../../prisma/generated/prisma/client';
 
 export class UpdateIssueDto {
   @IsOptional()

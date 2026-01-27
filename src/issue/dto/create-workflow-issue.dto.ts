@@ -5,9 +5,9 @@ import {
   IsString,
   IsDateString,
 } from 'class-validator';
-// import { IssuePriority, IssueStatus, VisibilityType } from '@prisma/client';
+// import { IssuePriority, IssueStatus, VisibilityType } from '../../../prisma/generated/prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IssueStatus } from '@prisma/client';
+import { IssueStatus } from '../../../prisma/generated/prisma/client';
 
 // MARK: - CreateIssueDto
 export class CreateWorkflowIssueDto {

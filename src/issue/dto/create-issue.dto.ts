@@ -5,7 +5,7 @@ import {
   IsString,
   IsDateString,
 } from 'class-validator';
-// import { IssuePriority, IssueStatus, VisibilityType } from '@prisma/client';
+// import { IssuePriority, IssueStatus, VisibilityType } from '../../../prisma/generated/prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // MARK: - CreateIssueDto

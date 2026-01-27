@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { WorkspaceType } from '@prisma/client';
+import { WorkspaceType } from '../../../prisma/generated/prisma/client';
 
 export class WorkspaceUserDto {
   @ApiProperty({ description: '用户ID' })

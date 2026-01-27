@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsEnum, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { VisibilityType } from '@prisma/client';
+import { VisibilityType } from '../../../prisma/generated/prisma/client';
 
 export class CreateWorkflowDto {
   @ApiProperty({

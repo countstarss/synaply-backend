@@ -13,7 +13,7 @@ import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
-import { Role } from '@prisma/client';
+import { Role } from '../../prisma/generated/prisma/client';
 import {
   ApiTags,
   ApiBearerAuth,

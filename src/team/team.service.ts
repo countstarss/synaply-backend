@@ -6,7 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
-import { Role, WorkspaceType } from '@prisma/client';
+import { Role, WorkspaceType } from '../../prisma/generated/prisma/client';
 
 @Injectable()
 export class TeamService {

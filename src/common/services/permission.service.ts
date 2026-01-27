@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { VisibilityType, Role } from '@prisma/client';
+import { VisibilityType, Role } from '../../../prisma/generated/prisma/client';
 
 @Injectable()
 export class PermissionService {

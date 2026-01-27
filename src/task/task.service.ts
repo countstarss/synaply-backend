@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CalendarService } from '../calendar/calendar.service';
 import { CreateTaskDto } from './dto/create-task.dto';
-// import { TaskStatus } from '@prisma/client';
+// import { TaskStatus } from '../../prisma/generated/prisma/client';
 
 @Injectable()
 export class TaskService {
