@@ -24,6 +24,8 @@ export class TeamResolver {
     @Context() ctx,
   ) {
     const userId = ctx.req.user.sub;
+    void teamId;
+    void userId;
   }
 
   @ResolveField('members', () => [TeamMember])

@@ -1,7 +1,11 @@
 import { IsOptional, IsString, IsEnum, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IssueStateCategory, VisibilityType, IssuePriority, IssueType } from '../../../prisma/generated/prisma/enums';
+import {
+  IssueStateCategory,
+  IssuePriority,
+  IssueType,
+} from '../../../prisma/generated/prisma/enums';
 
 export enum IssueScope {
   ALL = 'all',

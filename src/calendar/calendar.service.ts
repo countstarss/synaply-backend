@@ -11,13 +11,11 @@ export class CalendarService {
    * @param name 可选的日历名称，默认“默认日历”
    */
   async getOrCreateCalendar(workspaceId: string, name = '默认日历') {
-    // @ts-ignore
     let calendar = await this.prisma.calendar.findUnique({
       where: { workspaceId },
     });
 
     if (!calendar) {
-      // @ts-ignore
       calendar = await this.prisma.calendar.create({
         data: {
           name,

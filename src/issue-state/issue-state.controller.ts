@@ -23,10 +23,7 @@ export class IssueStateController {
    * 获取 workspace 的所有状态
    */
   @Get()
-  findAll(
-    @Param('workspaceId') workspaceId: string,
-    @Req() req: Request,
-  ) {
+  findAll(@Param('workspaceId') workspaceId: string, @Req() req: Request) {
     const userId = req.user?.sub;
     return this.issueStateService.findAll(workspaceId, userId);
   }

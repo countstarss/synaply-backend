@@ -18,7 +18,6 @@ export class TaskService {
     const calendar =
       await this.calendarService.getOrCreateCalendar(workspaceId);
 
-    // @ts-ignore
     return this.prisma.task.create({
       data: {
         title: dto.title,
@@ -36,7 +35,6 @@ export class TaskService {
    * 根据工作空间获取所有任务
    */
   async getTasksByWorkspace(workspaceId: string) {
-    // @ts-ignore
     return this.prisma.task.findMany({
       where: {
         calendar: {
@@ -54,7 +52,6 @@ export class TaskService {
     taskId: string,
     dto: Partial<CreateTaskDto>,
   ) {
-    // @ts-ignore
     return this.prisma.task.update({
       where: {
         id: taskId,
@@ -73,7 +70,6 @@ export class TaskService {
    * 删除任务
    */
   async deleteTask(workspaceId: string, taskId: string) {
-    // @ts-ignore
     return this.prisma.task.delete({
       where: {
         id: taskId,

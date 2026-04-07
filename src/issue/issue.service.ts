@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, VisibilityType, IssueStateCategory } from '../../prisma/generated/prisma/client';
+import { Prisma, VisibilityType } from '../../prisma/generated/prisma/client';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { TeamMemberService } from '../common/services/team-member.service';
 import { CreateWorkflowIssueDto } from './dto/create-workflow-issue.dto';
@@ -39,16 +43,22 @@ export class IssueService {
     } = createIssueDto;
 
     // 获取创建者的 TeamMember ID
-    const creatorMemberId = await this.teamMemberService.getTeamMemberIdByWorkspace(
-      userId,
-      workspaceId,
-    );
+    const creatorMemberId =
+      await this.teamMemberService.getTeamMemberIdByWorkspace(
+        userId,
+        workspaceId,
+      );
 
     // 获取默认状态（如果未指定）
     let finalStateId = stateId;
     if (!finalStateId) {
-      const defaultState = await this.issueStateService.getDefaultState(workspaceId);
+      const defaultState =
+        await this.issueStateService.getDefaultState(workspaceId);
       finalStateId = defaultState?.id;
+    }
+
+    if (projectId) {
+      await this.validateProjectBelongsToWorkspace(projectId, workspaceId);
     }
 
     // 生成 key 和 sequence
@@ -99,7 +109,9 @@ export class IssueService {
   /**
    * 生成 Issue key 和 sequence
    */
-  private async generateIssueKey(workspaceId: string): Promise<{ key: string; sequence: number }> {
+  private async generateIssueKey(
+    workspaceId: string,
+  ): Promise<{ key: string; sequence: number }> {
     // 获取 workspace 的 prefix
     const workspace = await this.prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -107,7 +119,10 @@ export class IssueService {
     });
 
     // 如果没有设置 prefix，使用 workspace 名称的前 3 个字符
-    const prefix = workspace?.issuePrefix || workspace?.name?.substring(0, 3).toUpperCase() || 'ISS';
+    const prefix =
+      workspace?.issuePrefix ||
+      workspace?.name?.substring(0, 3).toUpperCase() ||
+      'ISS';
 
     // 获取当前 workspace 的最大 sequence
     const maxSequence = await this.prisma.issue.aggregate({
@@ -205,10 +220,11 @@ export class IssueService {
    */
   async findAll(workspaceId: string, userId: string, query?: QueryIssueDto) {
     // 验证用户有权访问该工作空间
-    const teamMemberId = await this.teamMemberService.getTeamMemberIdByWorkspace(
-      userId,
-      workspaceId,
-    );
+    const teamMemberId =
+      await this.teamMemberService.getTeamMemberIdByWorkspace(
+        userId,
+        workspaceId,
+      );
 
     // 构建 where 条件
     const where: Prisma.IssueWhereInput = {
@@ -305,6 +321,13 @@ export class IssueService {
     // 验证用户对 workspace 有访问权限
     await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
 
+    if (updateDto.projectId !== undefined && updateDto.projectId !== null) {
+      await this.validateProjectBelongsToWorkspace(
+        updateDto.projectId,
+        workspaceId,
+      );
+    }
+
     return this.prisma.issue.update({
       where: { id: issueId },
       data: updateDto,
@@ -400,5 +423,23 @@ export class IssueService {
       where: { issueId },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  private async validateProjectBelongsToWorkspace(
+    projectId: string,
+    workspaceId: string,
+  ) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true, workspaceId: true },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`项目 ${projectId} 不存在`);
+    }
+
+    if (project.workspaceId !== workspaceId) {
+      throw new BadRequestException('projectId 对应的项目不属于当前工作空间');
+    }
   }
 }

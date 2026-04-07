@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsEnum, IsInt, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsInt,
+  IsBoolean,
+} from 'class-validator';
 import { IssueStateCategory } from '../../../prisma/generated/prisma/enums';
 
 export class CreateIssueStateDto {

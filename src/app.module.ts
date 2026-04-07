@@ -12,7 +12,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { IssueModule } from './issue/issue.module';
 import { IssueStateModule } from './issue-state/issue-state.module';
-// import { ProjectModule } from './project/project.module';
+import { ProjectModule } from './project/project.module';
 import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommentModule } from './comment/comment.module';
@@ -40,10 +40,10 @@ import { TaskModule } from './task/task.module';
     WorkflowModule,
     IssueModule,
     IssueStateModule,
+    ProjectModule,
     CommentModule,
     CalendarModule,
     TaskModule,
-    // ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

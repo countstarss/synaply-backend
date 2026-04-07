@@ -295,13 +295,17 @@ export class TeamService {
           const deletedComments = await tx.comment.deleteMany({
             where: { authorId: targetMember.id },
           });
-          console.log(`Deleted ${deletedComments.count} comments for member ${targetMember.id}`);
+          console.log(
+            `Deleted ${deletedComments.count} comments for member ${targetMember.id}`,
+          );
           // 验证删除是否成功
           const remainingComments = await tx.comment.count({
             where: { authorId: targetMember.id },
           });
           if (remainingComments > 0) {
-            throw new Error(`Failed to delete all comments. ${remainingComments} comments still exist.`);
+            throw new Error(
+              `Failed to delete all comments. ${remainingComments} comments still exist.`,
+            );
           }
         }
 
@@ -309,13 +313,17 @@ export class TeamService {
         const deletedActivities = await tx.issueActivity.deleteMany({
           where: { actorId: targetMember.id },
         });
-        console.log(`Deleted ${deletedActivities.count} issue activities for member ${targetMember.id}`);
+        console.log(
+          `Deleted ${deletedActivities.count} issue activities for member ${targetMember.id}`,
+        );
 
         // 3. 删除该成员的问题步骤记录（因为 IssueStepRecord.assigneeId 有外键约束）
         const deletedStepRecords = await tx.issueStepRecord.deleteMany({
           where: { assigneeId: targetMember.id },
         });
-        console.log(`Deleted ${deletedStepRecords.count} issue step records for member ${targetMember.id}`);
+        console.log(
+          `Deleted ${deletedStepRecords.count} issue step records for member ${targetMember.id}`,
+        );
 
         // 4. Issue.teamMemberId 有 ON DELETE SET NULL，会自动处理，无需手动操作
 
@@ -335,7 +343,9 @@ export class TeamService {
             where: { creatorId: targetMember.id },
             data: { creatorId: otherAdminOrOwner.id },
           });
-          console.log(`Transferred ${updatedWorkflows.count} workflows to member ${otherAdminOrOwner.id}`);
+          console.log(
+            `Transferred ${updatedWorkflows.count} workflows to member ${otherAdminOrOwner.id}`,
+          );
         } else {
           // 如果没有其他管理员，检查是否有工作流需要转移
           const workflowCount = await tx.workflow.count({
@@ -353,7 +363,9 @@ export class TeamService {
           where: { createdById: targetMember.id },
           data: { createdById: null },
         });
-        console.log(`Updated ${updatedTasks.count} tasks for member ${targetMember.id}`);
+        console.log(
+          `Updated ${updatedTasks.count} tasks for member ${targetMember.id}`,
+        );
 
         // 7. 删除该成员的通知记录（因为 notifications.receiverId 有外键约束）
         // 注意：如果 schema.prisma 中没有 Notification 模型，使用原始 SQL
@@ -361,22 +373,30 @@ export class TeamService {
           const deletedNotifications = await tx.$executeRaw`
             DELETE FROM notifications WHERE receiver_id = ${targetMember.id}
           `;
-          console.log(`Deleted ${deletedNotifications} notifications for member ${targetMember.id}`);
+          console.log(
+            `Deleted ${deletedNotifications} notifications for member ${targetMember.id}`,
+          );
         } catch (error) {
           // 如果表不存在或模型不存在，尝试使用 Prisma 客户端（如果已生成）
           // 或者忽略错误（如果通知系统尚未实现）
           console.warn(`Could not delete notifications: ${error.message}`);
           // 尝试使用 Prisma 客户端（如果模型存在）
           try {
-            const deletedNotifications = await (tx as any).notification?.deleteMany({
+            const deletedNotifications = await (
+              tx as any
+            ).notification?.deleteMany({
               where: { receiverId: targetMember.id },
             });
             if (deletedNotifications) {
-              console.log(`Deleted ${deletedNotifications.count} notifications via Prisma client`);
+              console.log(
+                `Deleted ${deletedNotifications.count} notifications via Prisma client`,
+              );
             }
           } catch (e) {
             // 如果都失败了，记录警告但继续执行
-            console.warn(`Notification deletion failed, but continuing: ${e.message}`);
+            console.warn(
+              `Notification deletion failed, but continuing: ${e.message}`,
+            );
           }
         }
 
