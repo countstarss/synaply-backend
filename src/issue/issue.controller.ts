@@ -9,6 +9,7 @@ import {
   Patch,
   Delete,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { IssueService } from './issue.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
@@ -73,7 +74,7 @@ export class IssueController {
   @ApiOperation({ summary: '获取任务列表 (支持 scope 过滤)' })
   findAll(
     @Param('workspaceId') workspaceId: string,
-    @Query() query: QueryIssueDto,
+    @Query(new ValidationPipe({ transform: true })) query: QueryIssueDto,
     @Req() req: Request,
   ) {
     const userId = req.user?.sub;

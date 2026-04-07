@@ -278,7 +278,11 @@ export class IssueService {
     orderBy[sortField] = sortOrder;
 
     // 分页
-    const take = query?.limit || 50;
+    const rawLimit = query?.limit as number | string | undefined;
+    const parsedLimit =
+      typeof rawLimit === 'number' ? rawLimit : Number(rawLimit);
+    const take =
+      Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 50;
     const cursor = query?.cursor ? { id: query.cursor } : undefined;
     const skip = cursor ? 1 : 0;
 
