@@ -278,7 +278,7 @@ model Comment {
   issueId     String     @map("issue_id")
   workspaceId String     @map("workspace_id")
   authorId    String     @map("author_id")
-  parentId    String?
+  parentId    String?    @map("parent_id")
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
   author      TeamMember @relation(fields: [authorId], references: [id])
