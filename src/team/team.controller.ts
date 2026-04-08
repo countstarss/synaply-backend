@@ -8,10 +8,12 @@ import {
   Param,
   Patch,
   Delete,
+  ValidationPipe,
 } from '@nestjs/common';
 import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
+import { UpdateTeamDto } from './dto/update-team.dto';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 import { Role } from '../../prisma/generated/prisma/client';
 import {
@@ -63,6 +65,39 @@ export class TeamController {
   }
 
   /**
+   * MARK: - 更新团队资料
+   * PATCH /teams/:teamId
+   * @param teamId 团队 ID
+   * @param updateTeamDto 团队资料更新 DTO
+   * @param req 请求对象，包含当前用户 ID
+   * @returns 更新后的团队详情
+   */
+  @Patch(':teamId')
+  @ApiOperation({
+    summary: '更新团队资料',
+    description: '只有团队的 OWNER 或 ADMIN 可以更新团队名称和头像',
+  })
+  @ApiParam({ name: 'teamId', description: '团队ID' })
+  @ApiBody({ type: UpdateTeamDto })
+  @ApiResponse({
+    status: 200,
+    description: '团队资料更新成功',
+    type: TeamDto,
+  })
+  @ApiResponse({ status: 400, description: '请求参数错误或团队名称冲突' })
+  @ApiResponse({ status: 403, description: '没有权限更新团队资料' })
+  @ApiResponse({ status: 404, description: '团队不存在' })
+  async updateTeam(
+    @Param('teamId') teamId: string,
+    @Body(new ValidationPipe({ whitelist: true, transform: true }))
+    updateTeamDto: UpdateTeamDto,
+    @Req() req,
+  ) {
+    const userId = req.user.sub;
+    return this.teamService.updateTeam(teamId, updateTeamDto, userId);
+  }
+
+  /**
    * MARK: - 邀请加入团队
    * POST /teams/:teamId/invite
    * @param teamId 团队 ID
@@ -111,8 +146,8 @@ export class TeamController {
     type: TeamDto,
   })
   @ApiResponse({ status: 404, description: '团队不存在' })
-  async getTeam(@Param('teamId') teamId: string) {
-    return this.teamService.getTeamById(teamId);
+  async getTeam(@Param('teamId') teamId: string, @Req() req) {
+    return this.teamService.getTeamById(teamId, req.user.sub);
   }
 
   /**
@@ -132,8 +167,8 @@ export class TeamController {
     description: '获取团队成员列表成功',
     type: [TeamMemberDto],
   })
-  async getTeamMembers(@Param('teamId') teamId: string) {
-    return this.teamService.getTeamMembers(teamId);
+  async getTeamMembers(@Param('teamId') teamId: string, @Req() req) {
+    return this.teamService.getTeamMembers(teamId, req.user.sub);
   }
 
   /**

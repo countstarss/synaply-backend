@@ -15,12 +15,33 @@ export class WorkspaceUserDto {
   avatarUrl?: string;
 }
 
+export class WorkspaceTeamMemberDto {
+  @ApiProperty({ description: '团队成员ID' })
+  id: string;
+
+  @ApiProperty({ description: '用户ID' })
+  userId: string;
+
+  @ApiProperty({ description: '成员角色' })
+  role: string;
+}
+
 export class WorkspaceTeamDto {
   @ApiProperty({ description: '团队ID' })
   id: string;
 
   @ApiProperty({ description: '团队名称' })
   name: string;
+
+  @ApiProperty({ description: '团队头像URL', nullable: true })
+  avatarUrl?: string | null;
+
+  @ApiProperty({
+    description: '团队成员列表',
+    type: [WorkspaceTeamMemberDto],
+    nullable: true,
+  })
+  members?: WorkspaceTeamMemberDto[];
 
   @ApiProperty({ description: '创建时间' })
   createdAt: Date;

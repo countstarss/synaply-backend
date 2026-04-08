@@ -19,32 +19,39 @@ export class WorkspaceService {
    * @returns 工作空间列表
    */
   async getUserWorkspaces(userId: string) {
-    // 获取个人工作空间
-    const personalWorkspaces = await this.prisma.workspace.findMany({
+    return this.prisma.workspace.findMany({
       where: {
-        userId: userId,
-        type: WorkspaceType.PERSONAL,
+        OR: [
+          {
+            userId,
+            type: WorkspaceType.PERSONAL,
+          },
+          {
+            team: {
+              members: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          },
+        ],
       },
-    });
-
-    // 获取用户所属团队的工作空间
-    const teamWorkspaces = await this.prisma.teamMember.findMany({
-      where: { userId: userId },
       include: {
+        user: true,
         team: {
           include: {
-            workspace: true,
+            members: {
+              select: {
+                id: true,
+                userId: true,
+                role: true,
+              },
+            },
           },
         },
       },
     });
-
-    const workspaces = [
-      ...personalWorkspaces,
-      ...teamWorkspaces.map((tm) => tm.team.workspace),
-    ].filter(Boolean); // 过滤掉可能为空的团队工作空间
-
-    return workspaces;
   }
 
   /**
@@ -60,7 +67,20 @@ export class WorkspaceService {
   async getWorkspaceById(workspaceId: string) {
     return this.prisma.workspace.findUnique({
       where: { id: workspaceId },
-      include: { user: true, team: true }, // 包含关联的用户或团队信息
+      include: {
+        user: true,
+        team: {
+          include: {
+            members: {
+              select: {
+                id: true,
+                userId: true,
+                role: true,
+              },
+            },
+          },
+        },
+      }, // 包含关联的用户或团队信息
     });
   }
 

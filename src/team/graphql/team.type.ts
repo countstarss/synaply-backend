@@ -39,6 +39,9 @@ export class Team {
   @Field()
   name: string;
 
+  @Field({ nullable: true })
+  avatarUrl?: string;
+
   @Field(() => [TeamMember], { nullable: true })
   members?: TeamMember[];
 

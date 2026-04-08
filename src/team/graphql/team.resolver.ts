@@ -29,8 +29,8 @@ export class TeamResolver {
   }
 
   @ResolveField('members', () => [TeamMember])
-  async getMembers(@Parent() team: Team) {
-    return this.teamService.getTeamMembers(team.id);
+  async getMembers(@Parent() team: Team, @Context() ctx) {
+    return this.teamService.getTeamMembers(team.id, ctx.req.user.sub);
   }
 }
 

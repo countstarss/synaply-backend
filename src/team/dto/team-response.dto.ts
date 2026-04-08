@@ -52,6 +52,9 @@ export class TeamDto {
   @ApiProperty({ description: '团队名称' })
   name: string;
 
+  @ApiProperty({ description: '团队头像 URL', nullable: true })
+  avatarUrl?: string | null;
+
   @ApiProperty({ description: '团队成员列表', type: [TeamMemberDto] })
   members: TeamMemberDto[];
 

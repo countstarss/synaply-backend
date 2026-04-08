@@ -76,6 +76,7 @@ enum Role {
 }
 
 type Team {
+  avatarUrl: String
   createdAt: DateTime!
   id: ID!
   members: [TeamMember!]!

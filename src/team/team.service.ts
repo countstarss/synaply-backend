@@ -2,15 +2,64 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTeamDto } from './dto/create-team.dto';
 import { InviteMemberDto } from './dto/invite-member.dto';
+import { UpdateTeamDto } from './dto/update-team.dto';
 import { Role, WorkspaceType } from '../../prisma/generated/prisma/client';
 
 @Injectable()
 export class TeamService {
   constructor(private prisma: PrismaService) {}
+
+  private readonly teamDetailInclude = {
+    members: {
+      include: {
+        user: true,
+      },
+    },
+    workspace: true,
+  } as const;
+
+  private async ensureTeamExists(teamId: string) {
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+      select: { id: true },
+    });
+
+    if (!team) {
+      throw new NotFoundException('Team not found.');
+    }
+
+    return team;
+  }
+
+  private async ensureTeamMember(teamId: string, userId: string) {
+    const membership = await this.prisma.teamMember.findUnique({
+      where: { teamId_userId: { teamId, userId } },
+    });
+
+    if (!membership) {
+      await this.ensureTeamExists(teamId);
+      throw new ForbiddenException('You are not a member of this team.');
+    }
+
+    return membership;
+  }
+
+  private async ensureTeamManager(teamId: string, userId: string) {
+    const membership = await this.ensureTeamMember(teamId, userId);
+
+    if (membership.role !== Role.OWNER && membership.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        'Only team owners or admins can manage this team.',
+      );
+    }
+
+    return membership;
+  }
 
   /**
    * MARK: - 创建团队
@@ -26,11 +75,15 @@ export class TeamService {
    * @returns 创建的团队对象
    */
   async createTeam(createTeamDto: CreateTeamDto, ownerId: string) {
-    const { name } = createTeamDto;
+    const normalizedName = createTeamDto.name.trim();
+
+    if (!normalizedName) {
+      throw new BadRequestException('Team name is required.');
+    }
 
     // 检查团队名称是否已存在
     const existingTeam = await this.prisma.team.findFirst({
-      where: { name },
+      where: { name: normalizedName },
     });
 
     if (existingTeam) {
@@ -40,7 +93,7 @@ export class TeamService {
     // 创建团队和团队工作空间，并将创建者设置为团队拥有者
     const team = await this.prisma.team.create({
       data: {
-        name,
+        name: normalizedName,
         members: {
           create: {
             userId: ownerId,
@@ -49,12 +102,12 @@ export class TeamService {
         },
         workspace: {
           create: {
-            name: `${name} 的团队空间`,
+            name: normalizedName,
             type: WorkspaceType.TEAM,
           },
         },
       },
-      include: { members: true, workspace: true },
+      include: this.teamDetailInclude,
     });
 
     return team;
@@ -134,10 +187,12 @@ export class TeamService {
    * @param teamId 团队 ID
    * @returns 团队对象
    */
-  async getTeamById(teamId: string) {
+  async getTeamById(teamId: string, currentUserId: string) {
+    await this.ensureTeamMember(teamId, currentUserId);
+
     const team = await this.prisma.team.findUnique({
       where: { id: teamId },
-      include: { members: { include: { user: true } }, workspace: true },
+      include: this.teamDetailInclude,
     });
 
     if (!team) {
@@ -159,9 +214,66 @@ export class TeamService {
   async getUserTeams(userId: string) {
     const teamMemberships = await this.prisma.teamMember.findMany({
       where: { userId },
-      include: { team: { include: { workspace: true } } },
+      include: { team: { include: this.teamDetailInclude } },
     });
     return teamMemberships.map((tm) => tm.team);
+  }
+
+  async updateTeam(teamId: string, updateTeamDto: UpdateTeamDto, userId: string) {
+    await this.ensureTeamManager(teamId, userId);
+
+    const updateData: {
+      name?: string;
+      avatarUrl?: string | null;
+    } = {};
+
+    if (updateTeamDto.name !== undefined) {
+      if (!updateTeamDto.name) {
+        throw new BadRequestException('Team name is required.');
+      }
+
+      const existingTeam = await this.prisma.team.findFirst({
+        where: {
+          name: updateTeamDto.name,
+          id: {
+            not: teamId,
+          },
+        },
+      });
+
+      if (existingTeam) {
+        throw new BadRequestException('Team name already exists.');
+      }
+
+      updateData.name = updateTeamDto.name;
+    }
+
+    if (updateTeamDto.avatarUrl !== undefined) {
+      updateData.avatarUrl = updateTeamDto.avatarUrl;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return this.getTeamById(teamId, userId);
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.team.update({
+        where: { id: teamId },
+        data: updateData,
+      });
+
+      if (updateData.name !== undefined) {
+        await tx.workspace.updateMany({
+          where: { teamId },
+          data: { name: updateData.name },
+        });
+      }
+
+      return tx.team.findUniqueOrThrow({
+        where: { id: teamId },
+        include: this.teamDetailInclude,
+      });
+    });
   }
 
   /**
@@ -432,7 +544,9 @@ export class TeamService {
    * @param teamId 团队 ID
    * @returns 团队成员列表
    */
-  async getTeamMembers(teamId: string) {
+  async getTeamMembers(teamId: string, currentUserId: string) {
+    await this.ensureTeamMember(teamId, currentUserId);
+
     return this.prisma.teamMember.findMany({
       where: { teamId },
       include: {

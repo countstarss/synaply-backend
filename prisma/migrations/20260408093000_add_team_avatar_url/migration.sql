@@ -1,0 +1,2 @@
+ALTER TABLE "teams"
+ADD COLUMN "avatar_url" TEXT;

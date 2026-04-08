@@ -25,6 +25,7 @@ model User {
 model Team {
   id        String       @id @default(uuid())
   name      String
+  avatarUrl String?      @map("avatar_url")
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
   members   TeamMember[]
