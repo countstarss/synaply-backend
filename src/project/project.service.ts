@@ -8,12 +8,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TeamMemberService } from '../common/services/team-member.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { PermissionService } from '../common/services/permission.service';
 
 @Injectable()
 export class ProjectService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly teamMemberService: TeamMemberService,
+    private readonly permissionService: PermissionService,
   ) {}
 
   // MARK: Create
@@ -48,14 +50,35 @@ export class ProjectService {
   async findAll(workspaceId: string, userId: string) {
     await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
 
-    return this.prisma.project.findMany({
+    const projects = await this.prisma.project.findMany({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' },
     });
+
+    const visibleProjects = await Promise.all(
+      projects.map(async (project) => {
+        const canRead = await this.permissionService.checkResourcePermission(
+          userId,
+          'project',
+          project.id,
+          'read',
+        );
+
+        return canRead ? project : null;
+      }),
+    );
+
+    return visibleProjects.filter((project) => project !== null);
   }
 
   async findOne(workspaceId: string, projectId: string, userId: string) {
     await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'project',
+      projectId,
+      'read',
+    );
 
     return this.findProjectOrThrow(workspaceId, projectId, {
       workspace: true,

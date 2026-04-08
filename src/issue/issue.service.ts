@@ -12,6 +12,7 @@ import { CreateIssueStepRecordDto } from './dto/create-issue-step-record.dto';
 import { CreateIssueActivityDto } from './dto/create-issue-activity.dto';
 import { QueryIssueDto, IssueScope } from './dto/query-issue.dto';
 import { IssueStateService } from '../issue-state/issue-state.service';
+import { PermissionService } from '../common/services/permission.service';
 
 @Injectable()
 export class IssueService {
@@ -19,7 +20,48 @@ export class IssueService {
     private readonly prisma: PrismaService,
     private readonly teamMemberService: TeamMemberService,
     private readonly issueStateService: IssueStateService,
+    private readonly permissionService: PermissionService,
   ) {}
+
+  private readonly issueDetailInclude = {
+    state: true,
+    project: true,
+    assignees: {
+      include: {
+        member: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    },
+    labels: {
+      include: {
+        label: true,
+      },
+    },
+  } as const;
+
+  private async ensureIssueInWorkspace(issueId: string, workspaceId: string) {
+    const issue = await this.prisma.issue.findFirst({
+      where: {
+        id: issueId,
+        workspaceId,
+      },
+      select: {
+        id: true,
+        workspaceId: true,
+      },
+    });
+
+    if (!issue) {
+      throw new NotFoundException(
+        `Issue ${issueId} 不存在于工作空间 ${workspaceId}`,
+      );
+    }
+
+    return issue;
+  }
 
   /**
    * MARK: - 创建任务 (简化版)
@@ -103,7 +145,7 @@ export class IssueService {
       });
     }
 
-    return this.findOne(issue.id);
+    return this.findOne(userId, workspaceId, issue.id);
   }
 
   /**
@@ -139,27 +181,21 @@ export class IssueService {
   /**
    * 获取单个 Issue
    */
-  async findOne(issueId: string) {
-    return this.prisma.issue.findUnique({
-      where: { id: issueId },
-      include: {
-        state: true,
-        project: true,
-        assignees: {
-          include: {
-            member: {
-              include: {
-                user: true,
-              },
-            },
-          },
-        },
-        labels: {
-          include: {
-            label: true,
-          },
-        },
+  async findOne(userId: string, workspaceId: string, issueId: string) {
+    await this.ensureIssueInWorkspace(issueId, workspaceId);
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'read',
+    );
+
+    return this.prisma.issue.findFirst({
+      where: {
+        id: issueId,
+        workspaceId,
       },
+      include: this.issueDetailInclude,
     });
   }
 
@@ -322,8 +358,13 @@ export class IssueService {
     issueId: string,
     updateDto: Record<string, any>,
   ) {
-    // 验证用户对 workspace 有访问权限
-    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    await this.ensureIssueInWorkspace(issueId, workspaceId);
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'write',
+    );
 
     if (updateDto.projectId !== undefined && updateDto.projectId !== null) {
       await this.validateProjectBelongsToWorkspace(
@@ -342,8 +383,13 @@ export class IssueService {
    * MARK: - 删除 Issue
    */
   async remove(userId: string, workspaceId: string, issueId: string) {
-    // 权限检查
-    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    await this.ensureIssueInWorkspace(issueId, workspaceId);
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'delete',
+    );
 
     return this.prisma.issue.delete({
       where: { id: issueId },
@@ -359,8 +405,13 @@ export class IssueService {
     issueId: string,
     dto: CreateIssueStepRecordDto,
   ) {
-    // 权限验证
-    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    await this.ensureIssueInWorkspace(issueId, workspaceId);
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'write',
+    );
 
     // 将传入的 assigneeId (Supabase userId) 转为 TeamMemberId
     const assigneeTeamMemberId =
@@ -383,7 +434,13 @@ export class IssueService {
   }
 
   async listStepRecords(userId: string, workspaceId: string, issueId: string) {
-    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    await this.ensureIssueInWorkspace(issueId, workspaceId);
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'read',
+    );
     return this.prisma.issueStepRecord.findMany({
       where: { issueId },
       orderBy: { createdAt: 'asc' },
@@ -399,7 +456,13 @@ export class IssueService {
     issueId: string,
     dto: CreateIssueActivityDto,
   ) {
-    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    await this.ensureIssueInWorkspace(issueId, workspaceId);
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'write',
+    );
 
     // 获取操作者 teamMemberId
     const actorId = await this.teamMemberService.getTeamMemberIdByWorkspace(
@@ -422,7 +485,13 @@ export class IssueService {
     workspaceId: string,
     issueId: string,
   ) {
-    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    await this.ensureIssueInWorkspace(issueId, workspaceId);
+    await this.permissionService.validateResourcePermission(
+      userId,
+      'issue',
+      issueId,
+      'read',
+    );
     return this.prisma.issueActivity.findMany({
       where: { issueId },
       orderBy: { createdAt: 'desc' },

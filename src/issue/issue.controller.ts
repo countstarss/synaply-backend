@@ -87,8 +87,13 @@ export class IssueController {
    */
   @Get(':id')
   @ApiOperation({ summary: '获取单个任务详情' })
-  findOne(@Param('id') id: string) {
-    return this.issueService.findOne(id);
+  findOne(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    const userId = req.user?.sub;
+    return this.issueService.findOne(userId, workspaceId, id);
   }
 
   /**

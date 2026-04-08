@@ -565,9 +565,15 @@ export class TeamService {
    * @param userId 用户 ID (Supabase User ID)
    * @returns 团队成员对象或 null
    */
-  async findTeamMemberByUserId(userId: string) {
+  async findTeamMemberByUserId(userId: string, currentUserId: string) {
+    if (userId !== currentUserId) {
+      throw new ForbiddenException(
+        'You are not authorized to access another user membership.',
+      );
+    }
+
     return this.prisma.teamMember.findFirst({
-      where: { userId: userId },
+      where: { userId },
     });
   }
 }

@@ -77,9 +77,11 @@ export class PermissionService {
       throw new NotFoundException('项目不存在');
     }
 
+    const creatorUserId = await this.resolveCreatorUserId(project.creatorId);
+
     return this.evaluatePermission(
       userId,
-      project.creatorId,
+      creatorUserId,
       project.visibility,
       project.workspace,
       operation,
@@ -108,6 +110,11 @@ export class PermissionService {
             },
           },
         },
+        creator: {
+          select: {
+            userId: true,
+          },
+        },
       },
     });
 
@@ -117,7 +124,7 @@ export class PermissionService {
 
     return this.evaluatePermission(
       userId,
-      workflow.creatorId,
+      workflow.creator.userId,
       workflow.visibility,
       workflow.workspace,
       operation,
@@ -146,6 +153,11 @@ export class PermissionService {
             },
           },
         },
+        creatorMember: {
+          select: {
+            userId: true,
+          },
+        },
       },
     });
 
@@ -155,11 +167,26 @@ export class PermissionService {
 
     return this.evaluatePermission(
       userId,
-      issue.creatorId,
-      VisibilityType.PRIVATE,
+      issue.creatorMember?.userId ?? null,
+      issue.visibility,
       issue.workspace,
       operation,
     );
+  }
+
+  private async resolveCreatorUserId(
+    creatorMemberId: string | null | undefined,
+  ): Promise<string | null> {
+    if (!creatorMemberId) {
+      return null;
+    }
+
+    const creator = await this.prisma.teamMember.findUnique({
+      where: { id: creatorMemberId },
+      select: { userId: true },
+    });
+
+    return creator?.userId ?? null;
   }
 
   /**
@@ -167,13 +194,17 @@ export class PermissionService {
    */
   private evaluatePermission(
     userId: string,
-    creatorId: string,
+    creatorUserId: string | null,
     visibility: VisibilityType,
     workspace: any,
     operation: 'read' | 'write' | 'delete',
   ): boolean {
     // 创建者拥有全部权限
-    if (creatorId === userId) {
+    if (creatorUserId === userId) {
+      return true;
+    }
+
+    if (visibility === VisibilityType.PUBLIC && operation === 'read') {
       return true;
     }
 

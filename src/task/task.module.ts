@@ -4,9 +4,10 @@ import { CalendarModule } from '../calendar/calendar.module';
 import { TaskService } from './task.service';
 import { TaskController } from './task.controller';
 import { AuthModule } from 'src/auth/auth.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
-  imports: [PrismaModule, CalendarModule, AuthModule],
+  imports: [PrismaModule, CalendarModule, AuthModule, CommonModule],
   providers: [TaskService],
   controllers: [TaskController],
 })

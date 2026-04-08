@@ -48,7 +48,7 @@ export class CommentController {
     description: '返回评论列表',
     type: [CommentDto],
   })
-  findAll(@Query() findCommentsDto: FindCommentsDto) {
-    return this.commentService.findAll(findCommentsDto);
+  findAll(@Query() findCommentsDto: FindCommentsDto, @Req() req) {
+    return this.commentService.findAll(findCommentsDto, req.user?.sub);
   }
 }

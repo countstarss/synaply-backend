@@ -301,7 +301,7 @@ export class TeamController {
     type: TeamMemberDto,
   })
   @ApiResponse({ status: 404, description: '团队成员不存在' })
-  async findTeamMemberByUserId(@Param('userId') userId: string) {
-    return this.teamService.findTeamMemberByUserId(userId);
+  async findTeamMemberByUserId(@Param('userId') userId: string, @Req() req) {
+    return this.teamService.findTeamMemberByUserId(userId, req.user.sub);
   }
 }

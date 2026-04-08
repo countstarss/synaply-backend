@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceType } from '../../prisma/generated/prisma/client';
+import { TeamMemberService } from '../common/services/team-member.service';
 
 @Injectable()
 export class WorkspaceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly teamMemberService: TeamMemberService,
+  ) {}
 
   /**
    * MARK: - 获取用户所有工作空间
@@ -64,7 +68,9 @@ export class WorkspaceService {
    * @param workspaceId 工作空间 ID
    * @returns 工作空间对象
    */
-  async getWorkspaceById(workspaceId: string) {
+  async getWorkspaceById(workspaceId: string, userId: string) {
+    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+
     return this.prisma.workspace.findUnique({
       where: { id: workspaceId },
       include: {

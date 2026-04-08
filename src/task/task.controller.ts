@@ -36,8 +36,8 @@ export class TaskController {
    * 获取指定工作空间的全部任务
    */
   @Get()
-  async getTasks(@Param('workspaceId') workspaceId: string) {
-    return this.taskService.getTasksByWorkspace(workspaceId);
+  async getTasks(@Req() req, @Param('workspaceId') workspaceId: string) {
+    return this.taskService.getTasksByWorkspace(req.user.sub, workspaceId);
   }
 
   /**
@@ -45,11 +45,12 @@ export class TaskController {
    */
   @Patch(':taskId')
   async updateTask(
+    @Req() req,
     @Param('workspaceId') workspaceId: string,
     @Param('taskId') taskId: string,
     @Body() dto: UpdateTaskDto,
   ) {
-    return this.taskService.updateTask(workspaceId, taskId, dto);
+    return this.taskService.updateTask(req.user.sub, workspaceId, taskId, dto);
   }
 
   /**
@@ -57,9 +58,10 @@ export class TaskController {
    */
   @Delete(':taskId')
   async deleteTask(
+    @Req() req,
     @Param('workspaceId') workspaceId: string,
     @Param('taskId') taskId: string,
   ) {
-    return this.taskService.deleteTask(workspaceId, taskId);
+    return this.taskService.deleteTask(req.user.sub, workspaceId, taskId);
   }
 }
