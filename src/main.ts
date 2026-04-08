@@ -4,10 +4,17 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const allowedOrigins = (
+    process.env.CORS_ORIGINS ?? 'http://localhost:3000,http://localhost:3001'
+  )
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const port = Number.parseInt(process.env.PORT ?? '5678', 10);
 
   // 配置CORS
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'], // 允许的前端域名
+    origin: allowedOrigins, // 允许的前端域名
     credentials: true, // 允许携带cookie
   });
 
@@ -33,6 +40,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(5678);
+  await app.listen(Number.isNaN(port) ? 5678 : port);
 }
 bootstrap();
