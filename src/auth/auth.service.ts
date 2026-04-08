@@ -2,6 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceType } from '../../prisma/generated/prisma/client'; // 导入 WorkspaceType 枚举
 
+export interface SyncUserProfileInput {
+  name?: string | null;
+  avatarUrl?: string | null;
+}
+
+const normalizeOptionalString = (value?: string | null) => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const trimmedValue = value?.trim();
+  return trimmedValue ? trimmedValue : null;
+};
+
 @Injectable()
 export class AuthService {
   constructor(private prisma: PrismaService) {}
@@ -17,14 +31,24 @@ export class AuthService {
    * 5. 返回值: 返回包含工作空间信息的用户对象，方便后续操作。
    * @param userId Supabase 用户 ID
    * @param email 用户邮箱
+   * @param profile 用户的扩展资料（如名称、头像）
    * @returns 创建或更新后的用户对象
    */
-  async syncUser(userId: string, email: string) {
+  async syncUser(
+    userId: string,
+    email: string,
+    profile: SyncUserProfileInput = {},
+  ) {
+    const normalizedName = normalizeOptionalString(profile.name);
+    const normalizedAvatarUrl = normalizeOptionalString(profile.avatarUrl);
+
     return this.prisma.user.upsert({
       where: { id: userId },
       create: {
         id: userId,
         email: email,
+        name: normalizedName ?? null,
+        avatarUrl: normalizedAvatarUrl ?? null,
         // 为新用户创建个人工作空间
         workspaces: {
           create: {
@@ -38,7 +62,13 @@ export class AuthService {
           },
         },
       },
-      update: {},
+      update: {
+        email,
+        ...(normalizedName !== undefined ? { name: normalizedName } : {}),
+        ...(normalizedAvatarUrl !== undefined
+          ? { avatarUrl: normalizedAvatarUrl }
+          : {}),
+      },
       include: { workspaces: true }, // 包含工作空间信息
     });
   }

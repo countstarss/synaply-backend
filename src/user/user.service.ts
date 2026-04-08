@@ -1,13 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { User } from '../../prisma/generated/prisma/client';
+import { Prisma, User } from '../../prisma/generated/prisma/client';
 
 // 公开用户信息类型
 export interface PublicUser {
   id: string;
   name: string | null;
+  email: string;
   avatarUrl: string | null;
   createdAt: Date;
+}
+
+export interface UpdateUserProfileInput {
+  name?: string | null;
+  avatarUrl?: string | null;
 }
 
 @Injectable()
@@ -75,6 +81,31 @@ export class UserService {
     return this.prisma.user.update({
       where: { id },
       data,
+    });
+  }
+
+  /**
+   * MARK: - 更新用户资料
+   * @description 仅允许更新当前系统已支持的用户基础资料字段。
+   * @param id 用户 ID
+   * @param data 更新数据
+   * @returns 更新后的用户对象
+   */
+  async updateProfile(id: string, data: UpdateUserProfileInput): Promise<User> {
+    const updateData: Prisma.UserUpdateInput = {};
+
+    if (data.name !== undefined) {
+      updateData.name = data.name;
+    }
+
+    if (data.avatarUrl !== undefined) {
+      updateData.avatarUrl = data.avatarUrl;
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: updateData,
+      include: { workspaces: true },
     });
   }
 

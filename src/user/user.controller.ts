@@ -1,5 +1,15 @@
-import { Controller, Get, Req, UseGuards, Param } from '@nestjs/common';
 import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Req,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
+import {
+  ApiBody,
   ApiTags,
   ApiOperation,
   ApiResponse,
@@ -8,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 import { UserService, PublicUser } from './user.service';
+import { UpdateMeDto } from './dto/update-me.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -61,5 +72,29 @@ export class UserController {
     // 获取用户公开信息
     const user = await this.userService.findPublicUserById(userId);
     return user;
+  }
+
+  /**
+   * MARK: - 更新当前用户资料
+   * PATCH /users/me
+   * @summary 更新当前用户的基础资料
+   * @description 更新当前认证用户的展示名称、头像等基础信息。
+   */
+  @UseGuards(SupabaseAuthGuard)
+  @Patch('me')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: '更新当前用户资料' })
+  @ApiBody({ type: UpdateMeDto })
+  @ApiResponse({ status: 200, description: '返回更新后的用户资料' })
+  @ApiResponse({ status: 400, description: '请求参数不合法' })
+  @ApiResponse({ status: 401, description: '未授权，JWT验证失败' })
+  @ApiResponse({ status: 404, description: '用户不存在' })
+  async updateMe(
+    @Req() req,
+    @Body(new ValidationPipe({ whitelist: true, transform: true }))
+    updateMeDto: UpdateMeDto,
+  ) {
+    const userId = req.user.sub;
+    return this.userService.updateProfile(userId, updateMeDto);
   }
 }

@@ -8,6 +8,16 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import { verifyJwt } from './verify-jwt';
 import { AuthService } from './auth.service';
 
+const getFirstNonEmptyString = (...values: unknown[]) => {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return undefined;
+};
+
 @Injectable()
 export class SupabaseAuthGuard implements CanActivate {
   constructor(private authService: AuthService) {}
@@ -40,9 +50,24 @@ export class SupabaseAuthGuard implements CanActivate {
 
     // 若 payload 中包含用户信息，则同步或创建用户
     if (payload.sub && payload.email) {
+      const userMetadata =
+        payload.user_metadata && typeof payload.user_metadata === 'object'
+          ? (payload.user_metadata as Record<string, unknown>)
+          : {};
+
       await this.authService.syncUser(
         payload.sub as string,
         payload.email as string,
+        {
+          name: getFirstNonEmptyString(
+            userMetadata.full_name,
+            userMetadata.name,
+          ),
+          avatarUrl: getFirstNonEmptyString(
+            userMetadata.avatar_url,
+            userMetadata.picture,
+          ),
+        },
       );
     }
 
