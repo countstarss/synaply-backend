@@ -458,14 +458,45 @@ export class TeamService {
           console.log(
             `Transferred ${updatedWorkflows.count} workflows to member ${otherAdminOrOwner.id}`,
           );
+
+          const updatedOwnedProjects = await tx.$executeRaw`
+            UPDATE "projects"
+            SET "owner_member_id" = ${otherAdminOrOwner.id}
+            WHERE "owner_member_id" = ${targetMember.id}
+          `;
+          console.log(
+            `Transferred ${updatedOwnedProjects} project ownership records to member ${otherAdminOrOwner.id}`,
+          );
+
+          const updatedCreatedProjects = await tx.$executeRaw`
+            UPDATE "projects"
+            SET "creator_id" = ${otherAdminOrOwner.id}
+            WHERE "creator_id" = ${targetMember.id}
+          `;
+          console.log(
+            `Transferred ${updatedCreatedProjects} project creator records to member ${otherAdminOrOwner.id}`,
+          );
         } else {
           // 如果没有其他管理员，检查是否有工作流需要转移
           const workflowCount = await tx.workflow.count({
             where: { creatorId: targetMember.id },
           });
+          const [{ count: projectCount }] = await tx.$queryRaw<
+            Array<{ count: bigint }>
+          >`
+            SELECT COUNT(*)::bigint AS count
+            FROM "projects"
+            WHERE "creator_id" = ${targetMember.id}
+               OR "owner_member_id" = ${targetMember.id}
+          `;
           if (workflowCount > 0) {
             throw new BadRequestException(
               'Cannot remove member: they are the creator of workflows and there are no other admins to transfer ownership.',
+            );
+          }
+          if (Number(projectCount) > 0) {
+            throw new BadRequestException(
+              'Cannot remove member: they own or created projects and there are no other admins to transfer ownership.',
             );
           }
         }

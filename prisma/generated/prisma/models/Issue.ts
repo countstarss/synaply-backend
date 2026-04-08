@@ -1001,10 +1001,6 @@ export type IssueUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.IssueScalarWhereInput | Prisma.IssueScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number

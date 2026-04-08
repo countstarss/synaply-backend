@@ -138,10 +138,16 @@ export const ProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
+  brief: 'brief',
+  status: 'status',
+  phase: 'phase',
+  riskLevel: 'riskLevel',
   workspaceId: 'workspaceId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   creatorId: 'creatorId',
+  ownerMemberId: 'ownerMemberId',
+  lastSyncAt: 'lastSyncAt',
   visibility: 'visibility'
 } as const
 

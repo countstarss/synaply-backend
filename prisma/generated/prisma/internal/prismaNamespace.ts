@@ -1695,10 +1695,16 @@ export const ProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
+  brief: 'brief',
+  status: 'status',
+  phase: 'phase',
+  riskLevel: 'riskLevel',
   workspaceId: 'workspaceId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   creatorId: 'creatorId',
+  ownerMemberId: 'ownerMemberId',
+  lastSyncAt: 'lastSyncAt',
   visibility: 'visibility'
 } as const
 
@@ -1971,6 +1977,34 @@ export type EnumWorkspaceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'WorkspaceType[]'
  */
 export type ListEnumWorkspaceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WorkspaceType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ProjectStatus'
+ */
+export type EnumProjectStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ProjectStatus[]'
+ */
+export type ListEnumProjectStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ProjectRiskLevel'
+ */
+export type EnumProjectRiskLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectRiskLevel'>
+    
+
+
+/**
+ * Reference to a field of type 'ProjectRiskLevel[]'
+ */
+export type ListEnumProjectRiskLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProjectRiskLevel[]'>
     
 
 

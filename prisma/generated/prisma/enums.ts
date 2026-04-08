@@ -43,6 +43,28 @@ export const WorkflowStatus = {
 export type WorkflowStatus = (typeof WorkflowStatus)[keyof typeof WorkflowStatus]
 
 
+export const ProjectStatus = {
+  PLANNING: 'PLANNING',
+  ACTIVE: 'ACTIVE',
+  BLOCKED: 'BLOCKED',
+  SHIPPING: 'SHIPPING',
+  DONE: 'DONE',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]
+
+
+export const ProjectRiskLevel = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+} as const
+
+export type ProjectRiskLevel = (typeof ProjectRiskLevel)[keyof typeof ProjectRiskLevel]
+
+
 export const IssueStatus = {
   TODO: 'TODO',
   IN_PROGRESS: 'IN_PROGRESS',

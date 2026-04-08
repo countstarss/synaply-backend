@@ -53,6 +53,7 @@ model TeamMember {
   Task            Task[]
   createdIssues   Issue[]           @relation("CreatedIssues")
   assignedIssues  IssueAssignee[]
+  ownedProjects   Project[]         @relation("ProjectOwner")
 
   @@unique([teamId, userId])
   @@map("team_members")
@@ -82,16 +83,27 @@ model Workspace {
 
 /// MARK: - 项目模型 (可选层级)
 model Project {
-  id          String         @id @default(uuid())
-  name        String
-  description String?
-  workspaceId String         @map("workspace_id")
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
-  creatorId   String         @map("creator_id")
-  visibility  VisibilityType @default(PRIVATE)
-  issues      Issue[]
-  workspace   Workspace      @relation(fields: [workspaceId], references: [id])
+  id            String           @id @default(uuid())
+  name          String
+  description   String?
+  brief         String?
+  status        ProjectStatus    @default(ACTIVE)
+  phase         String?
+  riskLevel     ProjectRiskLevel @default(LOW) @map("risk_level")
+  workspaceId   String           @map("workspace_id")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  creatorId     String           @map("creator_id")
+  ownerMemberId String           @map("owner_member_id")
+  lastSyncAt    DateTime?        @map("last_sync_at")
+  visibility    VisibilityType   @default(PRIVATE)
+  issues        Issue[]
+  owner         TeamMember       @relation("ProjectOwner", fields: [ownerMemberId], references: [id])
+  workspace     Workspace        @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+  @@index([ownerMemberId])
+  @@index([status])
 
   @@map("projects")
 }
@@ -343,6 +355,22 @@ enum WorkspaceType {
 enum WorkflowStatus {
   DRAFT
   PUBLISHED
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  BLOCKED
+  SHIPPING
+  DONE
+  ARCHIVED
+}
+
+enum ProjectRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
 /// Issue 状态枚举 (保留用于 Workflow Step 状态)

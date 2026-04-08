@@ -40,6 +40,39 @@ export class ProjectController {
     return this.projectService.findAll(workspaceId, userId);
   }
 
+  @Get(':id/summary')
+  @ApiOperation({ summary: '获取项目协作摘要' })
+  findSummary(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Req() req,
+  ) {
+    const userId = req.user.sub;
+    return this.projectService.findSummary(workspaceId, id, userId);
+  }
+
+  @Get(':id/activity')
+  @ApiOperation({ summary: '获取项目活动流' })
+  findActivity(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Req() req,
+  ) {
+    const userId = req.user.sub;
+    return this.projectService.findActivity(workspaceId, id, userId);
+  }
+
+  @Get(':id/workflows')
+  @ApiOperation({ summary: '获取项目关联工作流' })
+  findWorkflows(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Req() req,
+  ) {
+    const userId = req.user.sub;
+    return this.projectService.findWorkflows(workspaceId, id, userId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: '获取项目详情' })
   findOne(

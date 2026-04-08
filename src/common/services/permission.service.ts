@@ -78,6 +78,15 @@ export class PermissionService {
     }
 
     const creatorUserId = await this.resolveCreatorUserId(project.creatorId);
+    const ownerUserId = await this.resolveProjectOwnerUserId(projectId);
+
+    if (ownerUserId === userId) {
+      if (operation === 'delete') {
+        return this.hasAdminPermission(userId, project.workspace);
+      }
+
+      return true;
+    }
 
     return this.evaluatePermission(
       userId,
@@ -86,6 +95,20 @@ export class PermissionService {
       project.workspace,
       operation,
     );
+  }
+
+  private async resolveProjectOwnerUserId(
+    projectId: string,
+  ): Promise<string | null> {
+    const records = await this.prisma.$queryRaw<Array<{ user_id: string | null }>>`
+      SELECT tm."user_id"
+      FROM "projects" p
+      LEFT JOIN "team_members" tm ON tm."id" = p."owner_member_id"
+      WHERE p."id" = ${projectId}
+      LIMIT 1
+    `;
+
+    return records[0]?.user_id ?? null;
   }
 
   /**

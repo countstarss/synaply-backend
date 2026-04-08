@@ -28,10 +28,16 @@ export type ProjectMinAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
+  brief: string | null
+  status: $Enums.ProjectStatus | null
+  phase: string | null
+  riskLevel: $Enums.ProjectRiskLevel | null
   workspaceId: string | null
   createdAt: Date | null
   updatedAt: Date | null
   creatorId: string | null
+  ownerMemberId: string | null
+  lastSyncAt: Date | null
   visibility: $Enums.VisibilityType | null
 }
 
@@ -39,10 +45,16 @@ export type ProjectMaxAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
+  brief: string | null
+  status: $Enums.ProjectStatus | null
+  phase: string | null
+  riskLevel: $Enums.ProjectRiskLevel | null
   workspaceId: string | null
   createdAt: Date | null
   updatedAt: Date | null
   creatorId: string | null
+  ownerMemberId: string | null
+  lastSyncAt: Date | null
   visibility: $Enums.VisibilityType | null
 }
 
@@ -50,10 +62,16 @@ export type ProjectCountAggregateOutputType = {
   id: number
   name: number
   description: number
+  brief: number
+  status: number
+  phase: number
+  riskLevel: number
   workspaceId: number
   createdAt: number
   updatedAt: number
   creatorId: number
+  ownerMemberId: number
+  lastSyncAt: number
   visibility: number
   _all: number
 }
@@ -63,10 +81,16 @@ export type ProjectMinAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  brief?: true
+  status?: true
+  phase?: true
+  riskLevel?: true
   workspaceId?: true
   createdAt?: true
   updatedAt?: true
   creatorId?: true
+  ownerMemberId?: true
+  lastSyncAt?: true
   visibility?: true
 }
 
@@ -74,10 +98,16 @@ export type ProjectMaxAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  brief?: true
+  status?: true
+  phase?: true
+  riskLevel?: true
   workspaceId?: true
   createdAt?: true
   updatedAt?: true
   creatorId?: true
+  ownerMemberId?: true
+  lastSyncAt?: true
   visibility?: true
 }
 
@@ -85,10 +115,16 @@ export type ProjectCountAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  brief?: true
+  status?: true
+  phase?: true
+  riskLevel?: true
   workspaceId?: true
   createdAt?: true
   updatedAt?: true
   creatorId?: true
+  ownerMemberId?: true
+  lastSyncAt?: true
   visibility?: true
   _all?: true
 }
@@ -169,10 +205,16 @@ export type ProjectGroupByOutputType = {
   id: string
   name: string
   description: string | null
+  brief: string | null
+  status: $Enums.ProjectStatus
+  phase: string | null
+  riskLevel: $Enums.ProjectRiskLevel
   workspaceId: string
   createdAt: Date
   updatedAt: Date
   creatorId: string
+  ownerMemberId: string
+  lastSyncAt: Date | null
   visibility: $Enums.VisibilityType
   _count: ProjectCountAggregateOutputType | null
   _min: ProjectMinAggregateOutputType | null
@@ -201,12 +243,19 @@ export type ProjectWhereInput = {
   id?: Prisma.StringFilter<"Project"> | string
   name?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  brief?: Prisma.StringNullableFilter<"Project"> | string | null
+  status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
+  phase?: Prisma.StringNullableFilter<"Project"> | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFilter<"Project"> | $Enums.ProjectRiskLevel
   workspaceId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   creatorId?: Prisma.StringFilter<"Project"> | string
+  ownerMemberId?: Prisma.StringFilter<"Project"> | string
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFilter<"Project"> | $Enums.VisibilityType
   issues?: Prisma.IssueListRelationFilter
+  owner?: Prisma.XOR<Prisma.TeamMemberScalarRelationFilter, Prisma.TeamMemberWhereInput>
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }
 
@@ -214,12 +263,19 @@ export type ProjectOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  brief?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  phase?: Prisma.SortOrderInput | Prisma.SortOrder
+  riskLevel?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  ownerMemberId?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrderInput | Prisma.SortOrder
   visibility?: Prisma.SortOrder
   issues?: Prisma.IssueOrderByRelationAggregateInput
+  owner?: Prisma.TeamMemberOrderByWithRelationInput
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
 }
 
@@ -230,12 +286,19 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ProjectWhereInput | Prisma.ProjectWhereInput[]
   name?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  brief?: Prisma.StringNullableFilter<"Project"> | string | null
+  status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
+  phase?: Prisma.StringNullableFilter<"Project"> | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFilter<"Project"> | $Enums.ProjectRiskLevel
   workspaceId?: Prisma.StringFilter<"Project"> | string
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   creatorId?: Prisma.StringFilter<"Project"> | string
+  ownerMemberId?: Prisma.StringFilter<"Project"> | string
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFilter<"Project"> | $Enums.VisibilityType
   issues?: Prisma.IssueListRelationFilter
+  owner?: Prisma.XOR<Prisma.TeamMemberScalarRelationFilter, Prisma.TeamMemberWhereInput>
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
 }, "id">
 
@@ -243,10 +306,16 @@ export type ProjectOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  brief?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  phase?: Prisma.SortOrderInput | Prisma.SortOrder
+  riskLevel?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  ownerMemberId?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrderInput | Prisma.SortOrder
   visibility?: Prisma.SortOrder
   _count?: Prisma.ProjectCountOrderByAggregateInput
   _max?: Prisma.ProjectMaxOrderByAggregateInput
@@ -260,10 +329,16 @@ export type ProjectScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Project"> | string
   name?: Prisma.StringWithAggregatesFilter<"Project"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  brief?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  status?: Prisma.EnumProjectStatusWithAggregatesFilter<"Project"> | $Enums.ProjectStatus
+  phase?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelWithAggregatesFilter<"Project"> | $Enums.ProjectRiskLevel
   workspaceId?: Prisma.StringWithAggregatesFilter<"Project"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Project"> | Date | string
   creatorId?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  ownerMemberId?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  lastSyncAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeWithAggregatesFilter<"Project"> | $Enums.VisibilityType
 }
 
@@ -271,11 +346,17 @@ export type ProjectCreateInput = {
   id?: string
   name: string
   description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   creatorId: string
+  lastSyncAt?: Date | string | null
   visibility?: $Enums.VisibilityType
   issues?: Prisma.IssueCreateNestedManyWithoutProjectInput
+  owner: Prisma.TeamMemberCreateNestedOneWithoutOwnedProjectsInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
 }
 
@@ -283,10 +364,16 @@ export type ProjectUncheckedCreateInput = {
   id?: string
   name: string
   description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
   workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   creatorId: string
+  ownerMemberId: string
+  lastSyncAt?: Date | string | null
   visibility?: $Enums.VisibilityType
   issues?: Prisma.IssueUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -295,11 +382,17 @@ export type ProjectUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   issues?: Prisma.IssueUpdateManyWithoutProjectNestedInput
+  owner?: Prisma.TeamMemberUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
 }
 
@@ -307,10 +400,16 @@ export type ProjectUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   issues?: Prisma.IssueUncheckedUpdateManyWithoutProjectNestedInput
 }
@@ -319,10 +418,16 @@ export type ProjectCreateManyInput = {
   id?: string
   name: string
   description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
   workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   creatorId: string
+  ownerMemberId: string
+  lastSyncAt?: Date | string | null
   visibility?: $Enums.VisibilityType
 }
 
@@ -330,9 +435,14 @@ export type ProjectUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
 }
 
@@ -340,10 +450,16 @@ export type ProjectUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
 }
 
@@ -361,10 +477,16 @@ export type ProjectCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  brief?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  phase?: Prisma.SortOrder
+  riskLevel?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  ownerMemberId?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
 }
 
@@ -372,10 +494,16 @@ export type ProjectMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  brief?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  phase?: Prisma.SortOrder
+  riskLevel?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  ownerMemberId?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
 }
 
@@ -383,16 +511,64 @@ export type ProjectMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  brief?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  phase?: Prisma.SortOrder
+  riskLevel?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  ownerMemberId?: Prisma.SortOrder
+  lastSyncAt?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
 }
 
 export type ProjectNullableScalarRelationFilter = {
   is?: Prisma.ProjectWhereInput | null
   isNot?: Prisma.ProjectWhereInput | null
+}
+
+export type ProjectCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.ProjectCreateManyOwnerInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUncheckedCreateNestedManyWithoutOwnerInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
+  createMany?: Prisma.ProjectCreateManyOwnerInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.ProjectCreateManyOwnerInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutOwnerInput | Prisma.ProjectUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUncheckedUpdateManyWithoutOwnerNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput> | Prisma.ProjectCreateWithoutOwnerInput[] | Prisma.ProjectUncheckedCreateWithoutOwnerInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwnerInput | Prisma.ProjectCreateOrConnectWithoutOwnerInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpsertWithWhereUniqueWithoutOwnerInput[]
+  createMany?: Prisma.ProjectCreateManyOwnerInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutOwnerInput | Prisma.ProjectUpdateWithWhereUniqueWithoutOwnerInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutOwnerInput | Prisma.ProjectUpdateManyWithWhereWithoutOwnerInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
 export type ProjectCreateNestedManyWithoutWorkspaceInput = {
@@ -437,6 +613,18 @@ export type ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
+export type EnumProjectStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ProjectStatus
+}
+
+export type EnumProjectRiskLevelFieldUpdateOperationsInput = {
+  set?: $Enums.ProjectRiskLevel
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type EnumVisibilityTypeFieldUpdateOperationsInput = {
   set?: $Enums.VisibilityType
 }
@@ -457,24 +645,116 @@ export type ProjectUpdateOneWithoutIssuesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutIssuesInput, Prisma.ProjectUpdateWithoutIssuesInput>, Prisma.ProjectUncheckedUpdateWithoutIssuesInput>
 }
 
+export type ProjectCreateWithoutOwnerInput = {
+  id?: string
+  name: string
+  description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  creatorId: string
+  lastSyncAt?: Date | string | null
+  visibility?: $Enums.VisibilityType
+  issues?: Prisma.IssueCreateNestedManyWithoutProjectInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+}
+
+export type ProjectUncheckedCreateWithoutOwnerInput = {
+  id?: string
+  name: string
+  description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
+  workspaceId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  creatorId: string
+  lastSyncAt?: Date | string | null
+  visibility?: $Enums.VisibilityType
+  issues?: Prisma.IssueUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutOwnerInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput>
+}
+
+export type ProjectCreateManyOwnerInputEnvelope = {
+  data: Prisma.ProjectCreateManyOwnerInput | Prisma.ProjectCreateManyOwnerInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProjectUpsertWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutOwnerInput, Prisma.ProjectUncheckedUpdateWithoutOwnerInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutOwnerInput, Prisma.ProjectUncheckedCreateWithoutOwnerInput>
+}
+
+export type ProjectUpdateWithWhereUniqueWithoutOwnerInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutOwnerInput, Prisma.ProjectUncheckedUpdateWithoutOwnerInput>
+}
+
+export type ProjectUpdateManyWithWhereWithoutOwnerInput = {
+  where: Prisma.ProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutOwnerInput>
+}
+
+export type ProjectScalarWhereInput = {
+  AND?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+  OR?: Prisma.ProjectScalarWhereInput[]
+  NOT?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+  id?: Prisma.StringFilter<"Project"> | string
+  name?: Prisma.StringFilter<"Project"> | string
+  description?: Prisma.StringNullableFilter<"Project"> | string | null
+  brief?: Prisma.StringNullableFilter<"Project"> | string | null
+  status?: Prisma.EnumProjectStatusFilter<"Project"> | $Enums.ProjectStatus
+  phase?: Prisma.StringNullableFilter<"Project"> | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFilter<"Project"> | $Enums.ProjectRiskLevel
+  workspaceId?: Prisma.StringFilter<"Project"> | string
+  createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
+  creatorId?: Prisma.StringFilter<"Project"> | string
+  ownerMemberId?: Prisma.StringFilter<"Project"> | string
+  lastSyncAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
+  visibility?: Prisma.EnumVisibilityTypeFilter<"Project"> | $Enums.VisibilityType
+}
+
 export type ProjectCreateWithoutWorkspaceInput = {
   id?: string
   name: string
   description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   creatorId: string
+  lastSyncAt?: Date | string | null
   visibility?: $Enums.VisibilityType
   issues?: Prisma.IssueCreateNestedManyWithoutProjectInput
+  owner: Prisma.TeamMemberCreateNestedOneWithoutOwnedProjectsInput
 }
 
 export type ProjectUncheckedCreateWithoutWorkspaceInput = {
   id?: string
   name: string
   description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   creatorId: string
+  ownerMemberId: string
+  lastSyncAt?: Date | string | null
   visibility?: $Enums.VisibilityType
   issues?: Prisma.IssueUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -505,28 +785,20 @@ export type ProjectUpdateManyWithWhereWithoutWorkspaceInput = {
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
-export type ProjectScalarWhereInput = {
-  AND?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-  OR?: Prisma.ProjectScalarWhereInput[]
-  NOT?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-  id?: Prisma.StringFilter<"Project"> | string
-  name?: Prisma.StringFilter<"Project"> | string
-  description?: Prisma.StringNullableFilter<"Project"> | string | null
-  workspaceId?: Prisma.StringFilter<"Project"> | string
-  createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
-  creatorId?: Prisma.StringFilter<"Project"> | string
-  visibility?: Prisma.EnumVisibilityTypeFilter<"Project"> | $Enums.VisibilityType
-}
-
 export type ProjectCreateWithoutIssuesInput = {
   id?: string
   name: string
   description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   creatorId: string
+  lastSyncAt?: Date | string | null
   visibility?: $Enums.VisibilityType
+  owner: Prisma.TeamMemberCreateNestedOneWithoutOwnedProjectsInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
 }
 
@@ -534,10 +806,16 @@ export type ProjectUncheckedCreateWithoutIssuesInput = {
   id?: string
   name: string
   description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
   workspaceId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   creatorId: string
+  ownerMemberId: string
+  lastSyncAt?: Date | string | null
   visibility?: $Enums.VisibilityType
 }
 
@@ -561,10 +839,16 @@ export type ProjectUpdateWithoutIssuesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
+  owner?: Prisma.TeamMemberUpdateOneRequiredWithoutOwnedProjectsNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
 }
 
@@ -572,10 +856,82 @@ export type ProjectUncheckedUpdateWithoutIssuesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
+}
+
+export type ProjectCreateManyOwnerInput = {
+  id?: string
+  name: string
+  description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
+  workspaceId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  creatorId: string
+  lastSyncAt?: Date | string | null
+  visibility?: $Enums.VisibilityType
+}
+
+export type ProjectUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
+  issues?: Prisma.IssueUpdateManyWithoutProjectNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
+  issues?: Prisma.IssueUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateManyWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
 }
 
@@ -583,9 +939,15 @@ export type ProjectCreateManyWorkspaceInput = {
   id?: string
   name: string
   description?: string | null
+  brief?: string | null
+  status?: $Enums.ProjectStatus
+  phase?: string | null
+  riskLevel?: $Enums.ProjectRiskLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   creatorId: string
+  ownerMemberId: string
+  lastSyncAt?: Date | string | null
   visibility?: $Enums.VisibilityType
 }
 
@@ -593,20 +955,32 @@ export type ProjectUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   issues?: Prisma.IssueUpdateManyWithoutProjectNestedInput
+  owner?: Prisma.TeamMemberUpdateOneRequiredWithoutOwnedProjectsNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   issues?: Prisma.IssueUncheckedUpdateManyWithoutProjectNestedInput
 }
@@ -615,9 +989,15 @@ export type ProjectUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brief?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  phase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.EnumProjectRiskLevelFieldUpdateOperationsInput | $Enums.ProjectRiskLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  lastSyncAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
 }
 
@@ -656,12 +1036,19 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   name?: boolean
   description?: boolean
+  brief?: boolean
+  status?: boolean
+  phase?: boolean
+  riskLevel?: boolean
   workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   creatorId?: boolean
+  ownerMemberId?: boolean
+  lastSyncAt?: boolean
   visibility?: boolean
   issues?: boolean | Prisma.Project$issuesArgs<ExtArgs>
+  owner?: boolean | Prisma.TeamMemberDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
@@ -670,11 +1057,18 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   description?: boolean
+  brief?: boolean
+  status?: boolean
+  phase?: boolean
+  riskLevel?: boolean
   workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   creatorId?: boolean
+  ownerMemberId?: boolean
+  lastSyncAt?: boolean
   visibility?: boolean
+  owner?: boolean | Prisma.TeamMemberDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -682,11 +1076,18 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   description?: boolean
+  brief?: boolean
+  status?: boolean
+  phase?: boolean
+  riskLevel?: boolean
   workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   creatorId?: boolean
+  ownerMemberId?: boolean
+  lastSyncAt?: boolean
   visibility?: boolean
+  owner?: boolean | Prisma.TeamMemberDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -694,23 +1095,32 @@ export type ProjectSelectScalar = {
   id?: boolean
   name?: boolean
   description?: boolean
+  brief?: boolean
+  status?: boolean
+  phase?: boolean
+  riskLevel?: boolean
   workspaceId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   creatorId?: boolean
+  ownerMemberId?: boolean
+  lastSyncAt?: boolean
   visibility?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "workspaceId" | "createdAt" | "updatedAt" | "creatorId" | "visibility", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "brief" | "status" | "phase" | "riskLevel" | "workspaceId" | "createdAt" | "updatedAt" | "creatorId" | "ownerMemberId" | "lastSyncAt" | "visibility", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   issues?: boolean | Prisma.Project$issuesArgs<ExtArgs>
+  owner?: boolean | Prisma.TeamMemberDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.TeamMemberDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  owner?: boolean | Prisma.TeamMemberDefaultArgs<ExtArgs>
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
@@ -718,16 +1128,23 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Project"
   objects: {
     issues: Prisma.$IssuePayload<ExtArgs>[]
+    owner: Prisma.$TeamMemberPayload<ExtArgs>
     workspace: Prisma.$WorkspacePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     description: string | null
+    brief: string | null
+    status: $Enums.ProjectStatus
+    phase: string | null
+    riskLevel: $Enums.ProjectRiskLevel
     workspaceId: string
     createdAt: Date
     updatedAt: Date
     creatorId: string
+    ownerMemberId: string
+    lastSyncAt: Date | null
     visibility: $Enums.VisibilityType
   }, ExtArgs["result"]["project"]>
   composites: {}
@@ -1124,6 +1541,7 @@ readonly fields: ProjectFieldRefs;
 export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   issues<T extends Prisma.Project$issuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$issuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IssuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  owner<T extends Prisma.TeamMemberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamMemberDefaultArgs<ExtArgs>>): Prisma.Prisma__TeamMemberClient<runtime.Types.Result.GetResult<Prisma.$TeamMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1157,10 +1575,16 @@ export interface ProjectFieldRefs {
   readonly id: Prisma.FieldRef<"Project", 'String'>
   readonly name: Prisma.FieldRef<"Project", 'String'>
   readonly description: Prisma.FieldRef<"Project", 'String'>
+  readonly brief: Prisma.FieldRef<"Project", 'String'>
+  readonly status: Prisma.FieldRef<"Project", 'ProjectStatus'>
+  readonly phase: Prisma.FieldRef<"Project", 'String'>
+  readonly riskLevel: Prisma.FieldRef<"Project", 'ProjectRiskLevel'>
   readonly workspaceId: Prisma.FieldRef<"Project", 'String'>
   readonly createdAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly creatorId: Prisma.FieldRef<"Project", 'String'>
+  readonly ownerMemberId: Prisma.FieldRef<"Project", 'String'>
+  readonly lastSyncAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly visibility: Prisma.FieldRef<"Project", 'VisibilityType'>
 }
     
