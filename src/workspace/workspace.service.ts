@@ -9,6 +9,8 @@ import {
 } from '../../prisma/generated/prisma/client';
 import { TeamMemberService } from '../common/services/team-member.service';
 import { IssueService } from '../issue/issue.service';
+import { InboxService } from '../inbox/inbox.service';
+import { MyWorkInboxSignal } from '../inbox/inbox.types';
 
 interface WorkspaceWorkflowRun {
   templateId?: string | null;
@@ -96,7 +98,7 @@ export interface MyWorkResponse {
   inProgress: MyWorkItem[];
   blocked: MyWorkItem[];
   completedToday: MyWorkItem[];
-  inboxSignals: [];
+  inboxSignals: MyWorkInboxSignal[];
 }
 
 const PRIORITY_WEIGHT: Record<IssuePriority, number> = {
@@ -130,6 +132,7 @@ export class WorkspaceService {
     private prisma: PrismaService,
     private readonly teamMemberService: TeamMemberService,
     private readonly issueService: IssueService,
+    private readonly inboxService: InboxService,
   ) {}
 
   private isWorkflowIssue(issue: WorkspaceIssue) {
@@ -650,6 +653,11 @@ export class WorkspaceService {
       return seenFocusIds.size <= 5;
     });
 
+    const inboxSignals = await this.inboxService.getMyWorkInboxSignals(
+      workspaceId,
+      userId,
+    );
+
     return {
       workspaceId,
       generatedAt: now.toISOString(),
@@ -667,7 +675,7 @@ export class WorkspaceService {
       inProgress,
       blocked,
       completedToday,
-      inboxSignals: [],
+      inboxSignals,
     };
   }
 }

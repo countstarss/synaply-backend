@@ -53,6 +53,21 @@ export type Workflow = Prisma.WorkflowModel
  */
 export type Issue = Prisma.IssueModel
 /**
+ * Model Doc
+ * 
+ */
+export type Doc = Prisma.DocModel
+/**
+ * Model DocRevision
+ * 
+ */
+export type DocRevision = Prisma.DocRevisionModel
+/**
+ * Model InboxItem
+ * 
+ */
+export type InboxItem = Prisma.InboxItemModel
+/**
  * Model IssueState
  * MARK: - Issue 状态配置模型 (Linear 风格动态状态)
  */

@@ -214,6 +214,7 @@ export type WorkspaceWhereInput = {
   calendar?: Prisma.XOR<Prisma.CalendarNullableScalarRelationFilter, Prisma.CalendarWhereInput> | null
   issueStates?: Prisma.IssueStateListRelationFilter
   labels?: Prisma.LabelListRelationFilter
+  docs?: Prisma.DocListRelationFilter
 }
 
 export type WorkspaceOrderByWithRelationInput = {
@@ -233,6 +234,7 @@ export type WorkspaceOrderByWithRelationInput = {
   calendar?: Prisma.CalendarOrderByWithRelationInput
   issueStates?: Prisma.IssueStateOrderByRelationAggregateInput
   labels?: Prisma.LabelOrderByRelationAggregateInput
+  docs?: Prisma.DocOrderByRelationAggregateInput
 }
 
 export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -255,6 +257,7 @@ export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
   calendar?: Prisma.XOR<Prisma.CalendarNullableScalarRelationFilter, Prisma.CalendarWhereInput> | null
   issueStates?: Prisma.IssueStateListRelationFilter
   labels?: Prisma.LabelListRelationFilter
+  docs?: Prisma.DocListRelationFilter
 }, "id" | "teamId">
 
 export type WorkspaceOrderByWithAggregationInput = {
@@ -300,6 +303,7 @@ export type WorkspaceCreateInput = {
   calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateInput = {
@@ -317,6 +321,7 @@ export type WorkspaceUncheckedCreateInput = {
   calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUpdateInput = {
@@ -334,6 +339,7 @@ export type WorkspaceUpdateInput = {
   calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateInput = {
@@ -351,6 +357,7 @@ export type WorkspaceUncheckedUpdateInput = {
   calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUncheckedUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateManyInput = {
@@ -557,6 +564,20 @@ export type WorkspaceUpdateOneRequiredWithoutIssuesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutIssuesInput, Prisma.WorkspaceUpdateWithoutIssuesInput>, Prisma.WorkspaceUncheckedUpdateWithoutIssuesInput>
 }
 
+export type WorkspaceCreateNestedOneWithoutDocsInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutDocsInput, Prisma.WorkspaceUncheckedCreateWithoutDocsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutDocsInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutDocsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutDocsInput, Prisma.WorkspaceUncheckedCreateWithoutDocsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutDocsInput
+  upsert?: Prisma.WorkspaceUpsertWithoutDocsInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutDocsInput, Prisma.WorkspaceUpdateWithoutDocsInput>, Prisma.WorkspaceUncheckedUpdateWithoutDocsInput>
+}
+
 export type WorkspaceCreateNestedOneWithoutIssueStatesInput = {
   create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutIssueStatesInput, Prisma.WorkspaceUncheckedCreateWithoutIssueStatesInput>
   connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutIssueStatesInput
@@ -613,6 +634,7 @@ export type WorkspaceCreateWithoutUserInput = {
   calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutUserInput = {
@@ -629,6 +651,7 @@ export type WorkspaceUncheckedCreateWithoutUserInput = {
   calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutUserInput = {
@@ -685,6 +708,7 @@ export type WorkspaceCreateWithoutTeamInput = {
   calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutTeamInput = {
@@ -701,6 +725,7 @@ export type WorkspaceUncheckedCreateWithoutTeamInput = {
   calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutTeamInput = {
@@ -733,6 +758,7 @@ export type WorkspaceUpdateWithoutTeamInput = {
   calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutTeamInput = {
@@ -749,6 +775,7 @@ export type WorkspaceUncheckedUpdateWithoutTeamInput = {
   calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUncheckedUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutProjectsInput = {
@@ -765,6 +792,7 @@ export type WorkspaceCreateWithoutProjectsInput = {
   calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutProjectsInput = {
@@ -781,6 +809,7 @@ export type WorkspaceUncheckedCreateWithoutProjectsInput = {
   calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutProjectsInput = {
@@ -813,6 +842,7 @@ export type WorkspaceUpdateWithoutProjectsInput = {
   calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutProjectsInput = {
@@ -829,6 +859,7 @@ export type WorkspaceUncheckedUpdateWithoutProjectsInput = {
   calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUncheckedUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutWorkflowsInput = {
@@ -845,6 +876,7 @@ export type WorkspaceCreateWithoutWorkflowsInput = {
   calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutWorkflowsInput = {
@@ -861,6 +893,7 @@ export type WorkspaceUncheckedCreateWithoutWorkflowsInput = {
   calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutWorkflowsInput = {
@@ -893,6 +926,7 @@ export type WorkspaceUpdateWithoutWorkflowsInput = {
   calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutWorkflowsInput = {
@@ -909,6 +943,7 @@ export type WorkspaceUncheckedUpdateWithoutWorkflowsInput = {
   calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUncheckedUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutIssuesInput = {
@@ -925,6 +960,7 @@ export type WorkspaceCreateWithoutIssuesInput = {
   calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutIssuesInput = {
@@ -941,6 +977,7 @@ export type WorkspaceUncheckedCreateWithoutIssuesInput = {
   calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutIssuesInput = {
@@ -973,6 +1010,7 @@ export type WorkspaceUpdateWithoutIssuesInput = {
   calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutIssuesInput = {
@@ -984,6 +1022,91 @@ export type WorkspaceUncheckedUpdateWithoutIssuesInput = {
   issuePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutWorkspaceNestedInput
+  calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
+  issueStates?: Prisma.IssueStateUncheckedUpdateManyWithoutWorkspaceNestedInput
+  labels?: Prisma.LabelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutDocsInput = {
+  id?: string
+  name: string
+  type: $Enums.WorkspaceType
+  issuePrefix?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issues?: Prisma.IssueCreateNestedManyWithoutWorkspaceInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutWorkspaceInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutWorkspaceInput
+  team?: Prisma.TeamCreateNestedOneWithoutWorkspaceInput
+  user?: Prisma.UserCreateNestedOneWithoutWorkspacesInput
+  calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
+  issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
+  labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutDocsInput = {
+  id?: string
+  name: string
+  type: $Enums.WorkspaceType
+  userId?: string | null
+  teamId?: string | null
+  issuePrefix?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issues?: Prisma.IssueUncheckedCreateNestedManyWithoutWorkspaceInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutWorkspaceInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutWorkspaceInput
+  calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
+  issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
+  labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutDocsInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutDocsInput, Prisma.WorkspaceUncheckedCreateWithoutDocsInput>
+}
+
+export type WorkspaceUpsertWithoutDocsInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutDocsInput, Prisma.WorkspaceUncheckedUpdateWithoutDocsInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutDocsInput, Prisma.WorkspaceUncheckedCreateWithoutDocsInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutDocsInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutDocsInput, Prisma.WorkspaceUncheckedUpdateWithoutDocsInput>
+}
+
+export type WorkspaceUpdateWithoutDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumWorkspaceTypeFieldUpdateOperationsInput | $Enums.WorkspaceType
+  issuePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issues?: Prisma.IssueUpdateManyWithoutWorkspaceNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutWorkspaceNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutWorkspaceNestedInput
+  team?: Prisma.TeamUpdateOneWithoutWorkspaceNestedInput
+  user?: Prisma.UserUpdateOneWithoutWorkspacesNestedInput
+  calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
+  issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
+  labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumWorkspaceTypeFieldUpdateOperationsInput | $Enums.WorkspaceType
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  issuePrefix?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issues?: Prisma.IssueUncheckedUpdateManyWithoutWorkspaceNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutWorkspaceNestedInput
   calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
@@ -1005,6 +1128,7 @@ export type WorkspaceCreateWithoutIssueStatesInput = {
   user?: Prisma.UserCreateNestedOneWithoutWorkspacesInput
   calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
   labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutIssueStatesInput = {
@@ -1021,6 +1145,7 @@ export type WorkspaceUncheckedCreateWithoutIssueStatesInput = {
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutWorkspaceInput
   calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
   labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutIssueStatesInput = {
@@ -1053,6 +1178,7 @@ export type WorkspaceUpdateWithoutIssueStatesInput = {
   user?: Prisma.UserUpdateOneWithoutWorkspacesNestedInput
   calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutIssueStatesInput = {
@@ -1069,6 +1195,7 @@ export type WorkspaceUncheckedUpdateWithoutIssueStatesInput = {
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutWorkspaceNestedInput
   calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutLabelsInput = {
@@ -1085,6 +1212,7 @@ export type WorkspaceCreateWithoutLabelsInput = {
   user?: Prisma.UserCreateNestedOneWithoutWorkspacesInput
   calendar?: Prisma.CalendarCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutLabelsInput = {
@@ -1101,6 +1229,7 @@ export type WorkspaceUncheckedCreateWithoutLabelsInput = {
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutWorkspaceInput
   calendar?: Prisma.CalendarUncheckedCreateNestedOneWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutLabelsInput = {
@@ -1133,6 +1262,7 @@ export type WorkspaceUpdateWithoutLabelsInput = {
   user?: Prisma.UserUpdateOneWithoutWorkspacesNestedInput
   calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutLabelsInput = {
@@ -1149,6 +1279,7 @@ export type WorkspaceUncheckedUpdateWithoutLabelsInput = {
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutWorkspaceNestedInput
   calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutCalendarInput = {
@@ -1165,6 +1296,7 @@ export type WorkspaceCreateWithoutCalendarInput = {
   user?: Prisma.UserCreateNestedOneWithoutWorkspacesInput
   issueStates?: Prisma.IssueStateCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutCalendarInput = {
@@ -1181,6 +1313,7 @@ export type WorkspaceUncheckedCreateWithoutCalendarInput = {
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutWorkspaceInput
   issueStates?: Prisma.IssueStateUncheckedCreateNestedManyWithoutWorkspaceInput
   labels?: Prisma.LabelUncheckedCreateNestedManyWithoutWorkspaceInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutCalendarInput = {
@@ -1213,6 +1346,7 @@ export type WorkspaceUpdateWithoutCalendarInput = {
   user?: Prisma.UserUpdateOneWithoutWorkspacesNestedInput
   issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutCalendarInput = {
@@ -1229,6 +1363,7 @@ export type WorkspaceUncheckedUpdateWithoutCalendarInput = {
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUncheckedUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateManyUserInput = {
@@ -1255,6 +1390,7 @@ export type WorkspaceUpdateWithoutUserInput = {
   calendar?: Prisma.CalendarUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutUserInput = {
@@ -1271,6 +1407,7 @@ export type WorkspaceUncheckedUpdateWithoutUserInput = {
   calendar?: Prisma.CalendarUncheckedUpdateOneWithoutWorkspaceNestedInput
   issueStates?: Prisma.IssueStateUncheckedUpdateManyWithoutWorkspaceNestedInput
   labels?: Prisma.LabelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateManyWithoutUserInput = {
@@ -1294,6 +1431,7 @@ export type WorkspaceCountOutputType = {
   workflows: number
   issueStates: number
   labels: number
+  docs: number
 }
 
 export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1302,6 +1440,7 @@ export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   workflows?: boolean | WorkspaceCountOutputTypeCountWorkflowsArgs
   issueStates?: boolean | WorkspaceCountOutputTypeCountIssueStatesArgs
   labels?: boolean | WorkspaceCountOutputTypeCountLabelsArgs
+  docs?: boolean | WorkspaceCountOutputTypeCountDocsArgs
 }
 
 /**
@@ -1349,6 +1488,13 @@ export type WorkspaceCountOutputTypeCountLabelsArgs<ExtArgs extends runtime.Type
   where?: Prisma.LabelWhereInput
 }
 
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocWhereInput
+}
+
 
 export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1367,6 +1513,7 @@ export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   calendar?: boolean | Prisma.Workspace$calendarArgs<ExtArgs>
   issueStates?: boolean | Prisma.Workspace$issueStatesArgs<ExtArgs>
   labels?: boolean | Prisma.Workspace$labelsArgs<ExtArgs>
+  docs?: boolean | Prisma.Workspace$docsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspace"]>
 
@@ -1417,6 +1564,7 @@ export type WorkspaceInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   calendar?: boolean | Prisma.Workspace$calendarArgs<ExtArgs>
   issueStates?: boolean | Prisma.Workspace$issueStatesArgs<ExtArgs>
   labels?: boolean | Prisma.Workspace$labelsArgs<ExtArgs>
+  docs?: boolean | Prisma.Workspace$docsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1439,6 +1587,7 @@ export type $WorkspacePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     calendar: Prisma.$CalendarPayload<ExtArgs> | null
     issueStates: Prisma.$IssueStatePayload<ExtArgs>[]
     labels: Prisma.$LabelPayload<ExtArgs>[]
+    docs: Prisma.$DocPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1851,6 +2000,7 @@ export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtim
   calendar<T extends Prisma.Workspace$calendarArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$calendarArgs<ExtArgs>>): Prisma.Prisma__CalendarClient<runtime.Types.Result.GetResult<Prisma.$CalendarPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   issueStates<T extends Prisma.Workspace$issueStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$issueStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IssueStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   labels<T extends Prisma.Workspace$labelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$labelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  docs<T extends Prisma.Workspace$docsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$docsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2458,6 +2608,30 @@ export type Workspace$labelsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.LabelScalarFieldEnum | Prisma.LabelScalarFieldEnum[]
+}
+
+/**
+ * Workspace.docs
+ */
+export type Workspace$docsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Doc
+   */
+  select?: Prisma.DocSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Doc
+   */
+  omit?: Prisma.DocOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocInclude<ExtArgs> | null
+  where?: Prisma.DocWhereInput
+  orderBy?: Prisma.DocOrderByWithRelationInput | Prisma.DocOrderByWithRelationInput[]
+  cursor?: Prisma.DocWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocScalarFieldEnum | Prisma.DocScalarFieldEnum[]
 }
 
 /**

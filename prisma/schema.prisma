@@ -257,6 +257,44 @@ model DocRevision {
   @@map("doc_revisions")
 }
 
+model InboxItem {
+  id             String    @id @default(uuid())
+  workspaceId    String    @map("workspace_id")
+  targetUserId   String    @map("target_user_id")
+  type           String
+  bucket         String
+  sourceType     String    @map("source_type")
+  sourceId       String    @map("source_id")
+  projectId      String?   @map("project_id")
+  projectName    String?   @map("project_name")
+  issueId        String?   @map("issue_id")
+  issueKey       String?   @map("issue_key")
+  workflowRunId  String?   @map("workflow_run_id")
+  docId          String?   @map("doc_id")
+  actorUserId    String?   @map("actor_user_id")
+  title          String
+  summary        String?
+  priority       String    @default("normal")
+  requiresAction Boolean   @default(false) @map("requires_action")
+  actionLabel    String?   @map("action_label")
+  status         String    @default("unread")
+  occurredAt     DateTime  @map("occurred_at")
+  readAt         DateTime? @map("read_at")
+  doneAt         DateTime? @map("done_at")
+  dismissedAt    DateTime? @map("dismissed_at")
+  snoozedUntil   DateTime? @map("snoozed_until")
+  dedupeKey      String    @map("dedupe_key")
+  metadata       Json?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@unique([workspaceId, targetUserId, dedupeKey])
+  @@index([workspaceId, targetUserId, status])
+  @@index([workspaceId, targetUserId, bucket])
+  @@index([workspaceId, targetUserId, occurredAt])
+  @@map("inbox_items")
+}
+
 /// MARK: - Issue 状态配置模型 (Linear 风格动态状态)
 model IssueState {
   id          String             @id @default(uuid())

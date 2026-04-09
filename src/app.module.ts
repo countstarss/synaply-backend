@@ -19,6 +19,7 @@ import { CommentModule } from './comment/comment.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { TaskModule } from './task/task.module';
 import { DocModule } from './doc/doc.module';
+import { InboxModule } from './inbox/inbox.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { DocModule } from './doc/doc.module';
     CalendarModule,
     TaskModule,
     DocModule,
+    InboxModule,
   ],
   controllers: [AppController],
   providers: [AppService],

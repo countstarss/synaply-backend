@@ -43,6 +43,33 @@ export const WorkflowStatus = {
 export type WorkflowStatus = (typeof WorkflowStatus)[keyof typeof WorkflowStatus]
 
 
+export const DocType = {
+  DOCUMENT: 'DOCUMENT',
+  FOLDER: 'FOLDER'
+} as const
+
+export type DocType = (typeof DocType)[keyof typeof DocType]
+
+
+export const DocStatus = {
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type DocStatus = (typeof DocStatus)[keyof typeof DocStatus]
+
+
+export const DocChangeSource = {
+  CREATE: 'CREATE',
+  EDITOR: 'EDITOR',
+  META: 'META',
+  SYSTEM: 'SYSTEM',
+  IMPORT: 'IMPORT'
+} as const
+
+export type DocChangeSource = (typeof DocChangeSource)[keyof typeof DocChangeSource]
+
+
 export const ProjectStatus = {
   PLANNING: 'PLANNING',
   ACTIVE: 'ACTIVE',

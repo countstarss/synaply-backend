@@ -391,6 +391,9 @@ export const ModelName = {
   Project: 'Project',
   Workflow: 'Workflow',
   Issue: 'Issue',
+  Doc: 'Doc',
+  DocRevision: 'DocRevision',
+  InboxItem: 'InboxItem',
   IssueState: 'IssueState',
   Label: 'Label',
   IssueLabel: 'IssueLabel',
@@ -415,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "team" | "teamMember" | "workspace" | "project" | "workflow" | "issue" | "issueState" | "label" | "issueLabel" | "issueAssignee" | "issueStepRecord" | "issueActivity" | "comment" | "calendar" | "task"
+    modelProps: "user" | "team" | "teamMember" | "workspace" | "project" | "workflow" | "issue" | "doc" | "docRevision" | "inboxItem" | "issueState" | "label" | "issueLabel" | "issueAssignee" | "issueStepRecord" | "issueActivity" | "comment" | "calendar" | "task"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -934,6 +937,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.IssueCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.IssueCountAggregateOutputType> | number
+        }
+      }
+    }
+    Doc: {
+      payload: Prisma.$DocPayload<ExtArgs>
+      fields: Prisma.DocFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DocFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DocFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>
+        }
+        findFirst: {
+          args: Prisma.DocFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DocFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>
+        }
+        findMany: {
+          args: Prisma.DocFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>[]
+        }
+        create: {
+          args: Prisma.DocCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>
+        }
+        createMany: {
+          args: Prisma.DocCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DocCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>[]
+        }
+        delete: {
+          args: Prisma.DocDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>
+        }
+        update: {
+          args: Prisma.DocUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>
+        }
+        deleteMany: {
+          args: Prisma.DocDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DocUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DocUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>[]
+        }
+        upsert: {
+          args: Prisma.DocUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocPayload>
+        }
+        aggregate: {
+          args: Prisma.DocAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDoc>
+        }
+        groupBy: {
+          args: Prisma.DocGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DocCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocCountAggregateOutputType> | number
+        }
+      }
+    }
+    DocRevision: {
+      payload: Prisma.$DocRevisionPayload<ExtArgs>
+      fields: Prisma.DocRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DocRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DocRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.DocRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DocRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.DocRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.DocRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.DocRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DocRevisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>[]
+        }
+        delete: {
+          args: Prisma.DocRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>
+        }
+        update: {
+          args: Prisma.DocRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DocRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DocRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DocRevisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DocRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.DocRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDocRevision>
+        }
+        groupBy: {
+          args: Prisma.DocRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DocRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocRevisionCountAggregateOutputType> | number
+        }
+      }
+    }
+    InboxItem: {
+      payload: Prisma.$InboxItemPayload<ExtArgs>
+      fields: Prisma.InboxItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InboxItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InboxItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>
+        }
+        findFirst: {
+          args: Prisma.InboxItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InboxItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>
+        }
+        findMany: {
+          args: Prisma.InboxItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>[]
+        }
+        create: {
+          args: Prisma.InboxItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>
+        }
+        createMany: {
+          args: Prisma.InboxItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InboxItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>[]
+        }
+        delete: {
+          args: Prisma.InboxItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>
+        }
+        update: {
+          args: Prisma.InboxItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.InboxItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InboxItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InboxItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.InboxItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InboxItemPayload>
+        }
+        aggregate: {
+          args: Prisma.InboxItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInboxItem>
+        }
+        groupBy: {
+          args: Prisma.InboxItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InboxItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InboxItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InboxItemCountAggregateOutputType> | number
         }
       }
     }
@@ -1762,6 +1987,84 @@ export const IssueScalarFieldEnum = {
 export type IssueScalarFieldEnum = (typeof IssueScalarFieldEnum)[keyof typeof IssueScalarFieldEnum]
 
 
+export const DocScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  creatorMemberId: 'creatorMemberId',
+  ownerMemberId: 'ownerMemberId',
+  title: 'title',
+  description: 'description',
+  type: 'type',
+  status: 'status',
+  visibility: 'visibility',
+  parentId: 'parentId',
+  projectId: 'projectId',
+  issueId: 'issueId',
+  workflowId: 'workflowId',
+  icon: 'icon',
+  coverImage: 'coverImage',
+  sortOrder: 'sortOrder',
+  isArchived: 'isArchived',
+  isDeleted: 'isDeleted',
+  latestRevisionId: 'latestRevisionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastEditedAt: 'lastEditedAt'
+} as const
+
+export type DocScalarFieldEnum = (typeof DocScalarFieldEnum)[keyof typeof DocScalarFieldEnum]
+
+
+export const DocRevisionScalarFieldEnum = {
+  id: 'id',
+  docId: 'docId',
+  baseRevisionId: 'baseRevisionId',
+  authorMemberId: 'authorMemberId',
+  clientMutationId: 'clientMutationId',
+  contentSnapshot: 'contentSnapshot',
+  metadataSnapshot: 'metadataSnapshot',
+  changeSource: 'changeSource',
+  createdAt: 'createdAt'
+} as const
+
+export type DocRevisionScalarFieldEnum = (typeof DocRevisionScalarFieldEnum)[keyof typeof DocRevisionScalarFieldEnum]
+
+
+export const InboxItemScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  targetUserId: 'targetUserId',
+  type: 'type',
+  bucket: 'bucket',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  projectId: 'projectId',
+  projectName: 'projectName',
+  issueId: 'issueId',
+  issueKey: 'issueKey',
+  workflowRunId: 'workflowRunId',
+  docId: 'docId',
+  actorUserId: 'actorUserId',
+  title: 'title',
+  summary: 'summary',
+  priority: 'priority',
+  requiresAction: 'requiresAction',
+  actionLabel: 'actionLabel',
+  status: 'status',
+  occurredAt: 'occurredAt',
+  readAt: 'readAt',
+  doneAt: 'doneAt',
+  dismissedAt: 'dismissedAt',
+  snoozedUntil: 'snoozedUntil',
+  dedupeKey: 'dedupeKey',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InboxItemScalarFieldEnum = (typeof InboxItemScalarFieldEnum)[keyof typeof InboxItemScalarFieldEnum]
+
+
 export const IssueStateScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -1891,6 +2194,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2114,6 +2424,48 @@ export type ListEnumIssueTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
+ * Reference to a field of type 'DocType'
+ */
+export type EnumDocTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocType'>
+    
+
+
+/**
+ * Reference to a field of type 'DocType[]'
+ */
+export type ListEnumDocTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DocStatus'
+ */
+export type EnumDocStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DocStatus[]'
+ */
+export type ListEnumDocStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DocChangeSource'
+ */
+export type EnumDocChangeSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocChangeSource'>
+    
+
+
+/**
+ * Reference to a field of type 'DocChangeSource[]'
+ */
+export type ListEnumDocChangeSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocChangeSource[]'>
+    
+
+
+/**
  * Reference to a field of type 'IssueStateCategory'
  */
 export type EnumIssueStateCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IssueStateCategory'>
@@ -2256,6 +2608,9 @@ export type GlobalOmitConfig = {
   project?: Prisma.ProjectOmit
   workflow?: Prisma.WorkflowOmit
   issue?: Prisma.IssueOmit
+  doc?: Prisma.DocOmit
+  docRevision?: Prisma.DocRevisionOmit
+  inboxItem?: Prisma.InboxItemOmit
   issueState?: Prisma.IssueStateOmit
   label?: Prisma.LabelOmit
   issueLabel?: Prisma.IssueLabelOmit

@@ -58,6 +58,9 @@ export const ModelName = {
   Project: 'Project',
   Workflow: 'Workflow',
   Issue: 'Issue',
+  Doc: 'Doc',
+  DocRevision: 'DocRevision',
+  InboxItem: 'InboxItem',
   IssueState: 'IssueState',
   Label: 'Label',
   IssueLabel: 'IssueLabel',
@@ -205,6 +208,84 @@ export const IssueScalarFieldEnum = {
 export type IssueScalarFieldEnum = (typeof IssueScalarFieldEnum)[keyof typeof IssueScalarFieldEnum]
 
 
+export const DocScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  creatorMemberId: 'creatorMemberId',
+  ownerMemberId: 'ownerMemberId',
+  title: 'title',
+  description: 'description',
+  type: 'type',
+  status: 'status',
+  visibility: 'visibility',
+  parentId: 'parentId',
+  projectId: 'projectId',
+  issueId: 'issueId',
+  workflowId: 'workflowId',
+  icon: 'icon',
+  coverImage: 'coverImage',
+  sortOrder: 'sortOrder',
+  isArchived: 'isArchived',
+  isDeleted: 'isDeleted',
+  latestRevisionId: 'latestRevisionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastEditedAt: 'lastEditedAt'
+} as const
+
+export type DocScalarFieldEnum = (typeof DocScalarFieldEnum)[keyof typeof DocScalarFieldEnum]
+
+
+export const DocRevisionScalarFieldEnum = {
+  id: 'id',
+  docId: 'docId',
+  baseRevisionId: 'baseRevisionId',
+  authorMemberId: 'authorMemberId',
+  clientMutationId: 'clientMutationId',
+  contentSnapshot: 'contentSnapshot',
+  metadataSnapshot: 'metadataSnapshot',
+  changeSource: 'changeSource',
+  createdAt: 'createdAt'
+} as const
+
+export type DocRevisionScalarFieldEnum = (typeof DocRevisionScalarFieldEnum)[keyof typeof DocRevisionScalarFieldEnum]
+
+
+export const InboxItemScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  targetUserId: 'targetUserId',
+  type: 'type',
+  bucket: 'bucket',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  projectId: 'projectId',
+  projectName: 'projectName',
+  issueId: 'issueId',
+  issueKey: 'issueKey',
+  workflowRunId: 'workflowRunId',
+  docId: 'docId',
+  actorUserId: 'actorUserId',
+  title: 'title',
+  summary: 'summary',
+  priority: 'priority',
+  requiresAction: 'requiresAction',
+  actionLabel: 'actionLabel',
+  status: 'status',
+  occurredAt: 'occurredAt',
+  readAt: 'readAt',
+  doneAt: 'doneAt',
+  dismissedAt: 'dismissedAt',
+  snoozedUntil: 'snoozedUntil',
+  dedupeKey: 'dedupeKey',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InboxItemScalarFieldEnum = (typeof InboxItemScalarFieldEnum)[keyof typeof InboxItemScalarFieldEnum]
+
+
 export const IssueStateScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -334,6 +415,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

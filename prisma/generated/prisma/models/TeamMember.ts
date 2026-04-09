@@ -201,6 +201,9 @@ export type TeamMemberWhereInput = {
   createdIssues?: Prisma.IssueListRelationFilter
   assignedIssues?: Prisma.IssueAssigneeListRelationFilter
   ownedProjects?: Prisma.ProjectListRelationFilter
+  createdDocs?: Prisma.DocListRelationFilter
+  ownedDocs?: Prisma.DocListRelationFilter
+  docRevisions?: Prisma.DocRevisionListRelationFilter
 }
 
 export type TeamMemberOrderByWithRelationInput = {
@@ -221,6 +224,9 @@ export type TeamMemberOrderByWithRelationInput = {
   createdIssues?: Prisma.IssueOrderByRelationAggregateInput
   assignedIssues?: Prisma.IssueAssigneeOrderByRelationAggregateInput
   ownedProjects?: Prisma.ProjectOrderByRelationAggregateInput
+  createdDocs?: Prisma.DocOrderByRelationAggregateInput
+  ownedDocs?: Prisma.DocOrderByRelationAggregateInput
+  docRevisions?: Prisma.DocRevisionOrderByRelationAggregateInput
 }
 
 export type TeamMemberWhereUniqueInput = Prisma.AtLeast<{
@@ -245,6 +251,9 @@ export type TeamMemberWhereUniqueInput = Prisma.AtLeast<{
   createdIssues?: Prisma.IssueListRelationFilter
   assignedIssues?: Prisma.IssueAssigneeListRelationFilter
   ownedProjects?: Prisma.ProjectListRelationFilter
+  createdDocs?: Prisma.DocListRelationFilter
+  ownedDocs?: Prisma.DocListRelationFilter
+  docRevisions?: Prisma.DocRevisionListRelationFilter
 }, "id" | "teamId_userId">
 
 export type TeamMemberOrderByWithAggregationInput = {
@@ -287,6 +296,9 @@ export type TeamMemberCreateInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateInput = {
@@ -305,6 +317,9 @@ export type TeamMemberUncheckedCreateInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUpdateInput = {
@@ -323,6 +338,9 @@ export type TeamMemberUpdateInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateInput = {
@@ -341,6 +359,9 @@ export type TeamMemberUncheckedUpdateInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberCreateManyInput = {
@@ -568,6 +589,48 @@ export type TeamMemberUpdateOneWithoutCreatedIssuesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TeamMemberUpdateToOneWithWhereWithoutCreatedIssuesInput, Prisma.TeamMemberUpdateWithoutCreatedIssuesInput>, Prisma.TeamMemberUncheckedUpdateWithoutCreatedIssuesInput>
 }
 
+export type TeamMemberCreateNestedOneWithoutCreatedDocsInput = {
+  create?: Prisma.XOR<Prisma.TeamMemberCreateWithoutCreatedDocsInput, Prisma.TeamMemberUncheckedCreateWithoutCreatedDocsInput>
+  connectOrCreate?: Prisma.TeamMemberCreateOrConnectWithoutCreatedDocsInput
+  connect?: Prisma.TeamMemberWhereUniqueInput
+}
+
+export type TeamMemberCreateNestedOneWithoutOwnedDocsInput = {
+  create?: Prisma.XOR<Prisma.TeamMemberCreateWithoutOwnedDocsInput, Prisma.TeamMemberUncheckedCreateWithoutOwnedDocsInput>
+  connectOrCreate?: Prisma.TeamMemberCreateOrConnectWithoutOwnedDocsInput
+  connect?: Prisma.TeamMemberWhereUniqueInput
+}
+
+export type TeamMemberUpdateOneRequiredWithoutCreatedDocsNestedInput = {
+  create?: Prisma.XOR<Prisma.TeamMemberCreateWithoutCreatedDocsInput, Prisma.TeamMemberUncheckedCreateWithoutCreatedDocsInput>
+  connectOrCreate?: Prisma.TeamMemberCreateOrConnectWithoutCreatedDocsInput
+  upsert?: Prisma.TeamMemberUpsertWithoutCreatedDocsInput
+  connect?: Prisma.TeamMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TeamMemberUpdateToOneWithWhereWithoutCreatedDocsInput, Prisma.TeamMemberUpdateWithoutCreatedDocsInput>, Prisma.TeamMemberUncheckedUpdateWithoutCreatedDocsInput>
+}
+
+export type TeamMemberUpdateOneRequiredWithoutOwnedDocsNestedInput = {
+  create?: Prisma.XOR<Prisma.TeamMemberCreateWithoutOwnedDocsInput, Prisma.TeamMemberUncheckedCreateWithoutOwnedDocsInput>
+  connectOrCreate?: Prisma.TeamMemberCreateOrConnectWithoutOwnedDocsInput
+  upsert?: Prisma.TeamMemberUpsertWithoutOwnedDocsInput
+  connect?: Prisma.TeamMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TeamMemberUpdateToOneWithWhereWithoutOwnedDocsInput, Prisma.TeamMemberUpdateWithoutOwnedDocsInput>, Prisma.TeamMemberUncheckedUpdateWithoutOwnedDocsInput>
+}
+
+export type TeamMemberCreateNestedOneWithoutDocRevisionsInput = {
+  create?: Prisma.XOR<Prisma.TeamMemberCreateWithoutDocRevisionsInput, Prisma.TeamMemberUncheckedCreateWithoutDocRevisionsInput>
+  connectOrCreate?: Prisma.TeamMemberCreateOrConnectWithoutDocRevisionsInput
+  connect?: Prisma.TeamMemberWhereUniqueInput
+}
+
+export type TeamMemberUpdateOneRequiredWithoutDocRevisionsNestedInput = {
+  create?: Prisma.XOR<Prisma.TeamMemberCreateWithoutDocRevisionsInput, Prisma.TeamMemberUncheckedCreateWithoutDocRevisionsInput>
+  connectOrCreate?: Prisma.TeamMemberCreateOrConnectWithoutDocRevisionsInput
+  upsert?: Prisma.TeamMemberUpsertWithoutDocRevisionsInput
+  connect?: Prisma.TeamMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TeamMemberUpdateToOneWithWhereWithoutDocRevisionsInput, Prisma.TeamMemberUpdateWithoutDocRevisionsInput>, Prisma.TeamMemberUncheckedUpdateWithoutDocRevisionsInput>
+}
+
 export type TeamMemberCreateNestedOneWithoutAssignedIssuesInput = {
   create?: Prisma.XOR<Prisma.TeamMemberCreateWithoutAssignedIssuesInput, Prisma.TeamMemberUncheckedCreateWithoutAssignedIssuesInput>
   connectOrCreate?: Prisma.TeamMemberCreateOrConnectWithoutAssignedIssuesInput
@@ -655,6 +718,9 @@ export type TeamMemberCreateWithoutUserInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutUserInput = {
@@ -672,6 +738,9 @@ export type TeamMemberUncheckedCreateWithoutUserInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutUserInput = {
@@ -727,6 +796,9 @@ export type TeamMemberCreateWithoutTeamInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutTeamInput = {
@@ -744,6 +816,9 @@ export type TeamMemberUncheckedCreateWithoutTeamInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutTeamInput = {
@@ -787,6 +862,9 @@ export type TeamMemberCreateWithoutOwnedProjectsInput = {
   Task?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutOwnedProjectsInput = {
@@ -804,6 +882,9 @@ export type TeamMemberUncheckedCreateWithoutOwnedProjectsInput = {
   Task?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutOwnedProjectsInput = {
@@ -837,6 +918,9 @@ export type TeamMemberUpdateWithoutOwnedProjectsInput = {
   Task?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutOwnedProjectsInput = {
@@ -854,6 +938,9 @@ export type TeamMemberUncheckedUpdateWithoutOwnedProjectsInput = {
   Task?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberCreateWithoutCreatedWorkflowsInput = {
@@ -871,6 +958,9 @@ export type TeamMemberCreateWithoutCreatedWorkflowsInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutCreatedWorkflowsInput = {
@@ -888,6 +978,9 @@ export type TeamMemberUncheckedCreateWithoutCreatedWorkflowsInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutCreatedWorkflowsInput = {
@@ -921,6 +1014,9 @@ export type TeamMemberUpdateWithoutCreatedWorkflowsInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutCreatedWorkflowsInput = {
@@ -938,6 +1034,9 @@ export type TeamMemberUncheckedUpdateWithoutCreatedWorkflowsInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberCreateWithoutIssueInput = {
@@ -955,6 +1054,9 @@ export type TeamMemberCreateWithoutIssueInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutIssueInput = {
@@ -972,6 +1074,9 @@ export type TeamMemberUncheckedCreateWithoutIssueInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutIssueInput = {
@@ -994,6 +1099,9 @@ export type TeamMemberCreateWithoutCreatedIssuesInput = {
   Task?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutCreatedIssuesInput = {
@@ -1011,6 +1119,9 @@ export type TeamMemberUncheckedCreateWithoutCreatedIssuesInput = {
   Task?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutCreatedIssuesInput = {
@@ -1044,6 +1155,9 @@ export type TeamMemberUpdateWithoutIssueInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutIssueInput = {
@@ -1061,6 +1175,9 @@ export type TeamMemberUncheckedUpdateWithoutIssueInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUpsertWithoutCreatedIssuesInput = {
@@ -1089,6 +1206,9 @@ export type TeamMemberUpdateWithoutCreatedIssuesInput = {
   Task?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutCreatedIssuesInput = {
@@ -1106,6 +1226,297 @@ export type TeamMemberUncheckedUpdateWithoutCreatedIssuesInput = {
   Task?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
+}
+
+export type TeamMemberCreateWithoutCreatedDocsInput = {
+  id?: string
+  role?: $Enums.Role
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
+  team: Prisma.TeamCreateNestedOneWithoutMembersInput
+  user: Prisma.UserCreateNestedOneWithoutTeamsInput
+  createdWorkflows?: Prisma.WorkflowCreateNestedManyWithoutCreatorInput
+  Issue?: Prisma.IssueCreateNestedManyWithoutTeamMemberInput
+  IssueStepRecord?: Prisma.IssueStepRecordCreateNestedManyWithoutAssigneeInput
+  IssueActivity?: Prisma.IssueActivityCreateNestedManyWithoutActorInput
+  Task?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
+  assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
+  ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
+}
+
+export type TeamMemberUncheckedCreateWithoutCreatedDocsInput = {
+  id?: string
+  teamId: string
+  userId: string
+  role?: $Enums.Role
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
+  createdWorkflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCreatorInput
+  Issue?: Prisma.IssueUncheckedCreateNestedManyWithoutTeamMemberInput
+  IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutAssigneeInput
+  IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutActorInput
+  Task?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
+  assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
+  ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
+}
+
+export type TeamMemberCreateOrConnectWithoutCreatedDocsInput = {
+  where: Prisma.TeamMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.TeamMemberCreateWithoutCreatedDocsInput, Prisma.TeamMemberUncheckedCreateWithoutCreatedDocsInput>
+}
+
+export type TeamMemberCreateWithoutOwnedDocsInput = {
+  id?: string
+  role?: $Enums.Role
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
+  team: Prisma.TeamCreateNestedOneWithoutMembersInput
+  user: Prisma.UserCreateNestedOneWithoutTeamsInput
+  createdWorkflows?: Prisma.WorkflowCreateNestedManyWithoutCreatorInput
+  Issue?: Prisma.IssueCreateNestedManyWithoutTeamMemberInput
+  IssueStepRecord?: Prisma.IssueStepRecordCreateNestedManyWithoutAssigneeInput
+  IssueActivity?: Prisma.IssueActivityCreateNestedManyWithoutActorInput
+  Task?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
+  assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
+  ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
+}
+
+export type TeamMemberUncheckedCreateWithoutOwnedDocsInput = {
+  id?: string
+  teamId: string
+  userId: string
+  role?: $Enums.Role
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
+  createdWorkflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCreatorInput
+  Issue?: Prisma.IssueUncheckedCreateNestedManyWithoutTeamMemberInput
+  IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutAssigneeInput
+  IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutActorInput
+  Task?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
+  assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
+  ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
+}
+
+export type TeamMemberCreateOrConnectWithoutOwnedDocsInput = {
+  where: Prisma.TeamMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.TeamMemberCreateWithoutOwnedDocsInput, Prisma.TeamMemberUncheckedCreateWithoutOwnedDocsInput>
+}
+
+export type TeamMemberUpsertWithoutCreatedDocsInput = {
+  update: Prisma.XOR<Prisma.TeamMemberUpdateWithoutCreatedDocsInput, Prisma.TeamMemberUncheckedUpdateWithoutCreatedDocsInput>
+  create: Prisma.XOR<Prisma.TeamMemberCreateWithoutCreatedDocsInput, Prisma.TeamMemberUncheckedCreateWithoutCreatedDocsInput>
+  where?: Prisma.TeamMemberWhereInput
+}
+
+export type TeamMemberUpdateToOneWithWhereWithoutCreatedDocsInput = {
+  where?: Prisma.TeamMemberWhereInput
+  data: Prisma.XOR<Prisma.TeamMemberUpdateWithoutCreatedDocsInput, Prisma.TeamMemberUncheckedUpdateWithoutCreatedDocsInput>
+}
+
+export type TeamMemberUpdateWithoutCreatedDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
+  team?: Prisma.TeamUpdateOneRequiredWithoutMembersNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTeamsNestedInput
+  createdWorkflows?: Prisma.WorkflowUpdateManyWithoutCreatorNestedInput
+  Issue?: Prisma.IssueUpdateManyWithoutTeamMemberNestedInput
+  IssueStepRecord?: Prisma.IssueStepRecordUpdateManyWithoutAssigneeNestedInput
+  IssueActivity?: Prisma.IssueActivityUpdateManyWithoutActorNestedInput
+  Task?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
+  assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
+  ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
+}
+
+export type TeamMemberUncheckedUpdateWithoutCreatedDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
+  createdWorkflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCreatorNestedInput
+  Issue?: Prisma.IssueUncheckedUpdateManyWithoutTeamMemberNestedInput
+  IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutAssigneeNestedInput
+  IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutActorNestedInput
+  Task?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
+  ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
+}
+
+export type TeamMemberUpsertWithoutOwnedDocsInput = {
+  update: Prisma.XOR<Prisma.TeamMemberUpdateWithoutOwnedDocsInput, Prisma.TeamMemberUncheckedUpdateWithoutOwnedDocsInput>
+  create: Prisma.XOR<Prisma.TeamMemberCreateWithoutOwnedDocsInput, Prisma.TeamMemberUncheckedCreateWithoutOwnedDocsInput>
+  where?: Prisma.TeamMemberWhereInput
+}
+
+export type TeamMemberUpdateToOneWithWhereWithoutOwnedDocsInput = {
+  where?: Prisma.TeamMemberWhereInput
+  data: Prisma.XOR<Prisma.TeamMemberUpdateWithoutOwnedDocsInput, Prisma.TeamMemberUncheckedUpdateWithoutOwnedDocsInput>
+}
+
+export type TeamMemberUpdateWithoutOwnedDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
+  team?: Prisma.TeamUpdateOneRequiredWithoutMembersNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTeamsNestedInput
+  createdWorkflows?: Prisma.WorkflowUpdateManyWithoutCreatorNestedInput
+  Issue?: Prisma.IssueUpdateManyWithoutTeamMemberNestedInput
+  IssueStepRecord?: Prisma.IssueStepRecordUpdateManyWithoutAssigneeNestedInput
+  IssueActivity?: Prisma.IssueActivityUpdateManyWithoutActorNestedInput
+  Task?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
+  assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
+  ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
+}
+
+export type TeamMemberUncheckedUpdateWithoutOwnedDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
+  createdWorkflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCreatorNestedInput
+  Issue?: Prisma.IssueUncheckedUpdateManyWithoutTeamMemberNestedInput
+  IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutAssigneeNestedInput
+  IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutActorNestedInput
+  Task?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
+  ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
+}
+
+export type TeamMemberCreateWithoutDocRevisionsInput = {
+  id?: string
+  role?: $Enums.Role
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  comments?: Prisma.CommentCreateNestedManyWithoutAuthorInput
+  team: Prisma.TeamCreateNestedOneWithoutMembersInput
+  user: Prisma.UserCreateNestedOneWithoutTeamsInput
+  createdWorkflows?: Prisma.WorkflowCreateNestedManyWithoutCreatorInput
+  Issue?: Prisma.IssueCreateNestedManyWithoutTeamMemberInput
+  IssueStepRecord?: Prisma.IssueStepRecordCreateNestedManyWithoutAssigneeInput
+  IssueActivity?: Prisma.IssueActivityCreateNestedManyWithoutActorInput
+  Task?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
+  assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
+  ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+}
+
+export type TeamMemberUncheckedCreateWithoutDocRevisionsInput = {
+  id?: string
+  teamId: string
+  userId: string
+  role?: $Enums.Role
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutAuthorInput
+  createdWorkflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCreatorInput
+  Issue?: Prisma.IssueUncheckedCreateNestedManyWithoutTeamMemberInput
+  IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutAssigneeInput
+  IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutActorInput
+  Task?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
+  assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
+  ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+}
+
+export type TeamMemberCreateOrConnectWithoutDocRevisionsInput = {
+  where: Prisma.TeamMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.TeamMemberCreateWithoutDocRevisionsInput, Prisma.TeamMemberUncheckedCreateWithoutDocRevisionsInput>
+}
+
+export type TeamMemberUpsertWithoutDocRevisionsInput = {
+  update: Prisma.XOR<Prisma.TeamMemberUpdateWithoutDocRevisionsInput, Prisma.TeamMemberUncheckedUpdateWithoutDocRevisionsInput>
+  create: Prisma.XOR<Prisma.TeamMemberCreateWithoutDocRevisionsInput, Prisma.TeamMemberUncheckedCreateWithoutDocRevisionsInput>
+  where?: Prisma.TeamMemberWhereInput
+}
+
+export type TeamMemberUpdateToOneWithWhereWithoutDocRevisionsInput = {
+  where?: Prisma.TeamMemberWhereInput
+  data: Prisma.XOR<Prisma.TeamMemberUpdateWithoutDocRevisionsInput, Prisma.TeamMemberUncheckedUpdateWithoutDocRevisionsInput>
+}
+
+export type TeamMemberUpdateWithoutDocRevisionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.CommentUpdateManyWithoutAuthorNestedInput
+  team?: Prisma.TeamUpdateOneRequiredWithoutMembersNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTeamsNestedInput
+  createdWorkflows?: Prisma.WorkflowUpdateManyWithoutCreatorNestedInput
+  Issue?: Prisma.IssueUpdateManyWithoutTeamMemberNestedInput
+  IssueStepRecord?: Prisma.IssueStepRecordUpdateManyWithoutAssigneeNestedInput
+  IssueActivity?: Prisma.IssueActivityUpdateManyWithoutActorNestedInput
+  Task?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
+  assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
+  ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+}
+
+export type TeamMemberUncheckedUpdateWithoutDocRevisionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  teamId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutAuthorNestedInput
+  createdWorkflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCreatorNestedInput
+  Issue?: Prisma.IssueUncheckedUpdateManyWithoutTeamMemberNestedInput
+  IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutAssigneeNestedInput
+  IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutActorNestedInput
+  Task?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
+  ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
 }
 
 export type TeamMemberCreateWithoutAssignedIssuesInput = {
@@ -1123,6 +1534,9 @@ export type TeamMemberCreateWithoutAssignedIssuesInput = {
   Task?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutAssignedIssuesInput = {
@@ -1140,6 +1554,9 @@ export type TeamMemberUncheckedCreateWithoutAssignedIssuesInput = {
   Task?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutAssignedIssuesInput = {
@@ -1173,6 +1590,9 @@ export type TeamMemberUpdateWithoutAssignedIssuesInput = {
   Task?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutAssignedIssuesInput = {
@@ -1190,6 +1610,9 @@ export type TeamMemberUncheckedUpdateWithoutAssignedIssuesInput = {
   Task?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberCreateWithoutIssueStepRecordInput = {
@@ -1207,6 +1630,9 @@ export type TeamMemberCreateWithoutIssueStepRecordInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutIssueStepRecordInput = {
@@ -1224,6 +1650,9 @@ export type TeamMemberUncheckedCreateWithoutIssueStepRecordInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutIssueStepRecordInput = {
@@ -1257,6 +1686,9 @@ export type TeamMemberUpdateWithoutIssueStepRecordInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutIssueStepRecordInput = {
@@ -1274,6 +1706,9 @@ export type TeamMemberUncheckedUpdateWithoutIssueStepRecordInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberCreateWithoutIssueActivityInput = {
@@ -1291,6 +1726,9 @@ export type TeamMemberCreateWithoutIssueActivityInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutIssueActivityInput = {
@@ -1308,6 +1746,9 @@ export type TeamMemberUncheckedCreateWithoutIssueActivityInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutIssueActivityInput = {
@@ -1341,6 +1782,9 @@ export type TeamMemberUpdateWithoutIssueActivityInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutIssueActivityInput = {
@@ -1358,6 +1802,9 @@ export type TeamMemberUncheckedUpdateWithoutIssueActivityInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberCreateWithoutCommentsInput = {
@@ -1375,6 +1822,9 @@ export type TeamMemberCreateWithoutCommentsInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutCommentsInput = {
@@ -1392,6 +1842,9 @@ export type TeamMemberUncheckedCreateWithoutCommentsInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutCommentsInput = {
@@ -1425,6 +1878,9 @@ export type TeamMemberUpdateWithoutCommentsInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutCommentsInput = {
@@ -1442,6 +1898,9 @@ export type TeamMemberUncheckedUpdateWithoutCommentsInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberCreateWithoutTaskInput = {
@@ -1459,6 +1918,9 @@ export type TeamMemberCreateWithoutTaskInput = {
   createdIssues?: Prisma.IssueCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberUncheckedCreateWithoutTaskInput = {
@@ -1476,6 +1938,9 @@ export type TeamMemberUncheckedCreateWithoutTaskInput = {
   createdIssues?: Prisma.IssueUncheckedCreateNestedManyWithoutCreatorMemberInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutMemberInput
   ownedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  createdDocs?: Prisma.DocUncheckedCreateNestedManyWithoutCreatorMemberInput
+  ownedDocs?: Prisma.DocUncheckedCreateNestedManyWithoutOwnerMemberInput
+  docRevisions?: Prisma.DocRevisionUncheckedCreateNestedManyWithoutAuthorMemberInput
 }
 
 export type TeamMemberCreateOrConnectWithoutTaskInput = {
@@ -1509,6 +1974,9 @@ export type TeamMemberUpdateWithoutTaskInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutTaskInput = {
@@ -1526,6 +1994,9 @@ export type TeamMemberUncheckedUpdateWithoutTaskInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberCreateManyUserInput = {
@@ -1551,6 +2022,9 @@ export type TeamMemberUpdateWithoutUserInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutUserInput = {
@@ -1568,6 +2042,9 @@ export type TeamMemberUncheckedUpdateWithoutUserInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateManyWithoutUserInput = {
@@ -1601,6 +2078,9 @@ export type TeamMemberUpdateWithoutTeamInput = {
   createdIssues?: Prisma.IssueUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateWithoutTeamInput = {
@@ -1618,6 +2098,9 @@ export type TeamMemberUncheckedUpdateWithoutTeamInput = {
   createdIssues?: Prisma.IssueUncheckedUpdateManyWithoutCreatorMemberNestedInput
   assignedIssues?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutMemberNestedInput
   ownedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  createdDocs?: Prisma.DocUncheckedUpdateManyWithoutCreatorMemberNestedInput
+  ownedDocs?: Prisma.DocUncheckedUpdateManyWithoutOwnerMemberNestedInput
+  docRevisions?: Prisma.DocRevisionUncheckedUpdateManyWithoutAuthorMemberNestedInput
 }
 
 export type TeamMemberUncheckedUpdateManyWithoutTeamInput = {
@@ -1643,6 +2126,9 @@ export type TeamMemberCountOutputType = {
   createdIssues: number
   assignedIssues: number
   ownedProjects: number
+  createdDocs: number
+  ownedDocs: number
+  docRevisions: number
 }
 
 export type TeamMemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1655,6 +2141,9 @@ export type TeamMemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extens
   createdIssues?: boolean | TeamMemberCountOutputTypeCountCreatedIssuesArgs
   assignedIssues?: boolean | TeamMemberCountOutputTypeCountAssignedIssuesArgs
   ownedProjects?: boolean | TeamMemberCountOutputTypeCountOwnedProjectsArgs
+  createdDocs?: boolean | TeamMemberCountOutputTypeCountCreatedDocsArgs
+  ownedDocs?: boolean | TeamMemberCountOutputTypeCountOwnedDocsArgs
+  docRevisions?: boolean | TeamMemberCountOutputTypeCountDocRevisionsArgs
 }
 
 /**
@@ -1730,6 +2219,27 @@ export type TeamMemberCountOutputTypeCountOwnedProjectsArgs<ExtArgs extends runt
   where?: Prisma.ProjectWhereInput
 }
 
+/**
+ * TeamMemberCountOutputType without action
+ */
+export type TeamMemberCountOutputTypeCountCreatedDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocWhereInput
+}
+
+/**
+ * TeamMemberCountOutputType without action
+ */
+export type TeamMemberCountOutputTypeCountOwnedDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocWhereInput
+}
+
+/**
+ * TeamMemberCountOutputType without action
+ */
+export type TeamMemberCountOutputTypeCountDocRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocRevisionWhereInput
+}
+
 
 export type TeamMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1749,6 +2259,9 @@ export type TeamMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   createdIssues?: boolean | Prisma.TeamMember$createdIssuesArgs<ExtArgs>
   assignedIssues?: boolean | Prisma.TeamMember$assignedIssuesArgs<ExtArgs>
   ownedProjects?: boolean | Prisma.TeamMember$ownedProjectsArgs<ExtArgs>
+  createdDocs?: boolean | Prisma.TeamMember$createdDocsArgs<ExtArgs>
+  ownedDocs?: boolean | Prisma.TeamMember$ownedDocsArgs<ExtArgs>
+  docRevisions?: boolean | Prisma.TeamMember$docRevisionsArgs<ExtArgs>
   _count?: boolean | Prisma.TeamMemberCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["teamMember"]>
 
@@ -1796,6 +2309,9 @@ export type TeamMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   createdIssues?: boolean | Prisma.TeamMember$createdIssuesArgs<ExtArgs>
   assignedIssues?: boolean | Prisma.TeamMember$assignedIssuesArgs<ExtArgs>
   ownedProjects?: boolean | Prisma.TeamMember$ownedProjectsArgs<ExtArgs>
+  createdDocs?: boolean | Prisma.TeamMember$createdDocsArgs<ExtArgs>
+  ownedDocs?: boolean | Prisma.TeamMember$ownedDocsArgs<ExtArgs>
+  docRevisions?: boolean | Prisma.TeamMember$docRevisionsArgs<ExtArgs>
   _count?: boolean | Prisma.TeamMemberCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TeamMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1821,6 +2337,9 @@ export type $TeamMemberPayload<ExtArgs extends runtime.Types.Extensions.Internal
     createdIssues: Prisma.$IssuePayload<ExtArgs>[]
     assignedIssues: Prisma.$IssueAssigneePayload<ExtArgs>[]
     ownedProjects: Prisma.$ProjectPayload<ExtArgs>[]
+    createdDocs: Prisma.$DocPayload<ExtArgs>[]
+    ownedDocs: Prisma.$DocPayload<ExtArgs>[]
+    docRevisions: Prisma.$DocRevisionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2234,6 +2753,9 @@ export interface Prisma__TeamMemberClient<T, Null = never, ExtArgs extends runti
   createdIssues<T extends Prisma.TeamMember$createdIssuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamMember$createdIssuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IssuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedIssues<T extends Prisma.TeamMember$assignedIssuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamMember$assignedIssuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IssueAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ownedProjects<T extends Prisma.TeamMember$ownedProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamMember$ownedProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdDocs<T extends Prisma.TeamMember$createdDocsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamMember$createdDocsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedDocs<T extends Prisma.TeamMember$ownedDocsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamMember$ownedDocsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  docRevisions<T extends Prisma.TeamMember$docRevisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TeamMember$docRevisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2878,6 +3400,78 @@ export type TeamMember$ownedProjectsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.ProjectScalarFieldEnum | Prisma.ProjectScalarFieldEnum[]
+}
+
+/**
+ * TeamMember.createdDocs
+ */
+export type TeamMember$createdDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Doc
+   */
+  select?: Prisma.DocSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Doc
+   */
+  omit?: Prisma.DocOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocInclude<ExtArgs> | null
+  where?: Prisma.DocWhereInput
+  orderBy?: Prisma.DocOrderByWithRelationInput | Prisma.DocOrderByWithRelationInput[]
+  cursor?: Prisma.DocWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocScalarFieldEnum | Prisma.DocScalarFieldEnum[]
+}
+
+/**
+ * TeamMember.ownedDocs
+ */
+export type TeamMember$ownedDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Doc
+   */
+  select?: Prisma.DocSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Doc
+   */
+  omit?: Prisma.DocOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocInclude<ExtArgs> | null
+  where?: Prisma.DocWhereInput
+  orderBy?: Prisma.DocOrderByWithRelationInput | Prisma.DocOrderByWithRelationInput[]
+  cursor?: Prisma.DocWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocScalarFieldEnum | Prisma.DocScalarFieldEnum[]
+}
+
+/**
+ * TeamMember.docRevisions
+ */
+export type TeamMember$docRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DocRevision
+   */
+  select?: Prisma.DocRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DocRevision
+   */
+  omit?: Prisma.DocRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocRevisionInclude<ExtArgs> | null
+  where?: Prisma.DocRevisionWhereInput
+  orderBy?: Prisma.DocRevisionOrderByWithRelationInput | Prisma.DocRevisionOrderByWithRelationInput[]
+  cursor?: Prisma.DocRevisionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocRevisionScalarFieldEnum | Prisma.DocRevisionScalarFieldEnum[]
 }
 
 /**

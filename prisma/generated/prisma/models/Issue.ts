@@ -382,6 +382,7 @@ export type IssueWhereInput = {
   creatorMember?: Prisma.XOR<Prisma.TeamMemberNullableScalarRelationFilter, Prisma.TeamMemberWhereInput> | null
   assignees?: Prisma.IssueAssigneeListRelationFilter
   labels?: Prisma.IssueLabelListRelationFilter
+  docs?: Prisma.DocListRelationFilter
 }
 
 export type IssueOrderByWithRelationInput = {
@@ -419,6 +420,7 @@ export type IssueOrderByWithRelationInput = {
   creatorMember?: Prisma.TeamMemberOrderByWithRelationInput
   assignees?: Prisma.IssueAssigneeOrderByRelationAggregateInput
   labels?: Prisma.IssueLabelOrderByRelationAggregateInput
+  docs?: Prisma.DocOrderByRelationAggregateInput
 }
 
 export type IssueWhereUniqueInput = Prisma.AtLeast<{
@@ -459,6 +461,7 @@ export type IssueWhereUniqueInput = Prisma.AtLeast<{
   creatorMember?: Prisma.XOR<Prisma.TeamMemberNullableScalarRelationFilter, Prisma.TeamMemberWhereInput> | null
   assignees?: Prisma.IssueAssigneeListRelationFilter
   labels?: Prisma.IssueLabelListRelationFilter
+  docs?: Prisma.DocListRelationFilter
 }, "id" | "key">
 
 export type IssueOrderByWithAggregationInput = {
@@ -553,6 +556,7 @@ export type IssueCreateInput = {
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateInput = {
@@ -585,6 +589,7 @@ export type IssueUncheckedCreateInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUpdateInput = {
@@ -617,6 +622,7 @@ export type IssueUpdateInput = {
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateInput = {
@@ -649,6 +655,7 @@ export type IssueUncheckedUpdateInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueCreateManyInput = {
@@ -826,6 +833,11 @@ export type IssueSumOrderByAggregateInput = {
   sequence?: Prisma.SortOrder
   totalSteps?: Prisma.SortOrder
   currentStepIndex?: Prisma.SortOrder
+}
+
+export type IssueNullableScalarRelationFilter = {
+  is?: Prisma.IssueWhereInput | null
+  isNot?: Prisma.IssueWhereInput | null
 }
 
 export type IssueScalarRelationFilter = {
@@ -1017,6 +1029,22 @@ export type EnumIssueTypeFieldUpdateOperationsInput = {
   set?: $Enums.IssueType
 }
 
+export type IssueCreateNestedOneWithoutDocsInput = {
+  create?: Prisma.XOR<Prisma.IssueCreateWithoutDocsInput, Prisma.IssueUncheckedCreateWithoutDocsInput>
+  connectOrCreate?: Prisma.IssueCreateOrConnectWithoutDocsInput
+  connect?: Prisma.IssueWhereUniqueInput
+}
+
+export type IssueUpdateOneWithoutDocsNestedInput = {
+  create?: Prisma.XOR<Prisma.IssueCreateWithoutDocsInput, Prisma.IssueUncheckedCreateWithoutDocsInput>
+  connectOrCreate?: Prisma.IssueCreateOrConnectWithoutDocsInput
+  upsert?: Prisma.IssueUpsertWithoutDocsInput
+  disconnect?: Prisma.IssueWhereInput | boolean
+  delete?: Prisma.IssueWhereInput | boolean
+  connect?: Prisma.IssueWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.IssueUpdateToOneWithWhereWithoutDocsInput, Prisma.IssueUpdateWithoutDocsInput>, Prisma.IssueUncheckedUpdateWithoutDocsInput>
+}
+
 export type IssueCreateNestedManyWithoutStateInput = {
   create?: Prisma.XOR<Prisma.IssueCreateWithoutStateInput, Prisma.IssueUncheckedCreateWithoutStateInput> | Prisma.IssueCreateWithoutStateInput[] | Prisma.IssueUncheckedCreateWithoutStateInput[]
   connectOrCreate?: Prisma.IssueCreateOrConnectWithoutStateInput | Prisma.IssueCreateOrConnectWithoutStateInput[]
@@ -1158,6 +1186,7 @@ export type IssueCreateWithoutTeamMemberInput = {
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutTeamMemberInput = {
@@ -1189,6 +1218,7 @@ export type IssueUncheckedCreateWithoutTeamMemberInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutTeamMemberInput = {
@@ -1230,6 +1260,7 @@ export type IssueCreateWithoutCreatorMemberInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutCreatorMemberInput = {
@@ -1261,6 +1292,7 @@ export type IssueUncheckedCreateWithoutCreatorMemberInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutCreatorMemberInput = {
@@ -1364,6 +1396,7 @@ export type IssueCreateWithoutWorkspaceInput = {
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutWorkspaceInput = {
@@ -1395,6 +1428,7 @@ export type IssueUncheckedCreateWithoutWorkspaceInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutWorkspaceInput = {
@@ -1452,6 +1486,7 @@ export type IssueCreateWithoutProjectInput = {
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutProjectInput = {
@@ -1483,6 +1518,7 @@ export type IssueUncheckedCreateWithoutProjectInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutProjectInput = {
@@ -1509,6 +1545,150 @@ export type IssueUpdateWithWhereUniqueWithoutProjectInput = {
 export type IssueUpdateManyWithWhereWithoutProjectInput = {
   where: Prisma.IssueScalarWhereInput
   data: Prisma.XOR<Prisma.IssueUpdateManyMutationInput, Prisma.IssueUncheckedUpdateManyWithoutProjectInput>
+}
+
+export type IssueCreateWithoutDocsInput = {
+  id?: string
+  title: string
+  description?: string | null
+  workflowId?: string | null
+  directAssigneeId?: string | null
+  creatorId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  dueDate?: Date | string | null
+  visibility?: $Enums.VisibilityType
+  key?: string | null
+  sequence?: number | null
+  totalSteps?: number
+  currentStepId?: string | null
+  currentStepIndex?: number
+  currentStepStatus?: $Enums.IssueStatus
+  workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  priority?: $Enums.IssuePriority
+  issueType?: $Enums.IssueType
+  comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
+  TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
+  IssueStepRecord?: Prisma.IssueStepRecordCreateNestedManyWithoutIssueInput
+  IssueActivity?: Prisma.IssueActivityCreateNestedManyWithoutIssueInput
+  state?: Prisma.IssueStateCreateNestedOneWithoutIssuesInput
+  project?: Prisma.ProjectCreateNestedOneWithoutIssuesInput
+  creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
+  assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
+  labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+}
+
+export type IssueUncheckedCreateWithoutDocsInput = {
+  id?: string
+  title: string
+  description?: string | null
+  workspaceId: string
+  workflowId?: string | null
+  directAssigneeId?: string | null
+  creatorId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  dueDate?: Date | string | null
+  stateId?: string | null
+  projectId?: string | null
+  visibility?: $Enums.VisibilityType
+  creatorMemberId?: string | null
+  key?: string | null
+  sequence?: number | null
+  totalSteps?: number
+  currentStepId?: string | null
+  currentStepIndex?: number
+  currentStepStatus?: $Enums.IssueStatus
+  workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  priority?: $Enums.IssuePriority
+  issueType?: $Enums.IssueType
+  teamMemberId?: string | null
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
+  IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
+  IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
+  assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
+  labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+}
+
+export type IssueCreateOrConnectWithoutDocsInput = {
+  where: Prisma.IssueWhereUniqueInput
+  create: Prisma.XOR<Prisma.IssueCreateWithoutDocsInput, Prisma.IssueUncheckedCreateWithoutDocsInput>
+}
+
+export type IssueUpsertWithoutDocsInput = {
+  update: Prisma.XOR<Prisma.IssueUpdateWithoutDocsInput, Prisma.IssueUncheckedUpdateWithoutDocsInput>
+  create: Prisma.XOR<Prisma.IssueCreateWithoutDocsInput, Prisma.IssueUncheckedCreateWithoutDocsInput>
+  where?: Prisma.IssueWhereInput
+}
+
+export type IssueUpdateToOneWithWhereWithoutDocsInput = {
+  where?: Prisma.IssueWhereInput
+  data: Prisma.XOR<Prisma.IssueUpdateWithoutDocsInput, Prisma.IssueUncheckedUpdateWithoutDocsInput>
+}
+
+export type IssueUpdateWithoutDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workflowId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directAssigneeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
+  key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalSteps?: Prisma.IntFieldUpdateOperationsInput | number
+  currentStepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentStepIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  currentStepStatus?: Prisma.EnumIssueStatusFieldUpdateOperationsInput | $Enums.IssueStatus
+  workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
+  issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
+  TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
+  IssueStepRecord?: Prisma.IssueStepRecordUpdateManyWithoutIssueNestedInput
+  IssueActivity?: Prisma.IssueActivityUpdateManyWithoutIssueNestedInput
+  state?: Prisma.IssueStateUpdateOneWithoutIssuesNestedInput
+  project?: Prisma.ProjectUpdateOneWithoutIssuesNestedInput
+  creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
+  assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
+  labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+}
+
+export type IssueUncheckedUpdateWithoutDocsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  workflowId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directAssigneeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
+  creatorMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sequence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalSteps?: Prisma.IntFieldUpdateOperationsInput | number
+  currentStepId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentStepIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  currentStepStatus?: Prisma.EnumIssueStatusFieldUpdateOperationsInput | $Enums.IssueStatus
+  workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
+  issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
+  IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
+  IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
+  assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
+  labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueCreateWithoutStateInput = {
@@ -1540,6 +1720,7 @@ export type IssueCreateWithoutStateInput = {
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutStateInput = {
@@ -1571,6 +1752,7 @@ export type IssueUncheckedCreateWithoutStateInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutStateInput = {
@@ -1628,6 +1810,7 @@ export type IssueCreateWithoutLabelsInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutIssuesInput
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutLabelsInput = {
@@ -1659,6 +1842,7 @@ export type IssueUncheckedCreateWithoutLabelsInput = {
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutLabelsInput = {
@@ -1706,6 +1890,7 @@ export type IssueUpdateWithoutLabelsInput = {
   project?: Prisma.ProjectUpdateOneWithoutIssuesNestedInput
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutLabelsInput = {
@@ -1737,6 +1922,7 @@ export type IssueUncheckedUpdateWithoutLabelsInput = {
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueCreateWithoutAssigneesInput = {
@@ -1768,6 +1954,7 @@ export type IssueCreateWithoutAssigneesInput = {
   project?: Prisma.ProjectCreateNestedOneWithoutIssuesInput
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutAssigneesInput = {
@@ -1799,6 +1986,7 @@ export type IssueUncheckedCreateWithoutAssigneesInput = {
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutAssigneesInput = {
@@ -1846,6 +2034,7 @@ export type IssueUpdateWithoutAssigneesInput = {
   project?: Prisma.ProjectUpdateOneWithoutIssuesNestedInput
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutAssigneesInput = {
@@ -1877,6 +2066,7 @@ export type IssueUncheckedUpdateWithoutAssigneesInput = {
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueCreateWithoutIssueStepRecordInput = {
@@ -1908,6 +2098,7 @@ export type IssueCreateWithoutIssueStepRecordInput = {
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutIssueStepRecordInput = {
@@ -1939,6 +2130,7 @@ export type IssueUncheckedCreateWithoutIssueStepRecordInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutIssueStepRecordInput = {
@@ -1986,6 +2178,7 @@ export type IssueUpdateWithoutIssueStepRecordInput = {
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutIssueStepRecordInput = {
@@ -2017,6 +2210,7 @@ export type IssueUncheckedUpdateWithoutIssueStepRecordInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueCreateWithoutIssueActivityInput = {
@@ -2048,6 +2242,7 @@ export type IssueCreateWithoutIssueActivityInput = {
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutIssueActivityInput = {
@@ -2079,6 +2274,7 @@ export type IssueUncheckedCreateWithoutIssueActivityInput = {
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutIssueActivityInput = {
@@ -2126,6 +2322,7 @@ export type IssueUpdateWithoutIssueActivityInput = {
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutIssueActivityInput = {
@@ -2157,6 +2354,7 @@ export type IssueUncheckedUpdateWithoutIssueActivityInput = {
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueCreateWithoutCommentsInput = {
@@ -2188,6 +2386,7 @@ export type IssueCreateWithoutCommentsInput = {
   creatorMember?: Prisma.TeamMemberCreateNestedOneWithoutCreatedIssuesInput
   assignees?: Prisma.IssueAssigneeCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocCreateNestedManyWithoutIssueInput
 }
 
 export type IssueUncheckedCreateWithoutCommentsInput = {
@@ -2219,6 +2418,7 @@ export type IssueUncheckedCreateWithoutCommentsInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
   assignees?: Prisma.IssueAssigneeUncheckedCreateNestedManyWithoutIssueInput
   labels?: Prisma.IssueLabelUncheckedCreateNestedManyWithoutIssueInput
+  docs?: Prisma.DocUncheckedCreateNestedManyWithoutIssueInput
 }
 
 export type IssueCreateOrConnectWithoutCommentsInput = {
@@ -2266,6 +2466,7 @@ export type IssueUpdateWithoutCommentsInput = {
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutCommentsInput = {
@@ -2297,6 +2498,7 @@ export type IssueUncheckedUpdateWithoutCommentsInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueCreateManyTeamMemberInput = {
@@ -2380,6 +2582,7 @@ export type IssueUpdateWithoutTeamMemberInput = {
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutTeamMemberInput = {
@@ -2411,6 +2614,7 @@ export type IssueUncheckedUpdateWithoutTeamMemberInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateManyWithoutTeamMemberInput = {
@@ -2468,6 +2672,7 @@ export type IssueUpdateWithoutCreatorMemberInput = {
   project?: Prisma.ProjectUpdateOneWithoutIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutCreatorMemberInput = {
@@ -2499,6 +2704,7 @@ export type IssueUncheckedUpdateWithoutCreatorMemberInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateManyWithoutCreatorMemberInput = {
@@ -2582,6 +2788,7 @@ export type IssueUpdateWithoutWorkspaceInput = {
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutWorkspaceInput = {
@@ -2613,6 +2820,7 @@ export type IssueUncheckedUpdateWithoutWorkspaceInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -2696,6 +2904,7 @@ export type IssueUpdateWithoutProjectInput = {
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutProjectInput = {
@@ -2727,6 +2936,7 @@ export type IssueUncheckedUpdateWithoutProjectInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateManyWithoutProjectInput = {
@@ -2810,6 +3020,7 @@ export type IssueUpdateWithoutStateInput = {
   creatorMember?: Prisma.TeamMemberUpdateOneWithoutCreatedIssuesNestedInput
   assignees?: Prisma.IssueAssigneeUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateWithoutStateInput = {
@@ -2841,6 +3052,7 @@ export type IssueUncheckedUpdateWithoutStateInput = {
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
   assignees?: Prisma.IssueAssigneeUncheckedUpdateManyWithoutIssueNestedInput
   labels?: Prisma.IssueLabelUncheckedUpdateManyWithoutIssueNestedInput
+  docs?: Prisma.DocUncheckedUpdateManyWithoutIssueNestedInput
 }
 
 export type IssueUncheckedUpdateManyWithoutStateInput = {
@@ -2880,6 +3092,7 @@ export type IssueCountOutputType = {
   IssueActivity: number
   assignees: number
   labels: number
+  docs: number
 }
 
 export type IssueCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2888,6 +3101,7 @@ export type IssueCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   IssueActivity?: boolean | IssueCountOutputTypeCountIssueActivityArgs
   assignees?: boolean | IssueCountOutputTypeCountAssigneesArgs
   labels?: boolean | IssueCountOutputTypeCountLabelsArgs
+  docs?: boolean | IssueCountOutputTypeCountDocsArgs
 }
 
 /**
@@ -2935,6 +3149,13 @@ export type IssueCountOutputTypeCountLabelsArgs<ExtArgs extends runtime.Types.Ex
   where?: Prisma.IssueLabelWhereInput
 }
 
+/**
+ * IssueCountOutputType without action
+ */
+export type IssueCountOutputTypeCountDocsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DocWhereInput
+}
+
 
 export type IssueSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2971,6 +3192,7 @@ export type IssueSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   creatorMember?: boolean | Prisma.Issue$creatorMemberArgs<ExtArgs>
   assignees?: boolean | Prisma.Issue$assigneesArgs<ExtArgs>
   labels?: boolean | Prisma.Issue$labelsArgs<ExtArgs>
+  docs?: boolean | Prisma.Issue$docsArgs<ExtArgs>
   _count?: boolean | Prisma.IssueCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["issue"]>
 
@@ -3077,6 +3299,7 @@ export type IssueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   creatorMember?: boolean | Prisma.Issue$creatorMemberArgs<ExtArgs>
   assignees?: boolean | Prisma.Issue$assigneesArgs<ExtArgs>
   labels?: boolean | Prisma.Issue$labelsArgs<ExtArgs>
+  docs?: boolean | Prisma.Issue$docsArgs<ExtArgs>
   _count?: boolean | Prisma.IssueCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type IssueIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3107,6 +3330,7 @@ export type $IssuePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     creatorMember: Prisma.$TeamMemberPayload<ExtArgs> | null
     assignees: Prisma.$IssueAssigneePayload<ExtArgs>[]
     labels: Prisma.$IssueLabelPayload<ExtArgs>[]
+    docs: Prisma.$DocPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3537,6 +3761,7 @@ export interface Prisma__IssueClient<T, Null = never, ExtArgs extends runtime.Ty
   creatorMember<T extends Prisma.Issue$creatorMemberArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Issue$creatorMemberArgs<ExtArgs>>): Prisma.Prisma__TeamMemberClient<runtime.Types.Result.GetResult<Prisma.$TeamMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   assignees<T extends Prisma.Issue$assigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Issue$assigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IssueAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   labels<T extends Prisma.Issue$labelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Issue$labelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IssueLabelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  docs<T extends Prisma.Issue$docsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Issue$docsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4179,6 +4404,30 @@ export type Issue$labelsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.IssueLabelScalarFieldEnum | Prisma.IssueLabelScalarFieldEnum[]
+}
+
+/**
+ * Issue.docs
+ */
+export type Issue$docsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Doc
+   */
+  select?: Prisma.DocSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Doc
+   */
+  omit?: Prisma.DocOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocInclude<ExtArgs> | null
+  where?: Prisma.DocWhereInput
+  orderBy?: Prisma.DocOrderByWithRelationInput | Prisma.DocOrderByWithRelationInput[]
+  cursor?: Prisma.DocWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DocScalarFieldEnum | Prisma.DocScalarFieldEnum[]
 }
 
 /**
