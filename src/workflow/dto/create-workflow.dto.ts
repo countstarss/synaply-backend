@@ -12,6 +12,14 @@ export class CreateWorkflowDto {
   name: string;
 
   @ApiPropertyOptional({
+    description: 'The description of the workflow',
+    example: 'Cross-role launch execution template',
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiPropertyOptional({
     description: 'The visibility of the workflow',
     enum: VisibilityType,
     default: VisibilityType.PRIVATE,

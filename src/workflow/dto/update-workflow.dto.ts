@@ -6,7 +6,6 @@ import {
   IsNumber,
   IsString,
   IsBoolean,
-  IsObject,
 } from 'class-validator';
 import { WorkflowStatus } from '../../../prisma/generated/prisma/client';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -23,14 +22,12 @@ export class UpdateWorkflowDto extends PartialType(CreateWorkflowDto) {
     description: 'The JSON data of the workflow (nodes, edges, etc.)',
   })
   @IsOptional()
-  @IsObject()
-  json?: object;
+  json?: Record<string, unknown> | string;
 
   @ApiPropertyOptional({
     description: 'The assignee map of the workflow',
   })
   @IsOptional()
-  @IsObject()
   assigneeMap?: Record<string, string>;
 
   @ApiPropertyOptional({

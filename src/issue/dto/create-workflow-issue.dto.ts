@@ -1,25 +1,25 @@
 import {
+  IsArray,
+  IsDateString,
   IsEnum,
-  IsNotEmpty,
   IsOptional,
   IsString,
-  IsDateString,
 } from 'class-validator';
-// import { IssuePriority, IssueStatus, VisibilityType } from '../../../prisma/generated/prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IssueStatus } from '../../../prisma/generated/prisma/client';
+import {
+  IssuePriority,
+  VisibilityType,
+} from '../../../prisma/generated/prisma/client';
 
-// MARK: - CreateIssueDto
 export class CreateWorkflowIssueDto {
   @ApiProperty({
-    description: 'The title of the issue',
+    description: 'The title of the workflow run issue',
   })
-  @IsNotEmpty()
   @IsString()
   title: string;
 
   @ApiPropertyOptional({
-    description: 'The description of the issue',
+    description: 'The description of the workflow run issue',
   })
   @IsOptional()
   @IsString()
@@ -28,7 +28,6 @@ export class CreateWorkflowIssueDto {
   @ApiProperty({
     description: 'The workspace ID of the issue',
   })
-  @IsNotEmpty()
   @IsString()
   workspaceId: string;
 
@@ -40,44 +39,63 @@ export class CreateWorkflowIssueDto {
   dueDate?: Date;
 
   @ApiProperty({
-    description: 'The workflow ID of the issue',
+    description: 'The workflow template ID',
   })
-  @IsNotEmpty()
   @IsString()
   workflowId: string;
 
-  @ApiProperty({
-    description: 'The workflow snapshot of the issue, it is a JSON string',
+  @ApiPropertyOptional({
+    description: 'The project ID this workflow run belongs to',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  workflowSnapshot: string;
+  projectId?: string;
 
-  @ApiProperty({
-    description: 'The total steps of the issue',
+  @ApiPropertyOptional({
+    description: 'Primary assignee member ID',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  totalSteps: number;
+  directAssigneeId?: string;
 
-  @ApiProperty({
-    description: 'The current step ID of the issue',
+  @ApiPropertyOptional({
+    description: 'Issue state ID',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  currentStepId: string;
+  stateId?: string;
 
-  @ApiProperty({
-    description: 'The current step index of the issue',
+  @ApiPropertyOptional({
+    description: 'Issue priority',
+    enum: IssuePriority,
   })
-  @IsNotEmpty()
-  @IsString()
-  currentStepIndex: number;
+  @IsOptional()
+  @IsEnum(IssuePriority)
+  priority?: IssuePriority;
 
-  @ApiProperty({
-    description: 'The current step status of the issue',
+  @ApiPropertyOptional({
+    description: 'Issue visibility',
+    enum: VisibilityType,
   })
-  @IsNotEmpty()
-  @IsEnum(IssueStatus)
-  currentStepStatus: IssueStatus;
+  @IsOptional()
+  @IsEnum(VisibilityType)
+  visibility?: VisibilityType;
+
+  @ApiPropertyOptional({
+    description: 'Additional assignee member IDs',
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  assigneeIds?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Label IDs',
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  labelIds?: string[];
 }
