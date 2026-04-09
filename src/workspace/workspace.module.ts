@@ -5,9 +5,10 @@ import { WorkspaceResolver } from './graphql/workspace.resolver';
 import { AuthModule } from 'src/auth/auth.module';
 import { WorkspaceController } from './workspace.controller';
 import { CommonModule } from '../common/common.module';
+import { IssueModule } from '../issue/issue.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, CommonModule],
+  imports: [PrismaModule, AuthModule, CommonModule, IssueModule],
   controllers: [WorkspaceController],
   providers: [WorkspaceService, WorkspaceResolver],
   exports: [WorkspaceService],

@@ -1,5 +1,5 @@
 import { Controller, Get, Req, UseGuards, Param } from '@nestjs/common';
-import { WorkspaceService } from './workspace.service';
+import { MyWorkResponse, WorkspaceService } from './workspace.service';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 import {
   ApiTags,
@@ -65,5 +65,24 @@ export class WorkspaceController {
   @ApiResponse({ status: 401, description: '未授权访问' })
   async getWorkspaceById(@Param('workspaceId') workspaceId: string, @Req() req) {
     return this.workspaceService.getWorkspaceById(workspaceId, req.user.sub);
+  }
+
+  @Get(':workspaceId/my-work')
+  @ApiOperation({
+    summary: '获取当前用户的个人工作聚合',
+    description:
+      '返回当前工作空间内和当前用户相关的个人执行聚合视图，包括 today focus、waiting、in progress、blocked 和 completed today。',
+  })
+  @ApiParam({ name: 'workspaceId', description: '工作空间ID' })
+  @ApiResponse({
+    status: 200,
+    description: '获取个人工作聚合成功',
+  })
+  @ApiResponse({ status: 401, description: '未授权访问' })
+  async getMyWork(
+    @Param('workspaceId') workspaceId: string,
+    @Req() req,
+  ): Promise<MyWorkResponse> {
+    return this.workspaceService.getMyWork(workspaceId, req.user.sub);
   }
 }
