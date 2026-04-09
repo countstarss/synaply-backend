@@ -474,6 +474,13 @@ export class ProjectService {
         });
       }
 
+      await tx.$executeRaw(
+        Prisma.sql`
+          DELETE FROM "docs"
+          WHERE "project_id" = ${projectId}
+        `,
+      );
+
       await tx.project.delete({
         where: { id: projectId },
       });

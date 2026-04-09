@@ -18,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CommentModule } from './comment/comment.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { TaskModule } from './task/task.module';
+import { DocModule } from './doc/doc.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { TaskModule } from './task/task.module';
     CommentModule,
     CalendarModule,
     TaskModule,
+    DocModule,
   ],
   controllers: [AppController],
   providers: [AppService],

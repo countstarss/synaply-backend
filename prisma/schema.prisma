@@ -54,6 +54,9 @@ model TeamMember {
   createdIssues   Issue[]           @relation("CreatedIssues")
   assignedIssues  IssueAssignee[]
   ownedProjects   Project[]         @relation("ProjectOwner")
+  createdDocs     Doc[]             @relation("CreatedDocs")
+  ownedDocs       Doc[]             @relation("OwnedDocs")
+  docRevisions    DocRevision[]     @relation("AuthoredDocRevisions")
 
   @@unique([teamId, userId])
   @@map("team_members")
@@ -77,6 +80,7 @@ model Workspace {
   calendar    Calendar?
   issueStates IssueState[]
   labels      Label[]
+  docs        Doc[]
 
   @@map("workspaces")
 }
@@ -98,6 +102,7 @@ model Project {
   lastSyncAt    DateTime?        @map("last_sync_at")
   visibility    VisibilityType   @default(PRIVATE)
   issues        Issue[]
+  docs          Doc[]
   owner         TeamMember       @relation("ProjectOwner", fields: [ownerMemberId], references: [id])
   workspace     Workspace        @relation(fields: [workspaceId], references: [id])
 
@@ -128,6 +133,7 @@ model Workflow {
   // issues    Issue[]
   creator   TeamMember @relation("CreatedWorkflows", fields: [creatorId], references: [id])
   workspace Workspace  @relation(fields: [workspaceId], references: [id])
+  docs      Doc[]
 
   @@map("workflows")
 }
@@ -173,12 +179,82 @@ model Issue {
   creatorMember   TeamMember?       @relation("CreatedIssues", fields: [creatorMemberId], references: [id])
   assignees       IssueAssignee[]
   labels          IssueLabel[]
+  docs            Doc[]
 
   @@index([workspaceId])
   @@index([stateId])
   @@index([projectId])
   @@index([creatorMemberId])
   @@map("issues")
+}
+
+model Doc {
+  id               String         @id @default(uuid())
+  workspaceId      String         @map("workspace_id")
+  creatorMemberId  String         @map("creator_member_id")
+  ownerMemberId    String         @map("owner_member_id")
+  title            String
+  description      String?
+  type             DocType
+  status           DocStatus      @default(ACTIVE)
+  visibility       VisibilityType @default(PRIVATE)
+  parentId         String?        @map("parent_id")
+  projectId        String?        @map("project_id")
+  issueId          String?        @map("issue_id")
+  workflowId       String?        @map("workflow_id")
+  icon             String?
+  coverImage       String?        @map("cover_image")
+  sortOrder        Int            @default(0) @map("sort_order")
+  isArchived       Boolean        @default(false) @map("is_archived")
+  isDeleted        Boolean        @default(false) @map("is_deleted")
+  latestRevisionId String?        @unique @map("latest_revision_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  lastEditedAt     DateTime       @default(now()) @map("last_edited_at")
+
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creatorMember   TeamMember    @relation("CreatedDocs", fields: [creatorMemberId], references: [id])
+  ownerMember     TeamMember    @relation("OwnedDocs", fields: [ownerMemberId], references: [id])
+  parent          Doc?          @relation("DocHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children        Doc[]         @relation("DocHierarchy")
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  issue           Issue?        @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  workflow        Workflow?     @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  revisions       DocRevision[] @relation("DocRevisions")
+  latestRevision  DocRevision?  @relation("LatestDocRevision", fields: [latestRevisionId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([workspaceId, isArchived])
+  @@index([workspaceId, parentId])
+  @@index([projectId])
+  @@index([issueId])
+  @@index([workflowId])
+  @@index([creatorMemberId])
+  @@index([ownerMemberId])
+  @@map("docs")
+}
+
+model DocRevision {
+  id               String          @id @default(uuid())
+  docId            String          @map("doc_id")
+  baseRevisionId   String?         @map("base_revision_id")
+  authorMemberId   String          @map("author_member_id")
+  clientMutationId String          @map("client_mutation_id")
+  contentSnapshot  Json            @map("content_snapshot")
+  metadataSnapshot Json?           @map("metadata_snapshot")
+  changeSource     DocChangeSource @default(EDITOR) @map("change_source")
+  createdAt        DateTime        @default(now()) @map("created_at")
+
+  doc           Doc           @relation("DocRevisions", fields: [docId], references: [id], onDelete: Cascade)
+  baseRevision  DocRevision?  @relation("DocRevisionLineage", fields: [baseRevisionId], references: [id], onDelete: SetNull)
+  nextRevisions DocRevision[] @relation("DocRevisionLineage")
+  authorMember  TeamMember    @relation("AuthoredDocRevisions", fields: [authorMemberId], references: [id])
+  latestForDoc  Doc?          @relation("LatestDocRevision")
+
+  @@unique([docId, clientMutationId])
+  @@index([docId, createdAt])
+  @@index([authorMemberId])
+  @@map("doc_revisions")
 }
 
 /// MARK: - Issue 状态配置模型 (Linear 风格动态状态)
@@ -355,6 +431,24 @@ enum WorkspaceType {
 enum WorkflowStatus {
   DRAFT
   PUBLISHED
+}
+
+enum DocType {
+  DOCUMENT
+  FOLDER
+}
+
+enum DocStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum DocChangeSource {
+  CREATE
+  EDITOR
+  META
+  SYSTEM
+  IMPORT
 }
 
 enum ProjectStatus {
