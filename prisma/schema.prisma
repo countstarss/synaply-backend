@@ -295,6 +295,29 @@ model InboxItem {
   @@map("inbox_items")
 }
 
+model AiExecutionRecord {
+  id             String                @id @default(uuid())
+  workspaceId    String                @map("workspace_id")
+  actorUserId    String                @map("actor_user_id")
+  actionKey      String                @map("action_key")
+  status         AiExecutionStatus
+  approvalMode   AiApprovalMode        @map("approval_mode")
+  targetType     AiExecutionTargetType? @map("target_type")
+  targetId       String?               @map("target_id")
+  summary        String?
+  conversationId String?               @map("conversation_id")
+  input          Json?                 @map("input")
+  result         Json?                 @map("result")
+  error          Json?                 @map("error")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  completedAt    DateTime?             @map("completed_at")
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, actionKey])
+  @@index([actorUserId, createdAt])
+  @@map("ai_execution_records")
+}
+
 /// MARK: - Issue 状态配置模型 (Linear 风格动态状态)
 model IssueState {
   id          String             @id @default(uuid())
@@ -450,6 +473,26 @@ enum TaskStatus {
   PENDING
   IN_PROGRESS
   COMPLETED
+}
+
+enum AiExecutionStatus {
+  PREVIEW
+  SUCCEEDED
+  FAILED
+  BLOCKED
+}
+
+enum AiApprovalMode {
+  AUTO
+  CONFIRM
+}
+
+enum AiExecutionTargetType {
+  WORKSPACE
+  PROJECT
+  ISSUE
+  WORKFLOW
+  DOC
 }
 
 /// 用户角色枚举

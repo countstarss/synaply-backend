@@ -20,6 +20,7 @@ import { CalendarModule } from './calendar/calendar.module';
 import { TaskModule } from './task/task.module';
 import { DocModule } from './doc/doc.module';
 import { InboxModule } from './inbox/inbox.module';
+import { AiExecutionModule } from './ai-execution/ai-execution.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { InboxModule } from './inbox/inbox.module';
     TaskModule,
     DocModule,
     InboxModule,
+    AiExecutionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
