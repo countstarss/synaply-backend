@@ -49,8 +49,12 @@ function parseWorkflowJsonInput(
   }
 
   if (typeof json === 'string') {
-    const parsed = JSON.parse(json) as Record<string, unknown>;
-    return parsed;
+    try {
+      const parsed = JSON.parse(json) as Record<string, unknown>;
+      return parsed;
+    } catch {
+      throw new BadRequestException('工作流数据格式不正确');
+    }
   }
 
   return json;
@@ -374,19 +378,27 @@ export class WorkflowService {
         ? bumpWorkflowVersion(updateWorkflowDto.version ?? workflow.version)
         : updateWorkflowDto.version;
 
+    const workflowUpdateData: Prisma.WorkflowUpdateInput = {
+      name: updateWorkflowDto.name,
+      visibility: updateWorkflowDto.visibility,
+      status: updateWorkflowDto.status,
+      currentStepIndex: updateWorkflowDto.currentStepIndex,
+      isSystemTemplate: updateWorkflowDto.isSystemTemplate,
+      json: normalizedJson
+        ? ((normalizedJson as unknown) as Prisma.InputJsonValue)
+        : undefined,
+      assigneeMap: normalizedJson
+        ? buildWorkflowAssigneeMap(normalizedJson)
+        : updateWorkflowDto.assigneeMap,
+      totalSteps: normalizedJson
+        ? normalizedJson.nodes.length
+        : updateWorkflowDto.totalSteps,
+      version: nextVersion,
+    };
+
     const updatedWorkflow = await this.prisma.workflow.update({
       where: { id },
-      data: {
-        ...updateWorkflowDto,
-        json: normalizedJson
-          ? ((normalizedJson as unknown) as Prisma.InputJsonValue)
-          : undefined,
-        assigneeMap: normalizedJson
-          ? buildWorkflowAssigneeMap(normalizedJson)
-          : undefined,
-        totalSteps: normalizedJson ? normalizedJson.nodes.length : undefined,
-        version: nextVersion,
-      },
+      data: workflowUpdateData,
       include: {
         creator: {
           include: { user: true },
