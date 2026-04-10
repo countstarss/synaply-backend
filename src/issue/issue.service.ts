@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import {
   IssueStatus,
+  IssueStateCategory,
   IssueType,
   Prisma,
   VisibilityType,
@@ -353,6 +354,172 @@ export class IssueService {
     });
 
     return teamMember?.userId ?? null;
+  }
+
+  private getIssueSignalSourceType(issue: {
+    issueType?: IssueType | null;
+    workflowId?: string | null;
+    workflowSnapshot?: unknown;
+  }) {
+    if (
+      issue.issueType === IssueType.WORKFLOW ||
+      Boolean(issue.workflowId) ||
+      Boolean(issue.workflowSnapshot)
+    ) {
+      return 'workflow';
+    }
+
+    return 'issue';
+  }
+
+  private async resolveIssueCreatorUserId(issue: {
+    creatorId?: string | null;
+    creatorMemberId?: string | null;
+    creatorMember?: { userId?: string | null } | null;
+  }) {
+    if (issue.creatorMember?.userId) {
+      return issue.creatorMember.userId;
+    }
+
+    const creatorMemberId = issue.creatorMemberId ?? issue.creatorId;
+    if (!creatorMemberId) {
+      return null;
+    }
+
+    return this.resolveTeamMemberUserId(creatorMemberId);
+  }
+
+  private async resolveCancelNotificationTargetUserIds(
+    issue: {
+      directAssigneeId?: string | null;
+      assignees?: Array<{ memberId?: string | null }>;
+    },
+    actorUserId: string,
+  ) {
+    const targetMemberIds = new Set<string>();
+
+    if (issue.directAssigneeId) {
+      targetMemberIds.add(issue.directAssigneeId);
+    }
+
+    for (const assignee of issue.assignees || []) {
+      if (assignee.memberId) {
+        targetMemberIds.add(assignee.memberId);
+      }
+    }
+
+    if (targetMemberIds.size === 0) {
+      return [];
+    }
+
+    const targetMembers = await this.prisma.teamMember.findMany({
+      where: {
+        id: {
+          in: Array.from(targetMemberIds),
+        },
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    return Array.from(
+      new Set(
+        targetMembers
+          .map((member) => member.userId)
+          .filter((targetUserId) => targetUserId && targetUserId !== actorUserId),
+      ),
+    );
+  }
+
+  private async notifyIssueCanceled(
+    tx: PrismaTx,
+    {
+      workspaceId,
+      workspaceName,
+      issue,
+      actorUserId,
+      targetUserIds,
+      canceledAt,
+      cancelStateId,
+    }: {
+      workspaceId: string;
+      workspaceName: string;
+      issue: {
+        id: string;
+        key?: string | null;
+        title: string;
+        projectId?: string | null;
+        project?: { name?: string | null } | null;
+        issueType?: IssueType | null;
+        workflowId?: string | null;
+        workflowSnapshot?: unknown;
+      };
+      actorUserId: string;
+      targetUserIds: string[];
+      canceledAt: Date;
+      cancelStateId: string;
+    },
+  ) {
+    if (targetUserIds.length === 0) {
+      return;
+    }
+
+    const sourceType = this.getIssueSignalSourceType(issue);
+    const issueLabel = issue.key ? `${issue.key} ${issue.title}` : issue.title;
+    const projectName = issue.project?.name || workspaceName;
+    const baseData = {
+      type: 'issue.canceled',
+      bucket: 'following',
+      sourceType,
+      sourceId: issue.id,
+      projectId: issue.projectId || null,
+      projectName,
+      issueId: issue.id,
+      issueKey: issue.key || null,
+      workflowRunId: sourceType === 'workflow' ? issue.id : null,
+      docId: null,
+      actorUserId,
+      title: `${issueLabel} 已取消`,
+      summary: `创建者已取消这个 issue。它会从项目执行视图隐藏，但历史记录仍会保留。`,
+      priority: 'normal',
+      requiresAction: false,
+      actionLabel: '查看记录',
+      occurredAt: canceledAt,
+      metadata: {
+        kind: 'issue',
+        eventType: 'issue.canceled',
+        cancelStateId,
+        managedBySync: false,
+      } as Prisma.InputJsonValue,
+    };
+
+    for (const targetUserId of targetUserIds) {
+      await tx.inboxItem.upsert({
+        where: {
+          workspaceId_targetUserId_dedupeKey: {
+            workspaceId,
+            targetUserId,
+            dedupeKey: `issue.canceled:${issue.id}:${targetUserId}`,
+          },
+        },
+        create: {
+          workspaceId,
+          targetUserId,
+          dedupeKey: `issue.canceled:${issue.id}:${targetUserId}`,
+          status: 'unread',
+          ...baseData,
+        },
+        update: {
+          ...baseData,
+          status: 'unread',
+          readAt: null,
+          doneAt: null,
+          dismissedAt: null,
+          snoozedUntil: null,
+        },
+      });
+    }
   }
 
   private async findLatestWorkflowActivityMetadata(issueId: string) {
@@ -1040,6 +1207,106 @@ export class IssueService {
     });
 
     return this.enrichIssues(issues);
+  }
+
+  async cancel(userId: string, workspaceId: string, issueId: string) {
+    const actorId = await this.teamMemberService.getTeamMemberIdByWorkspace(
+      userId,
+      workspaceId,
+    );
+
+    const issue = await this.prisma.issue.findFirst({
+      where: {
+        id: issueId,
+        workspaceId,
+      },
+      include: {
+        state: true,
+        project: {
+          select: {
+            name: true,
+          },
+        },
+        workspace: {
+          select: {
+            name: true,
+          },
+        },
+        creatorMember: {
+          select: {
+            userId: true,
+          },
+        },
+        assignees: {
+          select: {
+            memberId: true,
+          },
+        },
+      },
+    });
+
+    if (!issue) {
+      throw new NotFoundException(
+        `Issue ${issueId} 不存在于工作空间 ${workspaceId}`,
+      );
+    }
+
+    const creatorUserId = await this.resolveIssueCreatorUserId(issue);
+    if (creatorUserId !== userId) {
+      throw new ForbiddenException('只有创建者可以取消这个 Issue');
+    }
+
+    if (issue.state?.category === IssueStateCategory.CANCELED) {
+      return this.findOne(userId, workspaceId, issueId);
+    }
+
+    const cancelState = await this.issueStateService.getStateByCategory(
+      workspaceId,
+      IssueStateCategory.CANCELED,
+    );
+    const targetUserIds = await this.resolveCancelNotificationTargetUserIds(
+      issue,
+      userId,
+    );
+    const canceledAt = new Date();
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.issue.update({
+        where: { id: issueId },
+        data: {
+          stateId: cancelState.id,
+        },
+      });
+
+      await tx.issueActivity.create({
+        data: {
+          issueId,
+          actorId,
+          action: '取消 Issue',
+          metadata: {
+            kind: 'issue',
+            eventType: 'issue.canceled',
+            previousStateId: issue.stateId,
+            previousStateCategory: issue.state?.category ?? null,
+            nextStateId: cancelState.id,
+            nextStateCategory: IssueStateCategory.CANCELED,
+            notifiedUserIds: targetUserIds,
+          } as Prisma.InputJsonValue,
+        },
+      });
+
+      await this.notifyIssueCanceled(tx, {
+        workspaceId,
+        workspaceName: issue.workspace.name,
+        issue,
+        actorUserId: userId,
+        targetUserIds,
+        canceledAt,
+        cancelStateId: cancelState.id,
+      });
+    });
+
+    return this.findOne(userId, workspaceId, issueId);
   }
 
   async update(

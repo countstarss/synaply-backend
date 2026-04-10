@@ -97,6 +97,21 @@ export class IssueController {
   }
 
   /**
+   * MARK: - 取消 Issue
+   * PATCH /workspaces/:workspaceId/issues/:id/cancel
+   */
+  @Patch(':id/cancel')
+  @ApiOperation({ summary: '取消任务（软取消，仅创建者）' })
+  cancelIssue(
+    @Param('workspaceId') workspaceId: string,
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    const userId = req.user?.sub;
+    return this.issueService.cancel(userId, workspaceId, id);
+  }
+
+  /**
    * MARK: - 更新 Issue
    * PATCH /workspaces/:workspaceId/issues/:id
    */

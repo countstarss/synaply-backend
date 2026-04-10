@@ -93,6 +93,7 @@ const TYPE_ORDER: Record<InboxItemType, number> = {
   'workflow.blocked': 92,
   'deadline.soon': 88,
   'issue.assigned': 84,
+  'issue.canceled': 82,
   'project.risk.flagged': 80,
   'digest.generated': 20,
 };
@@ -131,7 +132,8 @@ export class InboxService {
     return Boolean(
       issue.workflowRun?.runStatus === 'DONE' ||
         issue.currentStepStatus === IssueStatus.DONE ||
-        issue.state?.category === IssueStateCategory.DONE,
+        issue.state?.category === IssueStateCategory.DONE ||
+        issue.state?.category === IssueStateCategory.CANCELED,
     );
   }
 
@@ -827,11 +829,17 @@ export class InboxService {
 
       const staleIds = existingItems
         .filter(
-          (item) =>
-            !activeKeys.has(item.dedupeKey) &&
-            (item.status === 'unread' ||
-              item.status === 'seen' ||
-              item.status === 'snoozed'),
+          (item) => {
+            const metadata = parseMetadata(item.metadata);
+
+            return (
+              metadata?.managedBySync === true &&
+              !activeKeys.has(item.dedupeKey) &&
+              (item.status === 'unread' ||
+                item.status === 'seen' ||
+                item.status === 'snoozed')
+            );
+          },
         )
         .map((item) => item.id);
 
