@@ -92,6 +92,12 @@ type ProjectSummaryIssue = Prisma.IssueGetPayload<{
   select: typeof projectSummaryIssueSelect;
 }>;
 
+const ACTIVE_ISSUE_STATE_CATEGORIES = new Set<IssueStateCategory>([
+  IssueStateCategory.BACKLOG,
+  IssueStateCategory.TODO,
+  IssueStateCategory.IN_PROGRESS,
+]);
+
 type ProjectReadRecord = {
   id: string;
   name: string;
@@ -275,16 +281,17 @@ export class ProjectService {
       this.getAccessibleProjectIssues(workspaceId, projectId, teamMemberId),
     ]);
 
+    const activeIssues = issues.filter((issue) => this.isActiveIssue(issue));
     const [recentActivity, workflows] = await Promise.all([
       this.getProjectActivityInternal(issues.map((issue) => issue.id)),
       this.getProjectWorkflowsInternal(workspaceId, issues),
     ]);
     const metrics = this.buildProjectMetrics(project, issues, workflows.length);
-    const blockedIssues = [...issues]
+    const blockedIssues = [...activeIssues]
       .filter((issue) => this.isBlockedIssue(issue))
       .sort((left, right) => this.compareIssuesByImportance(left, right))
       .slice(0, 5);
-    const keyIssues = [...issues]
+    const keyIssues = [...activeIssues]
       .sort((left, right) => this.compareIssuesByImportance(left, right))
       .slice(0, 6);
 
@@ -578,7 +585,7 @@ export class ProjectService {
 
     const issueCountByWorkflowId = issues.reduce<Record<string, number>>(
       (accumulator, issue) => {
-        if (!issue.workflowId) {
+        if (!issue.workflowId || !this.isActiveIssue(issue)) {
           return accumulator;
         }
 
@@ -600,37 +607,44 @@ export class ProjectService {
     issues: ProjectSummaryIssue[],
     workflowCount: number,
   ) {
+    const activeIssues = issues.filter((issue) => this.isActiveIssue(issue));
     const completedIssues = issues.filter((issue) =>
       this.isCompletedIssue(issue),
     ).length;
-    const blockedIssues = issues.filter((issue) => this.isBlockedIssue(issue))
-      .length;
-    const overdueIssues = issues.filter((issue) => this.isOverdueIssue(issue))
-      .length;
-    const highPriorityIssues = issues.filter(
+    const completionBaseIssueCount = activeIssues.length + completedIssues;
+    const blockedIssues = activeIssues.filter((issue) =>
+      this.isBlockedIssue(issue),
+    ).length;
+    const overdueIssues = activeIssues.filter((issue) =>
+      this.isOverdueIssue(issue),
+    ).length;
+    const highPriorityIssues = activeIssues.filter(
       (issue) =>
         issue.priority === IssuePriority.HIGH ||
         issue.priority === IssuePriority.URGENT,
     ).length;
-    const unassignedIssues = issues.filter(
+    const unassignedIssues = activeIssues.filter(
       (issue) =>
         !issue.directAssigneeId &&
         issue.assignees.every((assignee) => !assignee.member?.id),
     ).length;
 
     return {
-      totalIssues: issues.length,
-      openIssues: Math.max(issues.length - completedIssues, 0),
+      totalIssues: activeIssues.length,
+      openIssues: activeIssues.length,
       completedIssues,
       blockedIssues,
       overdueIssues,
       workflowCount,
-      workflowIssueCount: issues.filter((issue) => Boolean(issue.workflowId))
-        .length,
+      workflowIssueCount: activeIssues.filter((issue) =>
+        Boolean(issue.workflowId),
+      ).length,
       highPriorityIssues,
       unassignedIssues,
       completionRate:
-        issues.length > 0 ? Math.round((completedIssues / issues.length) * 100) : 0,
+        completionBaseIssueCount > 0
+          ? Math.round((completedIssues / completionBaseIssueCount) * 100)
+          : 0,
       staleSyncDays: project.lastSyncAt
         ? Math.floor(
             (Date.now() - new Date(project.lastSyncAt).getTime()) /
@@ -714,6 +728,7 @@ export class ProjectService {
 
     const urgentUnassignedCount = issues.filter(
       (issue) =>
+        this.isActiveIssue(issue) &&
         issue.priority === IssuePriority.URGENT &&
         !issue.directAssigneeId &&
         issue.assignees.every((assignee) => !assignee.member?.id),
@@ -741,11 +756,15 @@ export class ProjectService {
   }
 
   private isCompletedIssue(issue: ProjectSummaryIssue) {
-    return (
-      issue.state?.category === IssueStateCategory.DONE ||
-      issue.state?.category === IssueStateCategory.CANCELED ||
-      issue.currentStepStatus === IssueStatus.DONE
-    );
+    return this.getIssueCategory(issue) === IssueStateCategory.DONE;
+  }
+
+  private getIssueCategory(issue: ProjectSummaryIssue) {
+    return issue.state?.category ?? IssueStateCategory.BACKLOG;
+  }
+
+  private isActiveIssue(issue: ProjectSummaryIssue) {
+    return ACTIVE_ISSUE_STATE_CATEGORIES.has(this.getIssueCategory(issue));
   }
 
   private isBlockedIssue(issue: ProjectSummaryIssue) {
@@ -763,7 +782,7 @@ export class ProjectService {
   }
 
   private isOverdueIssue(issue: ProjectSummaryIssue) {
-    if (!issue.dueDate || this.isCompletedIssue(issue)) {
+    if (!issue.dueDate || !this.isActiveIssue(issue)) {
       return false;
     }
 

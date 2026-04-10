@@ -108,6 +108,12 @@ const PRIORITY_WEIGHT: Record<IssuePriority, number> = {
   [IssuePriority.URGENT]: 4,
 };
 
+const ACTIVE_ISSUE_STATE_CATEGORIES = new Set<IssueStateCategory>([
+  IssueStateCategory.BACKLOG,
+  IssueStateCategory.TODO,
+  IssueStateCategory.IN_PROGRESS,
+]);
+
 function getStartOfDay(value: Date) {
   return new Date(value.getFullYear(), value.getMonth(), value.getDate());
 }
@@ -135,6 +141,18 @@ export class WorkspaceService {
     private readonly inboxService: InboxService,
   ) {}
 
+  private getIssueCategory(issue: WorkspaceIssue) {
+    return issue.state?.category ?? IssueStateCategory.BACKLOG;
+  }
+
+  private isActiveIssue(issue: WorkspaceIssue) {
+    return ACTIVE_ISSUE_STATE_CATEGORIES.has(this.getIssueCategory(issue));
+  }
+
+  private isCanceledIssue(issue: WorkspaceIssue) {
+    return this.getIssueCategory(issue) === IssueStateCategory.CANCELED;
+  }
+
   private isWorkflowIssue(issue: WorkspaceIssue) {
     return Boolean(
       issue.issueType === IssueType.WORKFLOW ||
@@ -145,6 +163,10 @@ export class WorkspaceService {
   }
 
   private isCompleted(issue: WorkspaceIssue) {
+    if (this.isCanceledIssue(issue)) {
+      return false;
+    }
+
     return Boolean(
       issue.workflowRun?.runStatus === 'DONE' ||
         issue.currentStepStatus === IssueStatus.DONE ||
@@ -594,9 +616,12 @@ export class WorkspaceService {
     const relevantIssues = issues.filter((issue) =>
       this.isRelevantToUser(issue, userId, teamMemberId),
     );
+    const activeRelevantIssues = relevantIssues.filter((issue) =>
+      this.isActiveIssue(issue),
+    );
 
     const waitingForMe = this.sortItems(
-      relevantIssues
+      activeRelevantIssues
         .filter((issue) => this.isWaitingForUser(issue, userId, teamMemberId))
         .map((issue) =>
           this.buildMyWorkItem(issue, workspaceName, userId, teamMemberId),
@@ -604,7 +629,7 @@ export class WorkspaceService {
     );
 
     const inProgress = this.sortItems(
-      relevantIssues
+      activeRelevantIssues
         .filter((issue) => this.isInProgressForUser(issue, userId, teamMemberId))
         .map((issue) =>
           this.buildMyWorkItem(issue, workspaceName, userId, teamMemberId),
@@ -612,7 +637,7 @@ export class WorkspaceService {
     );
 
     const blocked = this.sortItems(
-      relevantIssues
+      activeRelevantIssues
         .filter((issue) => this.isBlocked(issue))
         .map((issue) =>
           this.buildMyWorkItem(issue, workspaceName, userId, teamMemberId),
@@ -622,7 +647,7 @@ export class WorkspaceService {
     const completedToday = this.sortItems(
       relevantIssues
         .filter((issue) => {
-          if (!this.isCompleted(issue)) {
+          if (this.isCanceledIssue(issue) || !this.isCompleted(issue)) {
             return false;
           }
 
