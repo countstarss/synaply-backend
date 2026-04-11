@@ -5,6 +5,7 @@ export const AI_ACTION_KEYS = [
   'update_project',
   'create_issue',
   'update_issue',
+  'attach_coding_prompt_to_issue',
   'cancel_issue',
   'create_workflow',
   'update_workflow',

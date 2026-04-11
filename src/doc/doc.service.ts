@@ -110,7 +110,12 @@ export class DocService {
       throw new ForbiddenException('没有权限查看该文档');
     }
 
-    return this.toDocReadModel(doc, workspace.type, teamMemberId, workspaceRole);
+    return this.toDocReadModel(
+      doc,
+      workspace.type,
+      teamMemberId,
+      workspaceRole,
+    );
   }
 
   async findRevisions(workspaceId: string, docId: string, userId: string) {
@@ -259,10 +264,19 @@ export class DocService {
       return this.getDocOrThrow(tx, workspaceId, docId);
     });
 
-    return this.toDocReadModel(created, workspace.type, teamMemberId, workspaceRole);
+    return this.toDocReadModel(
+      created,
+      workspace.type,
+      teamMemberId,
+      workspaceRole,
+    );
   }
 
-  async createFolder(workspaceId: string, dto: CreateFolderDto, userId: string) {
+  async createFolder(
+    workspaceId: string,
+    dto: CreateFolderDto,
+    userId: string,
+  ) {
     const { workspace, teamMemberId } =
       await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
     const workspaceRole = this.resolveWorkspaceRole(workspace);
@@ -310,7 +324,7 @@ export class DocService {
         ${dto.title.trim() || '未命名文件夹'},
         ${dto.description?.trim() || null},
         ${DocTypeValue.FOLDER}::"DocType",
-        ${(dto.visibility ?? this.getDefaultVisibility(workspace.type, true))}::"VisibilityType",
+        ${dto.visibility ?? this.getDefaultVisibility(workspace.type, true)}::"VisibilityType",
         ${dto.parentDocument ?? null},
         ${dto.projectId ?? null},
         ${dto.issueId ?? null},
@@ -322,8 +336,17 @@ export class DocService {
       )
     `);
 
-    const created = await this.getDocOrThrow(this.prisma, workspaceId, folderId);
-    return this.toDocReadModel(created, workspace.type, teamMemberId, workspaceRole);
+    const created = await this.getDocOrThrow(
+      this.prisma,
+      workspaceId,
+      folderId,
+    );
+    return this.toDocReadModel(
+      created,
+      workspace.type,
+      teamMemberId,
+      workspaceRole,
+    );
   }
 
   async updateMeta(
@@ -337,20 +360,23 @@ export class DocService {
     const workspaceRole = this.resolveWorkspaceRole(workspace);
     const existing = await this.getDocOrThrow(this.prisma, workspaceId, docId);
 
-    if (!this.canWriteDoc(existing, workspace.type, teamMemberId, workspaceRole)) {
+    if (
+      !this.canWriteDoc(existing, workspace.type, teamMemberId, workspaceRole)
+    ) {
       throw new ForbiddenException('没有权限修改该文档');
     }
 
-    if (dto.description !== undefined && existing.type !== DocTypeValue.FOLDER) {
+    if (
+      dto.description !== undefined &&
+      existing.type !== DocTypeValue.FOLDER
+    ) {
       throw new BadRequestException('只有文件夹可以更新描述');
     }
 
     const updates: Prisma.Sql[] = [];
 
     if (dto.title !== undefined) {
-      updates.push(
-        Prisma.sql`"title" = ${dto.title.trim() || existing.title}`,
-      );
+      updates.push(Prisma.sql`"title" = ${dto.title.trim() || existing.title}`);
     }
 
     if (dto.description !== undefined) {
@@ -383,7 +409,12 @@ export class DocService {
     `);
 
     const updated = await this.getDocOrThrow(this.prisma, workspaceId, docId);
-    return this.toDocReadModel(updated, workspace.type, teamMemberId, workspaceRole);
+    return this.toDocReadModel(
+      updated,
+      workspace.type,
+      teamMemberId,
+      workspaceRole,
+    );
   }
 
   async createRevision(
@@ -401,11 +432,15 @@ export class DocService {
       throw new BadRequestException('只有文档支持修订版本');
     }
 
-    if (!this.canWriteDoc(existing, workspace.type, teamMemberId, workspaceRole)) {
+    if (
+      !this.canWriteDoc(existing, workspace.type, teamMemberId, workspaceRole)
+    ) {
       throw new ForbiddenException('没有权限编辑该文档');
     }
 
-    const duplicate = await this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+    const duplicate = await this.prisma.$queryRaw<
+      Array<{ id: string }>
+    >(Prisma.sql`
       SELECT "id"
       FROM "doc_revisions"
       WHERE "doc_id" = ${docId}
@@ -417,17 +452,31 @@ export class DocService {
       return {
         status: 'noop' as const,
         revisionId: duplicate[0].id,
-        doc: this.toDocReadModel(existing, workspace.type, teamMemberId, workspaceRole),
+        doc: this.toDocReadModel(
+          existing,
+          workspace.type,
+          teamMemberId,
+          workspaceRole,
+        ),
       };
     }
 
-    if ((existing.latest_revision_id ?? null) !== (dto.baseRevisionId ?? null)) {
+    if (
+      (existing.latest_revision_id ?? null) !== (dto.baseRevisionId ?? null)
+    ) {
       return {
         status: 'conflict' as const,
         revisionId: existing.latest_revision_id,
-        doc: this.toDocReadModel(existing, workspace.type, teamMemberId, workspaceRole),
+        doc: this.toDocReadModel(
+          existing,
+          workspace.type,
+          teamMemberId,
+          workspaceRole,
+        ),
         serverRevisionId: existing.latest_revision_id,
-        serverSnapshot: this.serializeSnapshot(existing.latest_content_snapshot),
+        serverSnapshot: this.serializeSnapshot(
+          existing.latest_content_snapshot,
+        ),
         serverMetadataSnapshot: existing.latest_metadata_snapshot
           ? JSON.stringify(existing.latest_metadata_snapshot)
           : null,
@@ -436,7 +485,9 @@ export class DocService {
 
     const nextContentSnapshot = this.parseSnapshot(dto.contentSnapshot);
     const nextMetadata = this.parseMetadata(dto.metadataSnapshot);
-    const currentSnapshot = this.serializeSnapshot(existing.latest_content_snapshot);
+    const currentSnapshot = this.serializeSnapshot(
+      existing.latest_content_snapshot,
+    );
 
     if (
       currentSnapshot === JSON.stringify(nextContentSnapshot) &&
@@ -445,7 +496,12 @@ export class DocService {
       return {
         status: 'noop' as const,
         revisionId: existing.latest_revision_id,
-        doc: this.toDocReadModel(existing, workspace.type, teamMemberId, workspaceRole),
+        doc: this.toDocReadModel(
+          existing,
+          workspace.type,
+          teamMemberId,
+          workspaceRole,
+        ),
       };
     }
 
@@ -455,7 +511,8 @@ export class DocService {
     const mergedIcon =
       this.pickStringMetadata(nextMetadata, 'icon') ?? existing.icon;
     const mergedCoverImage =
-      this.pickStringMetadata(nextMetadata, 'coverImage') ?? existing.cover_image;
+      this.pickStringMetadata(nextMetadata, 'coverImage') ??
+      existing.cover_image;
     const mergedVisibility =
       this.pickVisibilityMetadata(nextMetadata) ?? existing.visibility;
 
@@ -485,7 +542,7 @@ export class DocService {
             coverImage: mergedCoverImage,
             visibility: mergedVisibility,
           })}::jsonb,
-          ${(dto.changeSource ?? DocChangeSourceValue.EDITOR)}::"DocChangeSource",
+          ${dto.changeSource ?? DocChangeSourceValue.EDITOR}::"DocChangeSource",
           NOW()
         )
       `);
@@ -524,7 +581,9 @@ export class DocService {
     const workspaceRole = this.resolveWorkspaceRole(workspace);
     const existing = await this.getDocOrThrow(this.prisma, workspaceId, docId);
 
-    if (!this.canDeleteDoc(existing, workspace.type, teamMemberId, workspaceRole)) {
+    if (
+      !this.canDeleteDoc(existing, workspace.type, teamMemberId, workspaceRole)
+    ) {
       throw new ForbiddenException('没有权限删除该文档');
     }
 
@@ -625,7 +684,11 @@ export class DocService {
       return;
     }
 
-    const parent = await this.getDocOrThrow(this.prisma, workspaceId, parentDocument);
+    const parent = await this.getDocOrThrow(
+      this.prisma,
+      workspaceId,
+      parentDocument,
+    );
 
     if (parent.type !== DocTypeValue.FOLDER) {
       throw new BadRequestException('父级节点必须是文件夹');
@@ -633,7 +696,9 @@ export class DocService {
 
     if (!this.canWriteDoc(parent, workspaceType, teamMemberId, workspaceRole)) {
       throw new ForbiddenException(
-        action === 'create' ? '没有权限在该文件夹中创建内容' : '没有权限移动到该文件夹',
+        action === 'create'
+          ? '没有权限在该文件夹中创建内容'
+          : '没有权限移动到该文件夹',
       );
     }
   }
@@ -807,7 +872,10 @@ export class DocService {
       return true;
     }
 
-    if (doc.creator_member_id === teamMemberId || doc.owner_member_id === teamMemberId) {
+    if (
+      doc.creator_member_id === teamMemberId ||
+      doc.owner_member_id === teamMemberId
+    ) {
       return true;
     }
 
@@ -832,7 +900,10 @@ export class DocService {
       return true;
     }
 
-    if (doc.creator_member_id === teamMemberId || doc.owner_member_id === teamMemberId) {
+    if (
+      doc.creator_member_id === teamMemberId ||
+      doc.owner_member_id === teamMemberId
+    ) {
       return true;
     }
 
@@ -860,7 +931,10 @@ export class DocService {
       return true;
     }
 
-    if (doc.creator_member_id === teamMemberId || doc.owner_member_id === teamMemberId) {
+    if (
+      doc.creator_member_id === teamMemberId ||
+      doc.owner_member_id === teamMemberId
+    ) {
       return true;
     }
 
@@ -868,11 +942,17 @@ export class DocService {
   }
 
   private compareDocs(left: DocRow, right: DocRow) {
-    if (left.type === DocTypeValue.FOLDER && right.type !== DocTypeValue.FOLDER) {
+    if (
+      left.type === DocTypeValue.FOLDER &&
+      right.type !== DocTypeValue.FOLDER
+    ) {
       return -1;
     }
 
-    if (left.type !== DocTypeValue.FOLDER && right.type === DocTypeValue.FOLDER) {
+    if (
+      left.type !== DocTypeValue.FOLDER &&
+      right.type === DocTypeValue.FOLDER
+    ) {
       return 1;
     }
 
@@ -880,7 +960,10 @@ export class DocService {
       return left.sort_order - right.sort_order;
     }
 
-    return this.asDate(left.created_at).getTime() - this.asDate(right.created_at).getTime();
+    return (
+      this.asDate(left.created_at).getTime() -
+      this.asDate(right.created_at).getTime()
+    );
   }
 
   private toDocReadModel(
@@ -918,7 +1001,12 @@ export class DocService {
       createdAt: this.asDate(doc.created_at).getTime(),
       updatedAt: this.asDate(doc.updated_at).getTime(),
       lastEditedAt: this.asDate(doc.last_edited_at).getTime(),
-      canEdit: this.canWriteDoc(doc, workspaceType, teamMemberId, workspaceRole),
+      canEdit: this.canWriteDoc(
+        doc,
+        workspaceType,
+        teamMemberId,
+        workspaceRole,
+      ),
       canDelete: this.canDeleteDoc(
         doc,
         workspaceType,
@@ -952,7 +1040,9 @@ export class DocService {
     try {
       return (JSON.parse(metadataSnapshot) ?? {}) as Record<string, unknown>;
     } catch (error) {
-      throw new BadRequestException('metadataSnapshot 必须是合法的 JSON 字符串');
+      throw new BadRequestException(
+        'metadataSnapshot 必须是合法的 JSON 字符串',
+      );
     }
   }
 

@@ -18,10 +18,7 @@ import { TeamMemberService } from '../common/services/team-member.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PermissionService } from '../common/services/permission.service';
-import {
-  ProjectRiskLevelValue,
-  ProjectStatusValue,
-} from './project.constants';
+import { ProjectRiskLevelValue, ProjectStatusValue } from './project.constants';
 
 const projectSummaryIssueSelect = {
   id: true,
@@ -219,9 +216,11 @@ export class ProjectService {
           NOW(),
           ${teamMemberId},
           ${ownerMemberId},
-          ${createProjectDto.lastSyncAt
-            ? new Date(createProjectDto.lastSyncAt)
-            : null},
+          ${
+            createProjectDto.lastSyncAt
+              ? new Date(createProjectDto.lastSyncAt)
+              : null
+          },
           ${visibility}::"VisibilityType"
         )
       `,
@@ -265,10 +264,8 @@ export class ProjectService {
   }
 
   async findSummary(workspaceId: string, projectId: string, userId: string) {
-    const { teamMemberId } = await this.teamMemberService.validateWorkspaceAccess(
-      userId,
-      workspaceId,
-    );
+    const { teamMemberId } =
+      await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
     await this.permissionService.validateResourcePermission(
       userId,
       'project',
@@ -308,10 +305,8 @@ export class ProjectService {
   }
 
   async findActivity(workspaceId: string, projectId: string, userId: string) {
-    const { teamMemberId } = await this.teamMemberService.validateWorkspaceAccess(
-      userId,
-      workspaceId,
-    );
+    const { teamMemberId } =
+      await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
     await this.permissionService.validateResourcePermission(
       userId,
       'project',
@@ -329,10 +324,8 @@ export class ProjectService {
   }
 
   async findWorkflows(workspaceId: string, projectId: string, userId: string) {
-    const { teamMemberId } = await this.teamMemberService.validateWorkspaceAccess(
-      userId,
-      workspaceId,
-    );
+    const { teamMemberId } =
+      await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
     await this.permissionService.validateResourcePermission(
       userId,
       'project',
@@ -748,7 +741,8 @@ export class ProjectService {
         id: 'healthy',
         severity: 'low',
         title: '当前协作节奏稳定',
-        description: '没有检测到明显的阻塞或延期信号，可以继续围绕关键 Issue 推进。',
+        description:
+          '没有检测到明显的阻塞或延期信号，可以继续围绕关键 Issue 推进。',
       });
     }
 
@@ -812,7 +806,10 @@ export class ProjectService {
       return priorityDelta;
     }
 
-    const dueDateDelta = this.getIssueDueDateWeight(left.dueDate, right.dueDate);
+    const dueDateDelta = this.getIssueDueDateWeight(
+      left.dueDate,
+      right.dueDate,
+    );
     if (dueDateDelta !== 0) {
       return dueDateDelta;
     }
@@ -996,7 +993,10 @@ export class ProjectService {
         type: record.workspace_type,
       },
       owner:
-        record.owner_id && record.owner_user_id && record.owner_role && record.owner_email
+        record.owner_id &&
+        record.owner_user_id &&
+        record.owner_role &&
+        record.owner_email
           ? {
               id: record.owner_id,
               userId: record.owner_user_id,
@@ -1013,7 +1013,9 @@ export class ProjectService {
   }
 
   private toIsoString(value: Date | string) {
-    return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+    return value instanceof Date
+      ? value.toISOString()
+      : new Date(value).toISOString();
   }
 
   private async findProjectOrThrow(workspaceId: string, projectId: string) {

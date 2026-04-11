@@ -1,5 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, InboxItem as InboxItemRecord, IssuePriority, IssueStateCategory, IssueStatus } from '../../prisma/generated/prisma/client';
+import {
+  Prisma,
+  InboxItem as InboxItemRecord,
+  IssuePriority,
+  IssueStateCategory,
+  IssueStatus,
+} from '../../prisma/generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamMemberService } from '../common/services/team-member.service';
 import { IssueService } from '../issue/issue.service';
@@ -153,7 +159,9 @@ export class InboxService {
       return true;
     }
 
-    if (issue.assignees?.some((assignee) => assignee.memberId === teamMemberId)) {
+    if (
+      issue.assignees?.some((assignee) => assignee.memberId === teamMemberId)
+    ) {
       return true;
     }
 
@@ -274,7 +282,8 @@ export class InboxService {
       }
 
       return (
-        new Date(right.occurredAt).getTime() - new Date(left.occurredAt).getTime()
+        new Date(right.occurredAt).getTime() -
+        new Date(left.occurredAt).getTime()
       );
     });
   }
@@ -415,10 +424,9 @@ export class InboxService {
       docId: null,
       actorUserId: null,
       title: `${issue.title} was assigned to you`,
-      summary:
-        issue.workflowRun?.currentStepName
-          ? `Pick up "${issue.workflowRun.currentStepName}" and move it forward.`
-          : `This issue is now sitting with you in ${issue.project?.name || workspaceName}.`,
+      summary: issue.workflowRun?.currentStepName
+        ? `Pick up "${issue.workflowRun.currentStepName}" and move it forward.`
+        : `This issue is now sitting with you in ${issue.project?.name || workspaceName}.`,
       priority: this.normalizePriority(issue.priority),
       requiresAction: true,
       actionLabel: 'Open issue',
@@ -459,8 +467,7 @@ export class InboxService {
       summary: issue.workflowRun.currentStepName
         ? `The step "${issue.workflowRun.currentStepName}" is waiting for your review.`
         : 'A workflow step is waiting for your review.',
-      priority:
-        issue.priority === IssuePriority.URGENT ? 'urgent' : 'high',
+      priority: issue.priority === IssuePriority.URGENT ? 'urgent' : 'high',
       requiresAction: true,
       actionLabel: 'Open review',
       occurredAt: issue.updatedAt,
@@ -500,8 +507,7 @@ export class InboxService {
       summary: issue.workflowRun.currentStepName
         ? `The step "${issue.workflowRun.currentStepName}" is waiting for you to take over.`
         : 'A workflow step is waiting for you to take over.',
-      priority:
-        issue.priority === IssuePriority.URGENT ? 'urgent' : 'high',
+      priority: issue.priority === IssuePriority.URGENT ? 'urgent' : 'high',
       requiresAction: true,
       actionLabel: 'Accept handoff',
       occurredAt: issue.updatedAt,
@@ -548,8 +554,7 @@ export class InboxService {
       summary:
         issue.workflowRun?.blockedReason ||
         'The current work is blocked and needs a clear unblock owner.',
-      priority:
-        issue.priority === IssuePriority.URGENT ? 'urgent' : 'high',
+      priority: issue.priority === IssuePriority.URGENT ? 'urgent' : 'high',
       requiresAction: false,
       actionLabel: 'Open blocker',
       occurredAt: issue.updatedAt,
@@ -571,7 +576,10 @@ export class InboxService {
       return null;
     }
 
-    if (!this.isAssignedToUser(issue, userId, teamMemberId) || this.isCompleted(issue)) {
+    if (
+      !this.isAssignedToUser(issue, userId, teamMemberId) ||
+      this.isCompleted(issue)
+    ) {
       return null;
     }
 
@@ -619,7 +627,10 @@ export class InboxService {
     project: ProjectSignalRecord,
     userId: string,
   ): InboxSignalDraft | null {
-    if (project.owner.user?.id !== userId || !this.isHighRisk(project.riskLevel)) {
+    if (
+      project.owner.user?.id !== userId ||
+      !this.isHighRisk(project.riskLevel)
+    ) {
       return null;
     }
 
@@ -639,7 +650,8 @@ export class InboxService {
       docId: null,
       actorUserId: null,
       title: `${project.name} is flagged at ${riskLabel} risk`,
-      summary: 'Review blockers, deadlines, and pending confirmations before momentum slips.',
+      summary:
+        'Review blockers, deadlines, and pending confirmations before momentum slips.',
       priority: this.isCriticalRisk(project.riskLevel) ? 'urgent' : 'high',
       requiresAction: false,
       actionLabel: 'Open project',
@@ -679,14 +691,20 @@ export class InboxService {
     const signals: InboxSignalDraft[] = [];
 
     for (const issue of issues) {
-      const project = issue.projectId ? projectMap.get(issue.projectId) || null : null;
+      const project = issue.projectId
+        ? projectMap.get(issue.projectId) || null
+        : null;
 
       const reviewSignal = this.buildReviewSignal(issue, workspaceName, userId);
       if (reviewSignal) {
         signals.push(reviewSignal);
       }
 
-      const handoffSignal = this.buildHandoffSignal(issue, workspaceName, userId);
+      const handoffSignal = this.buildHandoffSignal(
+        issue,
+        workspaceName,
+        userId,
+      );
       if (handoffSignal) {
         signals.push(handoffSignal);
       }
@@ -828,19 +846,17 @@ export class InboxService {
       }
 
       const staleIds = existingItems
-        .filter(
-          (item) => {
-            const metadata = parseMetadata(item.metadata);
+        .filter((item) => {
+          const metadata = parseMetadata(item.metadata);
 
-            return (
-              metadata?.managedBySync === true &&
-              !activeKeys.has(item.dedupeKey) &&
-              (item.status === 'unread' ||
-                item.status === 'seen' ||
-                item.status === 'snoozed')
-            );
-          },
-        )
+          return (
+            metadata?.managedBySync === true &&
+            !activeKeys.has(item.dedupeKey) &&
+            (item.status === 'unread' ||
+              item.status === 'seen' ||
+              item.status === 'snoozed')
+          );
+        })
         .map((item) => item.id);
 
       if (staleIds.length > 0) {
@@ -908,11 +924,12 @@ export class InboxService {
     userId: string,
     query: QueryInboxDto,
   ): Promise<InboxFeedResponse> {
-    const { all, active } = await this.getVisibleInboxItems(workspaceId, userId);
+    const { all, active } = await this.getVisibleInboxItems(
+      workspaceId,
+      userId,
+    );
     const useStatusRecords =
-      query.status &&
-      query.status !== 'unread' &&
-      query.status !== 'seen';
+      query.status && query.status !== 'unread' && query.status !== 'seen';
 
     const sourceItems = useStatusRecords
       ? this.sortFeedItems(
@@ -955,7 +972,10 @@ export class InboxService {
     workspaceId: string,
     userId: string,
   ): Promise<InboxSummary> {
-    const { all, active } = await this.getVisibleInboxItems(workspaceId, userId);
+    const { all, active } = await this.getVisibleInboxItems(
+      workspaceId,
+      userId,
+    );
     return this.buildSummary(active, all);
   }
 

@@ -63,7 +63,10 @@ export class WorkspaceController {
   })
   @ApiResponse({ status: 404, description: '工作空间不存在' })
   @ApiResponse({ status: 401, description: '未授权访问' })
-  async getWorkspaceById(@Param('workspaceId') workspaceId: string, @Req() req) {
+  async getWorkspaceById(
+    @Param('workspaceId') workspaceId: string,
+    @Req() req,
+  ) {
     return this.workspaceService.getWorkspaceById(workspaceId, req.user.sub);
   }
 

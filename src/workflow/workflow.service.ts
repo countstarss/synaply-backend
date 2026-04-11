@@ -385,7 +385,7 @@ export class WorkflowService {
       currentStepIndex: updateWorkflowDto.currentStepIndex,
       isSystemTemplate: updateWorkflowDto.isSystemTemplate,
       json: normalizedJson
-        ? ((normalizedJson as unknown) as Prisma.InputJsonValue)
+        ? (normalizedJson as unknown as Prisma.InputJsonValue)
         : undefined,
       assigneeMap: normalizedJson
         ? buildWorkflowAssigneeMap(normalizedJson)
@@ -407,7 +407,9 @@ export class WorkflowService {
       },
     });
 
-    const [workflowWithUsage] = await this.attachWorkflowUsage([updatedWorkflow]);
+    const [workflowWithUsage] = await this.attachWorkflowUsage([
+      updatedWorkflow,
+    ]);
     return workflowWithUsage;
   }
 
@@ -574,8 +576,8 @@ export class WorkflowService {
     return workflows.map((workflow) => ({
       ...workflow,
       description:
-        typeof (workflow as { json?: { description?: string } | string | null }).json ===
-        'string'
+        typeof (workflow as { json?: { description?: string } | string | null })
+          .json === 'string'
           ? (() => {
               try {
                 const parsedJson = JSON.parse(

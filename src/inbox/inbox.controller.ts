@@ -1,5 +1,19 @@
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 import { InboxService } from './inbox.service';
@@ -90,6 +104,10 @@ export class InboxController {
     @Req() req: Request,
     @Body() dto: ClearInboxItemsDto,
   ) {
-    return this.inboxService.clearItems(workspaceId, req.user?.sub, dto.itemIds);
+    return this.inboxService.clearItems(
+      workspaceId,
+      req.user?.sub,
+      dto.itemIds,
+    );
   }
 }

@@ -34,10 +34,7 @@ export class AiExecutionController {
       '获取机器可读的 AI 动作 manifest（含 JSON Schema），供 Next runtime 动态生成 typed tools',
   })
   getManifest(@Param('workspaceId') workspaceId: string, @Req() req) {
-    return this.aiExecutionService.getActionManifest(
-      workspaceId,
-      req.user.sub,
-    );
+    return this.aiExecutionService.getActionManifest(workspaceId, req.user.sub);
   }
 
   @Get('executions')

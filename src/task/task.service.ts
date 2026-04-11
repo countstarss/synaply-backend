@@ -43,10 +43,8 @@ export class TaskService {
    * 创建任务并关联到对应工作空间的 Calendar
    */
   async createTask(userId: string, workspaceId: string, dto: CreateTaskDto) {
-    const { teamMemberId } = await this.teamMemberService.validateWorkspaceAccess(
-      userId,
-      workspaceId,
-    );
+    const { teamMemberId } =
+      await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
     const calendar =
       await this.calendarService.getOrCreateCalendar(workspaceId);
 

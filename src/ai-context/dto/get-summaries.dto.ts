@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEnum, IsString, ValidateNested, ArrayMaxSize } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsString,
+  ValidateNested,
+  ArrayMaxSize,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { AiSurfaceType } from '../../../prisma/generated/prisma/client';
 

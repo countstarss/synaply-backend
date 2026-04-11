@@ -100,7 +100,9 @@ export class PermissionService {
   private async resolveProjectOwnerUserId(
     projectId: string,
   ): Promise<string | null> {
-    const records = await this.prisma.$queryRaw<Array<{ user_id: string | null }>>`
+    const records = await this.prisma.$queryRaw<
+      Array<{ user_id: string | null }>
+    >`
       SELECT tm."user_id"
       FROM "projects" p
       LEFT JOIN "team_members" tm ON tm."id" = p."owner_member_id"

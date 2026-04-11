@@ -212,7 +212,9 @@ export class IssueService {
       return null;
     }
 
-    return this.getWorkflowNodes(snapshot).find((node) => node.id === stepId) || null;
+    return (
+      this.getWorkflowNodes(snapshot).find((node) => node.id === stepId) || null
+    );
   }
 
   private getStartWorkflowNode(snapshot: WorkflowSnapshot | null) {
@@ -268,7 +270,10 @@ export class IssueService {
       return null;
     }
 
-    const previousNode = this.getWorkflowNodeById(snapshot, previousEdge.source);
+    const previousNode = this.getWorkflowNodeById(
+      snapshot,
+      previousEdge.source,
+    );
     return previousNode
       ? {
           edge: previousEdge,
@@ -277,12 +282,17 @@ export class IssueService {
       : null;
   }
 
-  private getNodeIndex(snapshot: WorkflowSnapshot | null, nodeId?: string | null) {
+  private getNodeIndex(
+    snapshot: WorkflowSnapshot | null,
+    nodeId?: string | null,
+  ) {
     if (!nodeId) {
       return -1;
     }
 
-    return this.getWorkflowNodes(snapshot).findIndex((node) => node.id === nodeId);
+    return this.getWorkflowNodes(snapshot).findIndex(
+      (node) => node.id === nodeId,
+    );
   }
 
   private buildWorkflowSnapshotFromTemplate(workflow: {
@@ -303,7 +313,9 @@ export class IssueService {
       templateVersion: workflow.version,
       templateStatus: workflow.status,
       description:
-        typeof parsedJson.description === 'string' ? parsedJson.description : '',
+        typeof parsedJson.description === 'string'
+          ? parsedJson.description
+          : '',
       nodes,
       edges,
     };
@@ -427,7 +439,9 @@ export class IssueService {
       new Set(
         targetMembers
           .map((member) => member.userId)
-          .filter((targetUserId) => targetUserId && targetUserId !== actorUserId),
+          .filter(
+            (targetUserId) => targetUserId && targetUserId !== actorUserId,
+          ),
       ),
     );
   }
@@ -603,7 +617,7 @@ export class IssueService {
       lastEventType: latestMetadata?.eventType ?? null,
       blockedReason:
         runStatus === WORKFLOW_RUN_STATUSES.BLOCKED
-          ? latestMetadata?.reason ?? null
+          ? (latestMetadata?.reason ?? null)
           : null,
       targetUserId: latestMetadata?.targetUserId ?? null,
       targetName: latestMetadata?.targetName ?? null,
@@ -639,7 +653,10 @@ export class IssueService {
       },
     });
 
-    const latestWorkflowActivityByIssueId = new Map<string, (typeof activities)[number]>();
+    const latestWorkflowActivityByIssueId = new Map<
+      string,
+      (typeof activities)[number]
+    >();
     for (const activity of activities) {
       if (
         !latestWorkflowActivityByIssueId.has(activity.issueId) &&
@@ -801,12 +818,16 @@ export class IssueService {
       throw new BadRequestException('该 Issue 不是 workflow run');
     }
 
-    const latestMetadata = await this.findLatestWorkflowActivityMetadata(issueId);
+    const latestMetadata =
+      await this.findLatestWorkflowActivityMetadata(issueId);
     if (!latestMetadata || latestMetadata.eventType !== expectedEventType) {
       throw new BadRequestException('当前 workflow run 没有待响应的协作请求');
     }
 
-    if (!latestMetadata.targetUserId || latestMetadata.targetUserId !== userId) {
+    if (
+      !latestMetadata.targetUserId ||
+      latestMetadata.targetUserId !== userId
+    ) {
       throw new ForbiddenException('只有被指派的协作对象才能执行此操作');
     }
 
@@ -999,7 +1020,10 @@ export class IssueService {
 
     const { key, sequence } = await this.generateIssueKey(workspaceId);
 
-    const currentStepIndex = Math.max(this.getNodeIndex(workflowSnapshot, startNode.id), 0);
+    const currentStepIndex = Math.max(
+      this.getNodeIndex(workflowSnapshot, startNode.id),
+      0,
+    );
     const createdIssueId = await this.prisma.$transaction(async (tx) => {
       const issue = await tx.issue.create({
         data: {
@@ -1400,7 +1424,9 @@ export class IssueService {
           currentStepIndex: issue.currentStepIndex,
           assigneeUserId: currentNode?.data?.assigneeId ?? null,
           assigneeName:
-            currentNode?.data?.assigneeName ?? currentNode?.data?.assignee ?? null,
+            currentNode?.data?.assigneeName ??
+            currentNode?.data?.assignee ??
+            null,
           comment: dto.comment ?? null,
         },
       });
@@ -1460,7 +1486,9 @@ export class IssueService {
             currentStepIndex: issue.currentStepIndex,
             assigneeUserId: currentNode.data?.assigneeId ?? null,
             assigneeName:
-              currentNode.data?.assigneeName ?? currentNode.data?.assignee ?? null,
+              currentNode.data?.assigneeName ??
+              currentNode.data?.assignee ??
+              null,
             resultText: dto.resultText ?? null,
             comment: dto.comment ?? null,
           },
@@ -1474,7 +1502,9 @@ export class IssueService {
         metadata: {
           kind: 'workflow',
           eventType: WORKFLOW_RUN_EVENT_TYPES.STEP_COMPLETED,
-          runStatus: next ? WORKFLOW_RUN_STATUSES.ACTIVE : WORKFLOW_RUN_STATUSES.DONE,
+          runStatus: next
+            ? WORKFLOW_RUN_STATUSES.ACTIVE
+            : WORKFLOW_RUN_STATUSES.DONE,
           actionType: next
             ? WORKFLOW_ACTION_TYPES.EXECUTION
             : WORKFLOW_ACTION_TYPES.DONE,
@@ -1487,7 +1517,9 @@ export class IssueService {
           currentStepIndex: issue.currentStepIndex,
           assigneeUserId: currentNode.data?.assigneeId ?? null,
           assigneeName:
-            currentNode.data?.assigneeName ?? currentNode.data?.assignee ?? null,
+            currentNode.data?.assigneeName ??
+            currentNode.data?.assignee ??
+            null,
           comment: dto.comment ?? null,
           resultText: dto.resultText ?? null,
         },
@@ -1517,7 +1549,9 @@ export class IssueService {
             currentStepIndex: issue.currentStepIndex,
             assigneeUserId: currentNode.data?.assigneeId ?? null,
             assigneeName:
-              currentNode.data?.assigneeName ?? currentNode.data?.assignee ?? null,
+              currentNode.data?.assigneeName ??
+              currentNode.data?.assignee ??
+              null,
           },
         });
 
@@ -1662,7 +1696,9 @@ export class IssueService {
           currentStepIndex: issue.currentStepIndex,
           assigneeUserId: currentNode?.data?.assigneeId ?? null,
           assigneeName:
-            currentNode?.data?.assigneeName ?? currentNode?.data?.assignee ?? null,
+            currentNode?.data?.assigneeName ??
+            currentNode?.data?.assignee ??
+            null,
           reason: dto.reason ?? null,
         },
       });
@@ -1706,7 +1742,9 @@ export class IssueService {
           currentStepIndex: issue.currentStepIndex,
           assigneeUserId: currentNode?.data?.assigneeId ?? null,
           assigneeName:
-            currentNode?.data?.assigneeName ?? currentNode?.data?.assignee ?? null,
+            currentNode?.data?.assigneeName ??
+            currentNode?.data?.assignee ??
+            null,
           comment: dto.comment ?? null,
         },
       });
@@ -1755,7 +1793,9 @@ export class IssueService {
           currentStepIndex: issue.currentStepIndex,
           assigneeUserId: currentNode?.data?.assigneeId ?? null,
           assigneeName:
-            currentNode?.data?.assigneeName ?? currentNode?.data?.assignee ?? null,
+            currentNode?.data?.assigneeName ??
+            currentNode?.data?.assignee ??
+            null,
           targetUserId: dto.targetUserId ?? null,
           targetName: dto.targetName ?? null,
           comment: dto.comment ?? null,
@@ -1781,7 +1821,9 @@ export class IssueService {
       );
 
     const isApproved = dto.outcome === WorkflowReviewOutcome.APPROVED;
-    const nextStepStatus = isApproved ? IssueStatus.DONE : IssueStatus.IN_PROGRESS;
+    const nextStepStatus = isApproved
+      ? IssueStatus.DONE
+      : IssueStatus.IN_PROGRESS;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.issue.update({
@@ -1810,7 +1852,9 @@ export class IssueService {
           currentStepName: currentNode?.data?.label ?? null,
           currentStepIndex: issue.currentStepIndex,
           assigneeUserId:
-            latestMetadata.assigneeUserId ?? currentNode?.data?.assigneeId ?? null,
+            latestMetadata.assigneeUserId ??
+            currentNode?.data?.assigneeId ??
+            null,
           assigneeName:
             latestMetadata.assigneeName ??
             currentNode?.data?.assigneeName ??
@@ -1856,7 +1900,9 @@ export class IssueService {
           currentStepIndex: issue.currentStepIndex,
           assigneeUserId: currentNode?.data?.assigneeId ?? null,
           assigneeName:
-            currentNode?.data?.assigneeName ?? currentNode?.data?.assignee ?? null,
+            currentNode?.data?.assigneeName ??
+            currentNode?.data?.assignee ??
+            null,
           targetUserId: dto.targetUserId ?? null,
           targetName: dto.targetName ?? null,
           comment: dto.comment ?? null,
@@ -1959,7 +2005,9 @@ export class IssueService {
           currentStepIndex: issue.currentStepIndex,
           assigneeUserId: currentNode.data?.assigneeId ?? null,
           assigneeName:
-            currentNode.data?.assigneeName ?? currentNode.data?.assignee ?? null,
+            currentNode.data?.assigneeName ??
+            currentNode.data?.assignee ??
+            null,
           resultText: dto.resultText ?? null,
         },
       });

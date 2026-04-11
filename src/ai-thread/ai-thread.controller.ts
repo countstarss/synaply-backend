@@ -188,6 +188,22 @@ export class AiThreadController {
     );
   }
 
+  @Get(':threadId/approvals/:approvalId')
+  @ApiOperation({ summary: '获取一个 pending approval 的当前状态' })
+  getApproval(
+    @Param('workspaceId') workspaceId: string,
+    @Param('threadId') threadId: string,
+    @Param('approvalId') approvalId: string,
+    @Req() req: Request,
+  ) {
+    return this.aiThreadService.getApproval(
+      workspaceId,
+      req.user!.sub,
+      threadId,
+      approvalId,
+    );
+  }
+
   @Post(':threadId/approvals/:approvalId/confirm')
   @ApiOperation({ summary: '用户确认一个 pending approval' })
   confirmApproval(

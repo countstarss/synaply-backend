@@ -34,7 +34,8 @@ export class CreateProjectDto {
 
   @ApiPropertyOptional({
     description: 'One-line brief describing the project outcome',
-    example: 'Bring launch readiness, release coordination, and blockers into one room.',
+    example:
+      'Bring launch readiness, release coordination, and blockers into one room.',
   })
   @IsOptional()
   @IsString()

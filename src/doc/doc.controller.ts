@@ -120,7 +120,12 @@ export class DocController {
     dto: CreateDocRevisionDto,
     @Req() req,
   ) {
-    return this.docService.createRevision(workspaceId, docId, dto, req.user.sub);
+    return this.docService.createRevision(
+      workspaceId,
+      docId,
+      dto,
+      req.user.sub,
+    );
   }
 
   @Delete('workspaces/:workspaceId/docs/:docId')

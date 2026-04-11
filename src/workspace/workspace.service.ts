@@ -21,12 +21,7 @@ interface WorkspaceWorkflowRun {
     | 'WAITING_REVIEW'
     | 'HANDOFF_PENDING'
     | 'DONE';
-  currentActionType:
-    | 'execution'
-    | 'blocked'
-    | 'review'
-    | 'handoff'
-    | 'done';
+  currentActionType: 'execution' | 'blocked' | 'review' | 'handoff' | 'done';
   currentStepId?: string | null;
   currentStepIndex?: number | null;
   currentStepStatus?: IssueStatus | null;
@@ -190,7 +185,9 @@ export class WorkspaceService {
       return true;
     }
 
-    if (issue.assignees?.some((assignee) => assignee.memberId === teamMemberId)) {
+    if (
+      issue.assignees?.some((assignee) => assignee.memberId === teamMemberId)
+    ) {
       return true;
     }
 
@@ -313,7 +310,10 @@ export class WorkspaceService {
     issue: WorkspaceIssue,
     userId: string,
     teamMemberId: string,
-  ): Pick<MyWorkItem, 'currentActionType' | 'currentActionLabel' | 'needsAttention'> {
+  ): Pick<
+    MyWorkItem,
+    'currentActionType' | 'currentActionLabel' | 'needsAttention'
+  > {
     if (
       issue.workflowRun?.runStatus === 'WAITING_REVIEW' &&
       issue.workflowRun.targetUserId === userId
@@ -370,7 +370,8 @@ export class WorkspaceService {
   private getPrimaryAssignee(issue: WorkspaceIssue) {
     const workflowAssigneeName =
       issue.workflowRun?.currentAssigneeName?.trim() || null;
-    const workflowAssigneeUserId = issue.workflowRun?.currentAssigneeUserId || null;
+    const workflowAssigneeUserId =
+      issue.workflowRun?.currentAssigneeUserId || null;
 
     if (workflowAssigneeName || workflowAssigneeUserId) {
       return {
@@ -383,9 +384,7 @@ export class WorkspaceService {
 
     return {
       assigneeName:
-        assignee?.name?.trim() ||
-        assignee?.email?.split('@')[0] ||
-        null,
+        assignee?.name?.trim() || assignee?.email?.split('@')[0] || null,
       assigneeUserId: assignee?.id || null,
     };
   }
@@ -598,7 +597,10 @@ export class WorkspaceService {
     });
   }
 
-  async getMyWork(workspaceId: string, userId: string): Promise<MyWorkResponse> {
+  async getMyWork(
+    workspaceId: string,
+    userId: string,
+  ): Promise<MyWorkResponse> {
     const { workspace, teamMemberId } =
       await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
 
@@ -630,7 +632,9 @@ export class WorkspaceService {
 
     const inProgress = this.sortItems(
       activeRelevantIssues
-        .filter((issue) => this.isInProgressForUser(issue, userId, teamMemberId))
+        .filter((issue) =>
+          this.isInProgressForUser(issue, userId, teamMemberId),
+        )
         .map((issue) =>
           this.buildMyWorkItem(issue, workspaceName, userId, teamMemberId),
         ),

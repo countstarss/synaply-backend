@@ -343,6 +343,25 @@ export class AiThreadService {
     return this.serializeApproval(approval);
   }
 
+  async getApproval(
+    workspaceId: string,
+    userId: string,
+    threadId: string,
+    approvalId: string,
+  ) {
+    await this.loadThreadOrThrow(workspaceId, userId, threadId, false);
+
+    const approval = await this.prisma.aiPendingApproval.findUnique({
+      where: { id: approvalId },
+    });
+
+    if (!approval || approval.threadId !== threadId) {
+      throw new NotFoundException('待审批动作不存在');
+    }
+
+    return this.serializeApproval(approval);
+  }
+
   async confirmApproval(
     workspaceId: string,
     userId: string,

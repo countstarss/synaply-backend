@@ -100,6 +100,35 @@ const PROJECT_STATUS_OPTIONS = Object.values(ProjectStatusValue);
 const PROJECT_RISK_OPTIONS = Object.values(ProjectRiskLevelValue);
 const WORKFLOW_REVIEW_OUTCOME_OPTIONS = Object.values(WorkflowReviewOutcome);
 const DOC_CHANGE_SOURCE_OPTIONS = Object.values(DocChangeSourceValue);
+const ENUM_ALIAS_MAP: Record<string, string> = {
+  PERSONAL: 'PRIVATE',
+  SELF: 'PRIVATE',
+  '仅自己': 'PRIVATE',
+  私有: 'PRIVATE',
+  TEAM: 'TEAM_READONLY',
+  TEAM_READ_ONLY: 'TEAM_READONLY',
+  READONLY: 'TEAM_READONLY',
+  '团队': 'TEAM_READONLY',
+  '团队可见': 'TEAM_READONLY',
+  '团队只读': 'TEAM_READONLY',
+  TEAM_EDIT: 'TEAM_EDITABLE',
+  EDITABLE: 'TEAM_EDITABLE',
+  '团队可编辑': 'TEAM_EDITABLE',
+  公开: 'PUBLIC',
+  ALMOST_DONE: 'AMOST_DONE',
+  APPROVE: 'APPROVED',
+  PASS: 'APPROVED',
+  PASSED: 'APPROVED',
+  REQUEST_CHANGES: 'CHANGES_REQUESTED',
+  NEEDS_CHANGES: 'CHANGES_REQUESTED',
+  CHANGES_REQUIRED: 'CHANGES_REQUESTED',
+  REJECT: 'CHANGES_REQUESTED',
+  REJECTED: 'CHANGES_REQUESTED',
+};
+
+function normalizeEnumToken(value: string) {
+  return value.trim().replace(/[\s-]+/g, '_').toUpperCase();
+}
 
 const ACTION_DEFINITIONS: AiActionDefinition[] = [
   {
@@ -409,6 +438,41 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
     },
     buildSummary: (input) =>
       `将更新任务 ${readString(input, 'issueId') ?? '(缺少 issueId)'}。`,
+    getTargetId: (input) => readString(input, 'issueId'),
+  },
+  {
+    key: 'attach_coding_prompt_to_issue',
+    label: '写入编码交接 Prompt',
+    description:
+      '把整理好的 coding handoff prompt 回写到 Issue，方便 Claude Code / Codex 接手。',
+    area: 'issue',
+    targetType: 'ISSUE',
+    approvalMode: 'CONFIRM',
+    requiresTargetId: true,
+    minimumTeamRole: 'MEMBER',
+    fields: [
+      {
+        name: 'issueId',
+        label: '任务 ID',
+        type: 'string',
+        required: true,
+        description: '要写入 handoff prompt 的 Issue ID。',
+      },
+      {
+        name: 'prompt',
+        label: '编码 Prompt',
+        type: 'string',
+        required: true,
+        description: '可直接交给外部编码 agent 的完整 prompt。',
+      },
+    ],
+    sampleInput: {
+      issueId: 'issue-id',
+      prompt:
+        '# Synaply Coding Handoff\n\n请基于这个 issue 和关联文档继续完成实现。',
+    },
+    buildSummary: (input) =>
+      `将把编码交接 prompt 写入任务 ${readString(input, 'issueId') ?? '(缺少 issueId)'}。`,
     getTargetId: (input) => readString(input, 'issueId'),
   },
   {
@@ -1343,6 +1407,7 @@ export class AiExecutionService {
         approvalMode: definition.approvalMode,
         requiresTargetId: definition.requiresTargetId,
         minimumTeamRole: definition.minimumTeamRole,
+        fields: definition.fields,
         parametersSchema: this.buildJsonSchema(definition),
         sampleInput: definition.sampleInput,
       })),
@@ -1469,7 +1534,10 @@ export class AiExecutionService {
     const definition = this.findActionDefinition(actionKey);
     const actorContext = await this.buildActorContext(workspaceId, userId);
     const availability = this.resolveAvailability(definition, actorContext);
-    const normalizedInput = this.ensureInputObject(input);
+    const normalizedInput = this.normalizeActionInput(
+      definition,
+      this.ensureInputObject(input),
+    );
     const summary = definition.buildSummary(normalizedInput);
     const targetId = definition.getTargetId(normalizedInput);
     const baseResponse = {
@@ -1508,7 +1576,10 @@ export class AiExecutionService {
       };
     }
 
-    if (options?.dryRun || (definition.approvalMode === 'CONFIRM' && !options?.confirmed)) {
+    if (
+      options?.dryRun ||
+      (definition.approvalMode === 'CONFIRM' && !options?.confirmed)
+    ) {
       const message = options?.dryRun
         ? '已完成预演，尚未写入任何真实对象。'
         : '该动作需要确认后才能执行。';
@@ -1576,10 +1647,7 @@ export class AiExecutionService {
         workspaceId,
         actorUserId: userId,
         actionKey: definition.key,
-        status:
-          normalizedError.statusCode === 403
-            ? 'BLOCKED'
-            : 'FAILED',
+        status: normalizedError.statusCode === 403 ? 'BLOCKED' : 'FAILED',
         approvalMode: definition.approvalMode,
         targetType: definition.targetType,
         targetId,
@@ -1592,8 +1660,7 @@ export class AiExecutionService {
       return {
         ...baseResponse,
         executionId: record.id,
-        status:
-          normalizedError.statusCode === 403 ? 'blocked' : 'failed',
+        status: normalizedError.statusCode === 403 ? 'blocked' : 'failed',
         needsConfirmation: false,
         message: normalizedError.message,
         error: normalizedError,
@@ -1626,8 +1693,9 @@ export class AiExecutionService {
 
     const actorRole =
       workspace.type === 'TEAM'
-        ? workspace.team.members.find((member: any) => member.userId === userId)
-            ?.role ?? Role.MEMBER
+        ? (workspace.team.members.find(
+            (member: any) => member.userId === userId,
+          )?.role ?? Role.MEMBER)
         : Role.OWNER;
 
     return {
@@ -1666,7 +1734,9 @@ export class AiExecutionService {
   }
 
   private findActionDefinition(actionKey: string) {
-    const definition = ACTION_DEFINITIONS.find((item) => item.key === actionKey);
+    const definition = ACTION_DEFINITIONS.find(
+      (item) => item.key === actionKey,
+    );
     if (!definition) {
       throw new BadRequestException(`未知 AI 动作: ${actionKey}`);
     }
@@ -1684,6 +1754,59 @@ export class AiExecutionService {
     }
 
     return input;
+  }
+
+  private normalizeActionInput(
+    definition: AiActionDefinition,
+    input: Record<string, unknown>,
+  ) {
+    let normalizedInput = input;
+
+    for (const field of definition.fields) {
+      if (
+        field.type !== 'enum' ||
+        !field.options ||
+        !(field.name in normalizedInput)
+      ) {
+        continue;
+      }
+
+      const normalizedValue = this.normalizeEnumValue(
+        normalizedInput[field.name],
+        field.options,
+      );
+
+      if (normalizedValue === normalizedInput[field.name]) {
+        continue;
+      }
+
+      normalizedInput = {
+        ...normalizedInput,
+        [field.name]: normalizedValue,
+      };
+    }
+
+    return normalizedInput;
+  }
+
+  private normalizeEnumValue(value: unknown, options: string[]) {
+    if (typeof value !== 'string' || options.length === 0) {
+      return value;
+    }
+
+    const trimmedValue = value.trim();
+    const exactMatch = options.find((option) => option === trimmedValue);
+    if (exactMatch) {
+      return exactMatch;
+    }
+
+    const optionMap = new Map(
+      options.map((option) => [normalizeEnumToken(option), option]),
+    );
+    const normalizedKey = normalizeEnumToken(trimmedValue);
+    const aliasedKey = ENUM_ALIAS_MAP[normalizedKey] ?? normalizedKey;
+
+    return optionMap.get(aliasedKey) ?? value;
   }
 
   private parseDto<T extends object>(
@@ -1761,6 +1884,16 @@ export class AiExecutionService {
           this.omitKeys(payload, ['issueId']),
         );
         return this.issueService.update(userId, workspaceId, issueId, dto);
+      }
+
+      case 'attach_coding_prompt_to_issue': {
+        const issueId = this.requireId(payload, 'issueId', 'issueId');
+        const prompt = this.requireId(payload, 'prompt', 'prompt');
+
+        return this.issueService.update(userId, workspaceId, issueId, {
+          aiHandoffPrompt: prompt,
+          aiHandoffPromptUpdatedAt: new Date(),
+        });
       }
 
       case 'cancel_issue': {
@@ -2051,15 +2184,21 @@ export class AiExecutionService {
           ${params.targetId},
           ${params.summary},
           ${params.conversationId ?? null},
-          ${params.input !== undefined
-            ? JSON.stringify(toSerializable(params.input))
-            : null}::jsonb,
-          ${params.result !== undefined
-            ? JSON.stringify(toSerializable(params.result))
-            : null}::jsonb,
-          ${params.error !== undefined
-            ? JSON.stringify(toSerializable(params.error))
-            : null}::jsonb,
+          ${
+            params.input !== undefined
+              ? JSON.stringify(toSerializable(params.input))
+              : null
+          }::jsonb,
+          ${
+            params.result !== undefined
+              ? JSON.stringify(toSerializable(params.result))
+              : null
+          }::jsonb,
+          ${
+            params.error !== undefined
+              ? JSON.stringify(toSerializable(params.error))
+              : null
+          }::jsonb,
           NOW()
         )
       `,

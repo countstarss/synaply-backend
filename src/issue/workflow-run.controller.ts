@@ -49,7 +49,12 @@ export class WorkflowRunController {
     @Req() req: Request,
   ) {
     const userId = req.user?.sub;
-    return this.issueService.updateWorkflowRunStatus(userId, workspaceId, id, dto);
+    return this.issueService.updateWorkflowRunStatus(
+      userId,
+      workspaceId,
+      id,
+      dto,
+    );
   }
 
   @Post(':id/advance')
@@ -109,7 +114,12 @@ export class WorkflowRunController {
     @Req() req: Request,
   ) {
     const userId = req.user?.sub;
-    return this.issueService.requestWorkflowReview(userId, workspaceId, id, dto);
+    return this.issueService.requestWorkflowReview(
+      userId,
+      workspaceId,
+      id,
+      dto,
+    );
   }
 
   @Post(':id/respond-review')
@@ -121,7 +131,12 @@ export class WorkflowRunController {
     @Req() req: Request,
   ) {
     const userId = req.user?.sub;
-    return this.issueService.respondWorkflowReview(userId, workspaceId, id, dto);
+    return this.issueService.respondWorkflowReview(
+      userId,
+      workspaceId,
+      id,
+      dto,
+    );
   }
 
   @Post(':id/request-handoff')
@@ -133,7 +148,12 @@ export class WorkflowRunController {
     @Req() req: Request,
   ) {
     const userId = req.user?.sub;
-    return this.issueService.requestWorkflowHandoff(userId, workspaceId, id, dto);
+    return this.issueService.requestWorkflowHandoff(
+      userId,
+      workspaceId,
+      id,
+      dto,
+    );
   }
 
   @Post(':id/accept-handoff')
@@ -145,7 +165,12 @@ export class WorkflowRunController {
     @Req() req: Request,
   ) {
     const userId = req.user?.sub;
-    return this.issueService.acceptWorkflowHandoff(userId, workspaceId, id, dto);
+    return this.issueService.acceptWorkflowHandoff(
+      userId,
+      workspaceId,
+      id,
+      dto,
+    );
   }
 
   @Post(':id/submit-record')

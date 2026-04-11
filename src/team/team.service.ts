@@ -219,7 +219,11 @@ export class TeamService {
     return teamMemberships.map((tm) => tm.team);
   }
 
-  async updateTeam(teamId: string, updateTeamDto: UpdateTeamDto, userId: string) {
+  async updateTeam(
+    teamId: string,
+    updateTeamDto: UpdateTeamDto,
+    userId: string,
+  ) {
     await this.ensureTeamManager(teamId, userId);
 
     const updateData: {
