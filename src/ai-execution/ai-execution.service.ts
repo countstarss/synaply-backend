@@ -1314,6 +1314,94 @@ export class AiExecutionService {
     };
   }
 
+  /**
+   * 输出机器可读的 capability manifest，供 Next.js agent runtime 启动时拉取，
+   * 用来动态生成 AI SDK 的 typed tool 定义。
+   *
+   * 与 getCapabilities 的区别：
+   *  - 每个 action 包含 `parametersSchema`：JSON Schema 描述，可直接喂给
+   *    Anthropic / AI SDK 的 tool definition。
+   *  - 包含 `minimumTeamRole`，方便 Next 决定是否在 prompt 里隐藏某个工具。
+   *  - 不返回 actorRole / availability —— 这些由 Next runtime 在调用时按
+   *    实际用户重新读 getCapabilities。
+   *
+   * 这个端点没有 PII，但仍然走 workspace auth 与现有约定保持一致。
+   */
+  async getActionManifest(workspaceId: string, userId: string) {
+    await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+
+    return {
+      workspaceId,
+      version: 1,
+      generatedAt: new Date().toISOString(),
+      actions: ACTION_DEFINITIONS.map((definition) => ({
+        key: definition.key,
+        label: definition.label,
+        description: definition.description,
+        area: definition.area,
+        targetType: definition.targetType,
+        approvalMode: definition.approvalMode,
+        requiresTargetId: definition.requiresTargetId,
+        minimumTeamRole: definition.minimumTeamRole,
+        parametersSchema: this.buildJsonSchema(definition),
+        sampleInput: definition.sampleInput,
+      })),
+    };
+  }
+
+  private buildJsonSchema(definition: AiActionDefinition) {
+    const properties: Record<string, Record<string, unknown>> = {};
+    const required: string[] = [];
+
+    for (const field of definition.fields) {
+      properties[field.name] = this.fieldToJsonSchema(field);
+      if (field.required) {
+        required.push(field.name);
+      }
+    }
+
+    return {
+      type: 'object' as const,
+      properties,
+      required,
+      additionalProperties: false,
+    };
+  }
+
+  private fieldToJsonSchema(
+    field: AiActionDefinition['fields'][number],
+  ): Record<string, unknown> {
+    switch (field.type) {
+      case 'string':
+        return { type: 'string', description: field.description };
+      case 'string[]':
+        return {
+          type: 'array',
+          items: { type: 'string' },
+          description: field.description,
+        };
+      case 'enum':
+        return {
+          type: 'string',
+          enum: field.options ?? [],
+          description: field.description,
+        };
+      case 'date':
+        return {
+          type: 'string',
+          format: 'date-time',
+          description: field.description,
+        };
+      case 'json':
+      default:
+        return {
+          type: 'object',
+          additionalProperties: true,
+          description: field.description,
+        };
+    }
+  }
+
   async listExecutions(workspaceId: string, userId: string, limit = 20) {
     await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
 

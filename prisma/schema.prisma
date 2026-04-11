@@ -109,7 +109,6 @@ model Project {
   @@index([workspaceId])
   @@index([ownerMemberId])
   @@index([status])
-
   @@map("projects")
 }
 
@@ -167,6 +166,10 @@ model Issue {
   priority          IssuePriority @default(NORMAL)
   issueType         IssueType     @default(NORMAL)
 
+  // AI 编码 prompt 落点：assemble_coding_prompt + attach_coding_prompt_to_issue
+  aiHandoffPrompt          String?   @map("ai_handoff_prompt")
+  aiHandoffPromptUpdatedAt DateTime? @map("ai_handoff_prompt_updated_at")
+
   // Relations
   comments        Comment[]
   workspace       Workspace         @relation(fields: [workspaceId], references: [id])
@@ -212,16 +215,16 @@ model Doc {
   updatedAt        DateTime       @updatedAt @map("updated_at")
   lastEditedAt     DateTime       @default(now()) @map("last_edited_at")
 
-  workspace       Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  creatorMember   TeamMember    @relation("CreatedDocs", fields: [creatorMemberId], references: [id])
-  ownerMember     TeamMember    @relation("OwnedDocs", fields: [ownerMemberId], references: [id])
-  parent          Doc?          @relation("DocHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
-  children        Doc[]         @relation("DocHierarchy")
-  project         Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  issue           Issue?        @relation(fields: [issueId], references: [id], onDelete: SetNull)
-  workflow        Workflow?     @relation(fields: [workflowId], references: [id], onDelete: SetNull)
-  revisions       DocRevision[] @relation("DocRevisions")
-  latestRevision  DocRevision?  @relation("LatestDocRevision", fields: [latestRevisionId], references: [id], onDelete: SetNull)
+  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creatorMember  TeamMember    @relation("CreatedDocs", fields: [creatorMemberId], references: [id])
+  ownerMember    TeamMember    @relation("OwnedDocs", fields: [ownerMemberId], references: [id])
+  parent         Doc?          @relation("DocHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children       Doc[]         @relation("DocHierarchy")
+  project        Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  issue          Issue?        @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  workflow       Workflow?     @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  revisions      DocRevision[] @relation("DocRevisions")
+  latestRevision DocRevision?  @relation("LatestDocRevision", fields: [latestRevisionId], references: [id], onDelete: SetNull)
 
   @@index([workspaceId])
   @@index([workspaceId, isArchived])
@@ -296,26 +299,207 @@ model InboxItem {
 }
 
 model AiExecutionRecord {
-  id             String                @id @default(uuid())
-  workspaceId    String                @map("workspace_id")
-  actorUserId    String                @map("actor_user_id")
-  actionKey      String                @map("action_key")
+  id             String                 @id @default(uuid())
+  workspaceId    String                 @map("workspace_id")
+  actorUserId    String                 @map("actor_user_id")
+  actionKey      String                 @map("action_key")
   status         AiExecutionStatus
-  approvalMode   AiApprovalMode        @map("approval_mode")
+  approvalMode   AiApprovalMode         @map("approval_mode")
   targetType     AiExecutionTargetType? @map("target_type")
-  targetId       String?               @map("target_id")
+  targetId       String?                @map("target_id")
   summary        String?
-  conversationId String?               @map("conversation_id")
-  input          Json?                 @map("input")
-  result         Json?                 @map("result")
-  error          Json?                 @map("error")
-  createdAt      DateTime              @default(now()) @map("created_at")
-  completedAt    DateTime?             @map("completed_at")
+  conversationId String?                @map("conversation_id")
+  input          Json?                  @map("input")
+  result         Json?                  @map("result")
+  error          Json?                  @map("error")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  completedAt    DateTime?              @map("completed_at")
 
   @@index([workspaceId, createdAt])
   @@index([workspaceId, actionKey])
   @@index([actorUserId, createdAt])
   @@map("ai_execution_records")
+}
+
+/// MARK: - AI Agent V1: Thread / Run / Approval
+///
+/// 这一组模型支撑 Synaply 的 AI agent runtime（Next.js）：
+/// - AiThread        线程主体，记录会话与起点 surface
+/// - AiThreadContextPin 一条线程可同时 pin 多个对象（project/issue/doc 等）
+/// - AiMessage       消息（user/assistant/tool/system），parts 为富结构 JSON
+/// - AiRun           一次 user message 触发的 agent 执行
+/// - AiRunStep       run 内部每次 LLM 调用 / tool 调用的追踪记录
+/// - AiPendingApproval CONFIRM 类动作的审批状态机
+///
+/// 与 AiExecutionRecord 一样，跨模块 FK 在 SQL 层维护，不在 Prisma 这里
+/// 声明 Workspace/User 的反向 relation，避免动到既有模型。
+model AiThread {
+  id                String         @id @default(uuid())
+  workspaceId       String         @map("workspace_id")
+  creatorUserId     String         @map("creator_user_id")
+  title             String?
+  status            AiThreadStatus @default(ACTIVE)
+  originSurfaceType AiSurfaceType? @map("origin_surface_type")
+  originSurfaceId   String?        @map("origin_surface_id")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  lastMessageAt     DateTime?      @map("last_message_at")
+
+  pins      AiThreadContextPin[]
+  messages  AiMessage[]
+  runs      AiRun[]
+  approvals AiPendingApproval[]
+
+  @@index([workspaceId, creatorUserId, lastMessageAt])
+  @@index([workspaceId, status])
+  @@map("ai_threads")
+}
+
+model AiThreadContextPin {
+  id             String        @id @default(uuid())
+  threadId       String        @map("thread_id")
+  surfaceType    AiSurfaceType @map("surface_type")
+  surfaceId      String        @map("surface_id")
+  source         AiPinSource   @default(USER)
+  pinnedByUserId String?       @map("pinned_by_user_id")
+  pinnedAt       DateTime      @default(now()) @map("pinned_at")
+
+  thread AiThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, surfaceType, surfaceId])
+  @@index([threadId])
+  @@map("ai_thread_context_pins")
+}
+
+model AiMessage {
+  id        String        @id @default(uuid())
+  threadId  String        @map("thread_id")
+  runId     String?       @map("run_id")
+  role      AiMessageRole
+  parts     Json
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  thread AiThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  run    AiRun?   @relation(fields: [runId], references: [id], onDelete: SetNull)
+
+  @@index([threadId, createdAt])
+  @@index([runId])
+  @@map("ai_messages")
+}
+
+model AiRun {
+  id                String      @id @default(uuid())
+  threadId          String      @map("thread_id")
+  status            AiRunStatus @default(RUNNING)
+  model             String
+  stepCount         Int         @default(0) @map("step_count")
+  maxSteps          Int         @default(10) @map("max_steps")
+  tokenBudget       Int         @default(60000) @map("token_budget")
+  tokensUsed        Int         @default(0) @map("tokens_used")
+  startedAt         DateTime    @default(now()) @map("started_at")
+  finishedAt        DateTime?   @map("finished_at")
+  lastError         Json?       @map("last_error")
+  pendingApprovalId String?     @map("pending_approval_id")
+
+  thread    AiThread            @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  steps     AiRunStep[]
+  messages  AiMessage[]
+  approvals AiPendingApproval[]
+
+  @@index([threadId, startedAt])
+  @@index([status])
+  @@map("ai_runs")
+}
+
+model AiRunStep {
+  id               String        @id @default(uuid())
+  runId            String        @map("run_id")
+  stepIndex        Int           @map("step_index")
+  kind             AiRunStepKind
+  model            String?
+  toolName         String?       @map("tool_name")
+  toolInput        Json?         @map("tool_input")
+  toolOutput       Json?         @map("tool_output")
+  promptSnapshot   Json?         @map("prompt_snapshot")
+  responseSnapshot Json?         @map("response_snapshot")
+  tokensIn         Int?          @map("tokens_in")
+  tokensOut        Int?          @map("tokens_out")
+  latencyMs        Int?          @map("latency_ms")
+  error            Json?
+  createdAt        DateTime      @default(now()) @map("created_at")
+
+  run AiRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, stepIndex])
+  @@map("ai_run_steps")
+}
+
+model AiPendingApproval {
+  id               String           @id @default(uuid())
+  threadId         String           @map("thread_id")
+  runId            String           @map("run_id")
+  actionKey        String           @map("action_key")
+  summary          String?
+  input            Json?
+  previewResult    Json?            @map("preview_result")
+  status           AiApprovalStatus @default(PENDING)
+  createdAt        DateTime         @default(now()) @map("created_at")
+  resolvedAt       DateTime?        @map("resolved_at")
+  resolvedByUserId String?          @map("resolved_by_user_id")
+  expiresAt        DateTime         @map("expires_at")
+
+  thread AiThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  run    AiRun    @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([status, expiresAt])
+  @@index([threadId, status])
+  @@map("ai_pending_approvals")
+}
+
+enum AiThreadStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum AiSurfaceType {
+  WORKSPACE
+  PROJECT
+  ISSUE
+  WORKFLOW
+  DOC
+}
+
+enum AiPinSource {
+  ORIGIN
+  USER
+  AGENT
+}
+
+enum AiMessageRole {
+  USER
+  ASSISTANT
+  TOOL
+  SYSTEM
+}
+
+enum AiRunStatus {
+  RUNNING
+  WAITING_APPROVAL
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum AiRunStepKind {
+  LLM_CALL
+  TOOL_CALL
+}
+
+enum AiApprovalStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  EXPIRED
 }
 
 /// MARK: - Issue 状态配置模型 (Linear 风格动态状态)

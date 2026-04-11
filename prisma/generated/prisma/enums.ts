@@ -9,6 +9,73 @@
 * 🟢 You can import this file directly.
 */
 
+export const AiThreadStatus = {
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type AiThreadStatus = (typeof AiThreadStatus)[keyof typeof AiThreadStatus]
+
+
+export const AiSurfaceType = {
+  WORKSPACE: 'WORKSPACE',
+  PROJECT: 'PROJECT',
+  ISSUE: 'ISSUE',
+  WORKFLOW: 'WORKFLOW',
+  DOC: 'DOC'
+} as const
+
+export type AiSurfaceType = (typeof AiSurfaceType)[keyof typeof AiSurfaceType]
+
+
+export const AiPinSource = {
+  ORIGIN: 'ORIGIN',
+  USER: 'USER',
+  AGENT: 'AGENT'
+} as const
+
+export type AiPinSource = (typeof AiPinSource)[keyof typeof AiPinSource]
+
+
+export const AiMessageRole = {
+  USER: 'USER',
+  ASSISTANT: 'ASSISTANT',
+  TOOL: 'TOOL',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type AiMessageRole = (typeof AiMessageRole)[keyof typeof AiMessageRole]
+
+
+export const AiRunStatus = {
+  RUNNING: 'RUNNING',
+  WAITING_APPROVAL: 'WAITING_APPROVAL',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type AiRunStatus = (typeof AiRunStatus)[keyof typeof AiRunStatus]
+
+
+export const AiRunStepKind = {
+  LLM_CALL: 'LLM_CALL',
+  TOOL_CALL: 'TOOL_CALL'
+} as const
+
+export type AiRunStepKind = (typeof AiRunStepKind)[keyof typeof AiRunStepKind]
+
+
+export const AiApprovalStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type AiApprovalStatus = (typeof AiApprovalStatus)[keyof typeof AiApprovalStatus]
+
+
 export const TaskStatus = {
   PENDING: 'PENDING',
   IN_PROGRESS: 'IN_PROGRESS',
@@ -16,6 +83,35 @@ export const TaskStatus = {
 } as const
 
 export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus]
+
+
+export const AiExecutionStatus = {
+  PREVIEW: 'PREVIEW',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  BLOCKED: 'BLOCKED'
+} as const
+
+export type AiExecutionStatus = (typeof AiExecutionStatus)[keyof typeof AiExecutionStatus]
+
+
+export const AiApprovalMode = {
+  AUTO: 'AUTO',
+  CONFIRM: 'CONFIRM'
+} as const
+
+export type AiApprovalMode = (typeof AiApprovalMode)[keyof typeof AiApprovalMode]
+
+
+export const AiExecutionTargetType = {
+  WORKSPACE: 'WORKSPACE',
+  PROJECT: 'PROJECT',
+  ISSUE: 'ISSUE',
+  WORKFLOW: 'WORKFLOW',
+  DOC: 'DOC'
+} as const
+
+export type AiExecutionTargetType = (typeof AiExecutionTargetType)[keyof typeof AiExecutionTargetType]
 
 
 export const Role = {

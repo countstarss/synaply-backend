@@ -61,6 +61,8 @@ export type IssueMinAggregateOutputType = {
   currentStepStatus: $Enums.IssueStatus | null
   priority: $Enums.IssuePriority | null
   issueType: $Enums.IssueType | null
+  aiHandoffPrompt: string | null
+  aiHandoffPromptUpdatedAt: Date | null
   teamMemberId: string | null
 }
 
@@ -87,6 +89,8 @@ export type IssueMaxAggregateOutputType = {
   currentStepStatus: $Enums.IssueStatus | null
   priority: $Enums.IssuePriority | null
   issueType: $Enums.IssueType | null
+  aiHandoffPrompt: string | null
+  aiHandoffPromptUpdatedAt: Date | null
   teamMemberId: string | null
 }
 
@@ -114,6 +118,8 @@ export type IssueCountAggregateOutputType = {
   workflowSnapshot: number
   priority: number
   issueType: number
+  aiHandoffPrompt: number
+  aiHandoffPromptUpdatedAt: number
   teamMemberId: number
   _all: number
 }
@@ -154,6 +160,8 @@ export type IssueMinAggregateInputType = {
   currentStepStatus?: true
   priority?: true
   issueType?: true
+  aiHandoffPrompt?: true
+  aiHandoffPromptUpdatedAt?: true
   teamMemberId?: true
 }
 
@@ -180,6 +188,8 @@ export type IssueMaxAggregateInputType = {
   currentStepStatus?: true
   priority?: true
   issueType?: true
+  aiHandoffPrompt?: true
+  aiHandoffPromptUpdatedAt?: true
   teamMemberId?: true
 }
 
@@ -207,6 +217,8 @@ export type IssueCountAggregateInputType = {
   workflowSnapshot?: true
   priority?: true
   issueType?: true
+  aiHandoffPrompt?: true
+  aiHandoffPromptUpdatedAt?: true
   teamMemberId?: true
   _all?: true
 }
@@ -321,6 +333,8 @@ export type IssueGroupByOutputType = {
   workflowSnapshot: runtime.JsonValue | null
   priority: $Enums.IssuePriority
   issueType: $Enums.IssueType
+  aiHandoffPrompt: string | null
+  aiHandoffPromptUpdatedAt: Date | null
   teamMemberId: string | null
   _count: IssueCountAggregateOutputType | null
   _avg: IssueAvgAggregateOutputType | null
@@ -371,6 +385,8 @@ export type IssueWhereInput = {
   workflowSnapshot?: Prisma.JsonNullableFilter<"Issue">
   priority?: Prisma.EnumIssuePriorityFilter<"Issue"> | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFilter<"Issue"> | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.StringNullableFilter<"Issue"> | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.DateTimeNullableFilter<"Issue"> | Date | string | null
   teamMemberId?: Prisma.StringNullableFilter<"Issue"> | string | null
   comments?: Prisma.CommentListRelationFilter
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
@@ -409,6 +425,8 @@ export type IssueOrderByWithRelationInput = {
   workflowSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   priority?: Prisma.SortOrder
   issueType?: Prisma.SortOrder
+  aiHandoffPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiHandoffPromptUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   teamMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   comments?: Prisma.CommentOrderByRelationAggregateInput
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
@@ -450,6 +468,8 @@ export type IssueWhereUniqueInput = Prisma.AtLeast<{
   workflowSnapshot?: Prisma.JsonNullableFilter<"Issue">
   priority?: Prisma.EnumIssuePriorityFilter<"Issue"> | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFilter<"Issue"> | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.StringNullableFilter<"Issue"> | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.DateTimeNullableFilter<"Issue"> | Date | string | null
   teamMemberId?: Prisma.StringNullableFilter<"Issue"> | string | null
   comments?: Prisma.CommentListRelationFilter
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
@@ -488,6 +508,8 @@ export type IssueOrderByWithAggregationInput = {
   workflowSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   priority?: Prisma.SortOrder
   issueType?: Prisma.SortOrder
+  aiHandoffPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiHandoffPromptUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   teamMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.IssueCountOrderByAggregateInput
   _avg?: Prisma.IssueAvgOrderByAggregateInput
@@ -523,6 +545,8 @@ export type IssueScalarWhereWithAggregatesInput = {
   workflowSnapshot?: Prisma.JsonNullableWithAggregatesFilter<"Issue">
   priority?: Prisma.EnumIssuePriorityWithAggregatesFilter<"Issue"> | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeWithAggregatesFilter<"Issue"> | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.StringNullableWithAggregatesFilter<"Issue"> | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Issue"> | Date | string | null
   teamMemberId?: Prisma.StringNullableWithAggregatesFilter<"Issue"> | string | null
 }
 
@@ -546,6 +570,8 @@ export type IssueCreateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -583,6 +609,8 @@ export type IssueUncheckedCreateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -612,6 +640,8 @@ export type IssueUpdateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -649,6 +679,8 @@ export type IssueUncheckedUpdateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -682,6 +714,8 @@ export type IssueCreateManyInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
 }
 
@@ -705,6 +739,8 @@ export type IssueUpdateManyMutationInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type IssueUncheckedUpdateManyInput = {
@@ -731,6 +767,8 @@ export type IssueUncheckedUpdateManyInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -768,6 +806,8 @@ export type IssueCountOrderByAggregateInput = {
   workflowSnapshot?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   issueType?: Prisma.SortOrder
+  aiHandoffPrompt?: Prisma.SortOrder
+  aiHandoffPromptUpdatedAt?: Prisma.SortOrder
   teamMemberId?: Prisma.SortOrder
 }
 
@@ -800,6 +840,8 @@ export type IssueMaxOrderByAggregateInput = {
   currentStepStatus?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   issueType?: Prisma.SortOrder
+  aiHandoffPrompt?: Prisma.SortOrder
+  aiHandoffPromptUpdatedAt?: Prisma.SortOrder
   teamMemberId?: Prisma.SortOrder
 }
 
@@ -826,6 +868,8 @@ export type IssueMinOrderByAggregateInput = {
   currentStepStatus?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   issueType?: Prisma.SortOrder
+  aiHandoffPrompt?: Prisma.SortOrder
+  aiHandoffPromptUpdatedAt?: Prisma.SortOrder
   teamMemberId?: Prisma.SortOrder
 }
 
@@ -1177,6 +1221,8 @@ export type IssueCreateWithoutTeamMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   IssueStepRecord?: Prisma.IssueStepRecordCreateNestedManyWithoutIssueInput
@@ -1213,6 +1259,8 @@ export type IssueUncheckedCreateWithoutTeamMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
@@ -1251,6 +1299,8 @@ export type IssueCreateWithoutCreatorMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -1286,6 +1336,8 @@ export type IssueUncheckedCreateWithoutCreatorMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -1348,6 +1400,8 @@ export type IssueScalarWhereInput = {
   workflowSnapshot?: Prisma.JsonNullableFilter<"Issue">
   priority?: Prisma.EnumIssuePriorityFilter<"Issue"> | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFilter<"Issue"> | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.StringNullableFilter<"Issue"> | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.DateTimeNullableFilter<"Issue"> | Date | string | null
   teamMemberId?: Prisma.StringNullableFilter<"Issue"> | string | null
 }
 
@@ -1387,6 +1441,8 @@ export type IssueCreateWithoutWorkspaceInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordCreateNestedManyWithoutIssueInput
@@ -1422,6 +1478,8 @@ export type IssueUncheckedCreateWithoutWorkspaceInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -1477,6 +1535,8 @@ export type IssueCreateWithoutProjectInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -1512,6 +1572,8 @@ export type IssueUncheckedCreateWithoutProjectInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -1567,6 +1629,8 @@ export type IssueCreateWithoutDocsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -1603,6 +1667,8 @@ export type IssueUncheckedCreateWithoutDocsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -1647,6 +1713,8 @@ export type IssueUpdateWithoutDocsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -1683,6 +1751,8 @@ export type IssueUncheckedUpdateWithoutDocsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -1711,6 +1781,8 @@ export type IssueCreateWithoutStateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -1746,6 +1818,8 @@ export type IssueUncheckedCreateWithoutStateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -1801,6 +1875,8 @@ export type IssueCreateWithoutLabelsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -1837,6 +1913,8 @@ export type IssueUncheckedCreateWithoutLabelsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -1881,6 +1959,8 @@ export type IssueUpdateWithoutLabelsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -1917,6 +1997,8 @@ export type IssueUncheckedUpdateWithoutLabelsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -1945,6 +2027,8 @@ export type IssueCreateWithoutAssigneesInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -1981,6 +2065,8 @@ export type IssueUncheckedCreateWithoutAssigneesInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -2025,6 +2111,8 @@ export type IssueUpdateWithoutAssigneesInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -2061,6 +2149,8 @@ export type IssueUncheckedUpdateWithoutAssigneesInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -2089,6 +2179,8 @@ export type IssueCreateWithoutIssueStepRecordInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -2125,6 +2217,8 @@ export type IssueUncheckedCreateWithoutIssueStepRecordInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
@@ -2169,6 +2263,8 @@ export type IssueUpdateWithoutIssueStepRecordInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -2205,6 +2301,8 @@ export type IssueUncheckedUpdateWithoutIssueStepRecordInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
@@ -2233,6 +2331,8 @@ export type IssueCreateWithoutIssueActivityInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   comments?: Prisma.CommentCreateNestedManyWithoutIssueInput
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
@@ -2269,6 +2369,8 @@ export type IssueUncheckedCreateWithoutIssueActivityInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
@@ -2313,6 +2415,8 @@ export type IssueUpdateWithoutIssueActivityInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -2349,6 +2453,8 @@ export type IssueUncheckedUpdateWithoutIssueActivityInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -2377,6 +2483,8 @@ export type IssueCreateWithoutCommentsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutIssuesInput
   TeamMember?: Prisma.TeamMemberCreateNestedOneWithoutIssueInput
   IssueStepRecord?: Prisma.IssueStepRecordCreateNestedManyWithoutIssueInput
@@ -2413,6 +2521,8 @@ export type IssueUncheckedCreateWithoutCommentsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedCreateNestedManyWithoutIssueInput
   IssueActivity?: Prisma.IssueActivityUncheckedCreateNestedManyWithoutIssueInput
@@ -2457,6 +2567,8 @@ export type IssueUpdateWithoutCommentsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUpdateManyWithoutIssueNestedInput
@@ -2493,6 +2605,8 @@ export type IssueUncheckedUpdateWithoutCommentsInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
@@ -2525,6 +2639,8 @@ export type IssueCreateManyTeamMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
 }
 
 export type IssueCreateManyCreatorMemberInput = {
@@ -2550,6 +2666,8 @@ export type IssueCreateManyCreatorMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
 }
 
@@ -2573,6 +2691,8 @@ export type IssueUpdateWithoutTeamMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUpdateManyWithoutIssueNestedInput
@@ -2609,6 +2729,8 @@ export type IssueUncheckedUpdateWithoutTeamMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
   IssueActivity?: Prisma.IssueActivityUncheckedUpdateManyWithoutIssueNestedInput
@@ -2641,6 +2763,8 @@ export type IssueUncheckedUpdateManyWithoutTeamMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type IssueUpdateWithoutCreatorMemberInput = {
@@ -2663,6 +2787,8 @@ export type IssueUpdateWithoutCreatorMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -2698,6 +2824,8 @@ export type IssueUncheckedUpdateWithoutCreatorMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -2730,6 +2858,8 @@ export type IssueUncheckedUpdateManyWithoutCreatorMemberInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -2756,6 +2886,8 @@ export type IssueCreateManyWorkspaceInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
 }
 
@@ -2779,6 +2911,8 @@ export type IssueUpdateWithoutWorkspaceInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUpdateManyWithoutIssueNestedInput
@@ -2814,6 +2948,8 @@ export type IssueUncheckedUpdateWithoutWorkspaceInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -2846,6 +2982,8 @@ export type IssueUncheckedUpdateManyWithoutWorkspaceInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -2872,6 +3010,8 @@ export type IssueCreateManyProjectInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
 }
 
@@ -2895,6 +3035,8 @@ export type IssueUpdateWithoutProjectInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -2930,6 +3072,8 @@ export type IssueUncheckedUpdateWithoutProjectInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -2962,6 +3106,8 @@ export type IssueUncheckedUpdateManyWithoutProjectInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -2988,6 +3134,8 @@ export type IssueCreateManyStateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: $Enums.IssuePriority
   issueType?: $Enums.IssueType
+  aiHandoffPrompt?: string | null
+  aiHandoffPromptUpdatedAt?: Date | string | null
   teamMemberId?: string | null
 }
 
@@ -3011,6 +3159,8 @@ export type IssueUpdateWithoutStateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   comments?: Prisma.CommentUpdateManyWithoutIssueNestedInput
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutIssuesNestedInput
   TeamMember?: Prisma.TeamMemberUpdateOneWithoutIssueNestedInput
@@ -3046,6 +3196,8 @@ export type IssueUncheckedUpdateWithoutStateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIssueNestedInput
   IssueStepRecord?: Prisma.IssueStepRecordUncheckedUpdateManyWithoutIssueNestedInput
@@ -3078,6 +3230,8 @@ export type IssueUncheckedUpdateManyWithoutStateInput = {
   workflowSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   priority?: Prisma.EnumIssuePriorityFieldUpdateOperationsInput | $Enums.IssuePriority
   issueType?: Prisma.EnumIssueTypeFieldUpdateOperationsInput | $Enums.IssueType
+  aiHandoffPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiHandoffPromptUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   teamMemberId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -3181,6 +3335,8 @@ export type IssueSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   workflowSnapshot?: boolean
   priority?: boolean
   issueType?: boolean
+  aiHandoffPrompt?: boolean
+  aiHandoffPromptUpdatedAt?: boolean
   teamMemberId?: boolean
   comments?: boolean | Prisma.Issue$commentsArgs<ExtArgs>
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -3220,6 +3376,8 @@ export type IssueSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   workflowSnapshot?: boolean
   priority?: boolean
   issueType?: boolean
+  aiHandoffPrompt?: boolean
+  aiHandoffPromptUpdatedAt?: boolean
   teamMemberId?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   TeamMember?: boolean | Prisma.Issue$TeamMemberArgs<ExtArgs>
@@ -3252,6 +3410,8 @@ export type IssueSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   workflowSnapshot?: boolean
   priority?: boolean
   issueType?: boolean
+  aiHandoffPrompt?: boolean
+  aiHandoffPromptUpdatedAt?: boolean
   teamMemberId?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   TeamMember?: boolean | Prisma.Issue$TeamMemberArgs<ExtArgs>
@@ -3284,10 +3444,12 @@ export type IssueSelectScalar = {
   workflowSnapshot?: boolean
   priority?: boolean
   issueType?: boolean
+  aiHandoffPrompt?: boolean
+  aiHandoffPromptUpdatedAt?: boolean
   teamMemberId?: boolean
 }
 
-export type IssueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "workspaceId" | "workflowId" | "directAssigneeId" | "creatorId" | "createdAt" | "updatedAt" | "dueDate" | "stateId" | "projectId" | "visibility" | "creatorMemberId" | "key" | "sequence" | "totalSteps" | "currentStepId" | "currentStepIndex" | "currentStepStatus" | "workflowSnapshot" | "priority" | "issueType" | "teamMemberId", ExtArgs["result"]["issue"]>
+export type IssueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "workspaceId" | "workflowId" | "directAssigneeId" | "creatorId" | "createdAt" | "updatedAt" | "dueDate" | "stateId" | "projectId" | "visibility" | "creatorMemberId" | "key" | "sequence" | "totalSteps" | "currentStepId" | "currentStepIndex" | "currentStepStatus" | "workflowSnapshot" | "priority" | "issueType" | "aiHandoffPrompt" | "aiHandoffPromptUpdatedAt" | "teamMemberId", ExtArgs["result"]["issue"]>
 export type IssueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   comments?: boolean | Prisma.Issue$commentsArgs<ExtArgs>
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -3356,6 +3518,8 @@ export type $IssuePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     workflowSnapshot: runtime.JsonValue | null
     priority: $Enums.IssuePriority
     issueType: $Enums.IssueType
+    aiHandoffPrompt: string | null
+    aiHandoffPromptUpdatedAt: Date | null
     teamMemberId: string | null
   }, ExtArgs["result"]["issue"]>
   composites: {}
@@ -3814,6 +3978,8 @@ export interface IssueFieldRefs {
   readonly workflowSnapshot: Prisma.FieldRef<"Issue", 'Json'>
   readonly priority: Prisma.FieldRef<"Issue", 'IssuePriority'>
   readonly issueType: Prisma.FieldRef<"Issue", 'IssueType'>
+  readonly aiHandoffPrompt: Prisma.FieldRef<"Issue", 'String'>
+  readonly aiHandoffPromptUpdatedAt: Prisma.FieldRef<"Issue", 'DateTime'>
   readonly teamMemberId: Prisma.FieldRef<"Issue", 'String'>
 }
     

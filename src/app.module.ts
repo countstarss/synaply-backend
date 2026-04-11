@@ -20,13 +20,17 @@ import { CalendarModule } from './calendar/calendar.module';
 import { TaskModule } from './task/task.module';
 import { DocModule } from './doc/doc.module';
 import { InboxModule } from './inbox/inbox.module';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AiExecutionModule } from './ai-execution/ai-execution.module';
+import { AiThreadModule } from './ai-thread/ai-thread.module';
+import { AiContextModule } from './ai-context/ai-context.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
@@ -50,6 +54,8 @@ import { AiExecutionModule } from './ai-execution/ai-execution.module';
     DocModule,
     InboxModule,
     AiExecutionModule,
+    AiThreadModule,
+    AiContextModule,
   ],
   controllers: [AppController],
   providers: [AppService],

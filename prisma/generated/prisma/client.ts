@@ -88,6 +88,52 @@ export type DocRevision = Prisma.DocRevisionModel
  */
 export type InboxItem = Prisma.InboxItemModel
 /**
+ * Model AiExecutionRecord
+ * 
+ */
+export type AiExecutionRecord = Prisma.AiExecutionRecordModel
+/**
+ * Model AiThread
+ * MARK: - AI Agent V1: Thread / Run / Approval
+ * 
+ * 这一组模型支撑 Synaply 的 AI agent runtime（Next.js）：
+ * - AiThread        线程主体，记录会话与起点 surface
+ * - AiThreadContextPin 一条线程可同时 pin 多个对象（project/issue/doc 等）
+ * - AiMessage       消息（user/assistant/tool/system），parts 为富结构 JSON
+ * - AiRun           一次 user message 触发的 agent 执行
+ * - AiRunStep       run 内部每次 LLM 调用 / tool 调用的追踪记录
+ * - AiPendingApproval CONFIRM 类动作的审批状态机
+ * 
+ * 与 AiExecutionRecord 一样，跨模块 FK 在 SQL 层维护，不在 Prisma 这里
+ * 声明 Workspace/User 的反向 relation，避免动到既有模型。
+ */
+export type AiThread = Prisma.AiThreadModel
+/**
+ * Model AiThreadContextPin
+ * 
+ */
+export type AiThreadContextPin = Prisma.AiThreadContextPinModel
+/**
+ * Model AiMessage
+ * 
+ */
+export type AiMessage = Prisma.AiMessageModel
+/**
+ * Model AiRun
+ * 
+ */
+export type AiRun = Prisma.AiRunModel
+/**
+ * Model AiRunStep
+ * 
+ */
+export type AiRunStep = Prisma.AiRunStepModel
+/**
+ * Model AiPendingApproval
+ * 
+ */
+export type AiPendingApproval = Prisma.AiPendingApprovalModel
+/**
  * Model IssueState
  * MARK: - Issue 状态配置模型 (Linear 风格动态状态)
  */

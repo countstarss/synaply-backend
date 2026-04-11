@@ -61,6 +61,13 @@ export const ModelName = {
   Doc: 'Doc',
   DocRevision: 'DocRevision',
   InboxItem: 'InboxItem',
+  AiExecutionRecord: 'AiExecutionRecord',
+  AiThread: 'AiThread',
+  AiThreadContextPin: 'AiThreadContextPin',
+  AiMessage: 'AiMessage',
+  AiRun: 'AiRun',
+  AiRunStep: 'AiRunStep',
+  AiPendingApproval: 'AiPendingApproval',
   IssueState: 'IssueState',
   Label: 'Label',
   IssueLabel: 'IssueLabel',
@@ -202,6 +209,8 @@ export const IssueScalarFieldEnum = {
   workflowSnapshot: 'workflowSnapshot',
   priority: 'priority',
   issueType: 'issueType',
+  aiHandoffPrompt: 'aiHandoffPrompt',
+  aiHandoffPromptUpdatedAt: 'aiHandoffPromptUpdatedAt',
   teamMemberId: 'teamMemberId'
 } as const
 
@@ -284,6 +293,125 @@ export const InboxItemScalarFieldEnum = {
 } as const
 
 export type InboxItemScalarFieldEnum = (typeof InboxItemScalarFieldEnum)[keyof typeof InboxItemScalarFieldEnum]
+
+
+export const AiExecutionRecordScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  actorUserId: 'actorUserId',
+  actionKey: 'actionKey',
+  status: 'status',
+  approvalMode: 'approvalMode',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  summary: 'summary',
+  conversationId: 'conversationId',
+  input: 'input',
+  result: 'result',
+  error: 'error',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type AiExecutionRecordScalarFieldEnum = (typeof AiExecutionRecordScalarFieldEnum)[keyof typeof AiExecutionRecordScalarFieldEnum]
+
+
+export const AiThreadScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  creatorUserId: 'creatorUserId',
+  title: 'title',
+  status: 'status',
+  originSurfaceType: 'originSurfaceType',
+  originSurfaceId: 'originSurfaceId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastMessageAt: 'lastMessageAt'
+} as const
+
+export type AiThreadScalarFieldEnum = (typeof AiThreadScalarFieldEnum)[keyof typeof AiThreadScalarFieldEnum]
+
+
+export const AiThreadContextPinScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  surfaceType: 'surfaceType',
+  surfaceId: 'surfaceId',
+  source: 'source',
+  pinnedByUserId: 'pinnedByUserId',
+  pinnedAt: 'pinnedAt'
+} as const
+
+export type AiThreadContextPinScalarFieldEnum = (typeof AiThreadContextPinScalarFieldEnum)[keyof typeof AiThreadContextPinScalarFieldEnum]
+
+
+export const AiMessageScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  runId: 'runId',
+  role: 'role',
+  parts: 'parts',
+  createdAt: 'createdAt'
+} as const
+
+export type AiMessageScalarFieldEnum = (typeof AiMessageScalarFieldEnum)[keyof typeof AiMessageScalarFieldEnum]
+
+
+export const AiRunScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  status: 'status',
+  model: 'model',
+  stepCount: 'stepCount',
+  maxSteps: 'maxSteps',
+  tokenBudget: 'tokenBudget',
+  tokensUsed: 'tokensUsed',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  lastError: 'lastError',
+  pendingApprovalId: 'pendingApprovalId'
+} as const
+
+export type AiRunScalarFieldEnum = (typeof AiRunScalarFieldEnum)[keyof typeof AiRunScalarFieldEnum]
+
+
+export const AiRunStepScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  stepIndex: 'stepIndex',
+  kind: 'kind',
+  model: 'model',
+  toolName: 'toolName',
+  toolInput: 'toolInput',
+  toolOutput: 'toolOutput',
+  promptSnapshot: 'promptSnapshot',
+  responseSnapshot: 'responseSnapshot',
+  tokensIn: 'tokensIn',
+  tokensOut: 'tokensOut',
+  latencyMs: 'latencyMs',
+  error: 'error',
+  createdAt: 'createdAt'
+} as const
+
+export type AiRunStepScalarFieldEnum = (typeof AiRunStepScalarFieldEnum)[keyof typeof AiRunStepScalarFieldEnum]
+
+
+export const AiPendingApprovalScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  runId: 'runId',
+  actionKey: 'actionKey',
+  summary: 'summary',
+  input: 'input',
+  previewResult: 'previewResult',
+  status: 'status',
+  createdAt: 'createdAt',
+  resolvedAt: 'resolvedAt',
+  resolvedByUserId: 'resolvedByUserId',
+  expiresAt: 'expiresAt'
+} as const
+
+export type AiPendingApprovalScalarFieldEnum = (typeof AiPendingApprovalScalarFieldEnum)[keyof typeof AiPendingApprovalScalarFieldEnum]
 
 
 export const IssueStateScalarFieldEnum = {
