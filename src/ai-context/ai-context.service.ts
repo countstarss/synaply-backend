@@ -17,10 +17,12 @@ import {
   AiDocSearchResult,
   AiIssueDetail,
   AiIssueListResult,
+  AiIssueSearchResult,
   AiProjectDetail,
   AiProjectSearchResult,
   AiSurfaceSummary,
   AiWorkflowRunDetail,
+  AiWorkspaceMemberSearchResult,
   AiWorkspaceSummaryDetail,
 } from './ai-context.types';
 import { AiIssueAssigneeScope, ListIssuesDto } from './dto/list-issues.dto';
@@ -327,6 +329,103 @@ export class AiContextService {
             .join('\n')}`
         : `No projects matched query "${query}".`,
       2200,
+    );
+
+    return {
+      items,
+      text,
+    };
+  }
+
+  async searchIssues(
+    workspaceId: string,
+    userId: string,
+    query: string,
+    projectId?: string,
+    limit = 8,
+  ): Promise<AiIssueSearchResult> {
+    const normalizedQuery = query.trim().toLowerCase();
+    const issues = (await this.issueService.findAll(workspaceId, userId, {
+      projectId,
+      sortBy: 'updatedAt',
+      sortOrder: 'desc',
+      limit: Math.max(limit * 8, 60),
+    } as never)) as LooseRecord[];
+
+    const items = issues
+      .filter((issue) => {
+        if (!normalizedQuery) {
+          return true;
+        }
+
+        const haystack = [
+          asStringOrFallback(issue.key, ''),
+          asStringOrFallback(issue.title, ''),
+          asStringOrFallback(issue.description, ''),
+          readNestedString(issue, ['project', 'name']) ?? '',
+        ]
+          .join('\n')
+          .toLowerCase();
+
+        return haystack.includes(normalizedQuery);
+      })
+      .sort((left, right) => {
+        const leftKey = asStringOrFallback(left.key, '').toLowerCase();
+        const rightKey = asStringOrFallback(right.key, '').toLowerCase();
+        const leftTitle = asStringOrFallback(left.title, '').toLowerCase();
+        const rightTitle = asStringOrFallback(right.title, '').toLowerCase();
+        const leftExact =
+          normalizedQuery.length > 0 &&
+          (leftKey === normalizedQuery || leftTitle === normalizedQuery);
+        const rightExact =
+          normalizedQuery.length > 0 &&
+          (rightKey === normalizedQuery || rightTitle === normalizedQuery);
+
+        if (leftExact !== rightExact) {
+          return rightExact ? 1 : -1;
+        }
+
+        const leftStartsWith =
+          normalizedQuery.length > 0 &&
+          (leftKey.startsWith(normalizedQuery) ||
+            leftTitle.startsWith(normalizedQuery));
+        const rightStartsWith =
+          normalizedQuery.length > 0 &&
+          (rightKey.startsWith(normalizedQuery) ||
+            rightTitle.startsWith(normalizedQuery));
+
+        if (leftStartsWith !== rightStartsWith) {
+          return rightStartsWith ? 1 : -1;
+        }
+
+        return byUpdatedAtDesc(left, right);
+      })
+      .slice(0, limit)
+      .map((issue) => ({
+        id: asString(issue.id),
+        key: asStringOrNull(issue.key),
+        title: asString(issue.title),
+        description: asStringOrNull(issue.description),
+        state: readNestedString(issue, ['state', 'name']),
+        projectId: asStringOrNull(issue.projectId),
+        projectName: readNestedString(issue, ['project', 'name']),
+        updatedAt: formatTimestamp(issue.updatedAt),
+        assigneeLabels: asRecordArray(issue.assignees)
+          .map((assignee) => asAssigneeEntryLabel(assignee))
+          .filter(Boolean) as string[],
+        currentStepStatus: asStringOrNull(issue.currentStepStatus),
+      }));
+
+    const text = clamp(
+      items.length > 0
+        ? `Issues search results:\n${items
+            .map(
+              (issue) =>
+                `- ${issue.key ? `${issue.key} ` : ''}${issue.title} (${issue.id})${issue.projectName ? ` / ${issue.projectName}` : ''}${issue.state ? ` [${issue.state}]` : ''}`,
+            )
+            .join('\n')}`
+        : `No issues matched query "${query}".`,
+      2600,
     );
 
     return {
@@ -664,6 +763,113 @@ export class AiContextService {
             .join('\n')}`
         : `No docs matched query "${query}".`,
       2500,
+    );
+
+    return {
+      items,
+      text,
+    };
+  }
+
+  async searchWorkspaceMembers(
+    workspaceId: string,
+    userId: string,
+    query: string,
+    limit = 8,
+  ): Promise<AiWorkspaceMemberSearchResult> {
+    const { workspace, teamMemberId } =
+      await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    const normalizedQuery = query.trim().toLowerCase();
+
+    const members =
+      workspace.type === 'TEAM' && workspace.teamId
+        ? await this.prisma.teamMember.findMany({
+            where: {
+              teamId: workspace.teamId,
+            },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          })
+        : await this.prisma.teamMember.findMany({
+            where: {
+              id: teamMemberId,
+            },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          });
+
+    const items = members
+      .filter((member) => {
+        if (!normalizedQuery) {
+          return true;
+        }
+
+        const haystack = [
+          member.user.name ?? '',
+          member.user.email ?? '',
+          member.role,
+        ]
+          .join('\n')
+          .toLowerCase();
+
+        return haystack.includes(normalizedQuery);
+      })
+      .sort((left, right) => {
+        const leftName = (left.user.name ?? left.user.email ?? '').toLowerCase();
+        const rightName = (right.user.name ?? right.user.email ?? '').toLowerCase();
+        const leftExact = normalizedQuery ? leftName === normalizedQuery : false;
+        const rightExact = normalizedQuery
+          ? rightName === normalizedQuery
+          : false;
+
+        if (leftExact !== rightExact) {
+          return rightExact ? 1 : -1;
+        }
+
+        if (left.id === teamMemberId && right.id !== teamMemberId) {
+          return -1;
+        }
+
+        if (right.id === teamMemberId && left.id !== teamMemberId) {
+          return 1;
+        }
+
+        return leftName.localeCompare(rightName);
+      })
+      .slice(0, limit)
+      .map((member) => ({
+        teamMemberId: member.id,
+        userId: member.userId,
+        name: member.user.name ?? null,
+        email: member.user.email ?? null,
+        role: member.role,
+        isCurrentActor: member.id === teamMemberId,
+      }));
+
+    const text = clamp(
+      items.length > 0
+        ? `Workspace member search results:\n${items
+            .map(
+              (member) =>
+                `- ${member.name || member.email || member.userId} (teamMemberId=${member.teamMemberId}, userId=${member.userId}, role=${member.role})`,
+            )
+            .join('\n')}`
+        : `No workspace members matched query "${query}".`,
+      2200,
     );
 
     return {

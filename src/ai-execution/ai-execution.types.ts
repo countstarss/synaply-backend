@@ -47,6 +47,20 @@ export type AiActionAvailabilityStatus =
   | 'requires_target_check'
   | 'unavailable';
 
+export type AiEntityReferenceType =
+  | 'project'
+  | 'issue'
+  | 'workflow'
+  | 'doc'
+  | 'member'
+  | 'user';
+
+export interface AiActionEnumHint {
+  value: string;
+  aliases: string[];
+  description?: string;
+}
+
 export interface AiActionFieldDescriptor {
   name: string;
   label: string;
@@ -54,6 +68,11 @@ export interface AiActionFieldDescriptor {
   required: boolean;
   description: string;
   options?: string[];
+  entityRef?: AiEntityReferenceType;
+  clarifyWhenAmbiguous?: boolean;
+  omitWhenUncertain?: boolean;
+  examples?: string[];
+  enumHints?: AiActionEnumHint[];
 }
 
 export interface AiActionActorContext {

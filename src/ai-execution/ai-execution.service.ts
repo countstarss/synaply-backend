@@ -49,6 +49,7 @@ import {
   AiActionActorContext,
   AiActionAvailability,
   AiActionDefinition,
+  AiActionEnumHint,
   AiActionKey,
   AiApprovalMode,
   AiExecutionStatus,
@@ -100,6 +101,63 @@ const PROJECT_STATUS_OPTIONS = Object.values(ProjectStatusValue);
 const PROJECT_RISK_OPTIONS = Object.values(ProjectRiskLevelValue);
 const WORKFLOW_REVIEW_OUTCOME_OPTIONS = Object.values(WorkflowReviewOutcome);
 const DOC_CHANGE_SOURCE_OPTIONS = Object.values(DocChangeSourceValue);
+const ENUM_ALIAS_HINTS: Record<string, string[]> = {
+  PRIVATE: ['personal', 'self', '仅自己', '私有', '自己可见'],
+  TEAM_READONLY: ['team', '团队', '团队可见', '团队只读', 'team_read_only'],
+  TEAM_EDITABLE: ['team_editable', 'team_edit', 'editable', '团队可编辑'],
+  PUBLIC: ['public', '公开'],
+  LOW: ['low', '低', '低优先级', '低风险'],
+  NORMAL: ['normal', '普通', '常规', '正常优先级'],
+  MEDIUM: ['medium', '中', '中等', '中风险'],
+  HIGH: ['high', '高', '高优先级', '高风险'],
+  URGENT: ['urgent', '紧急', '最高优先级'],
+  CRITICAL: ['critical', '严重', '关键风险'],
+  PLANNING: ['planning', '规划中', '准备中'],
+  ACTIVE: ['active', '进行中', '推进中'],
+  BLOCKED: ['blocked', '阻塞', '卡住'],
+  SHIPPING: ['shipping', '发布中', '收尾中'],
+  DONE: ['done', '完成', '已完成'],
+  ARCHIVED: ['archived', '归档', '已归档'],
+  TODO: ['todo', '待处理', '待开始'],
+  IN_PROGRESS: ['in_progress', '进行中', '处理中'],
+  AMOST_DONE: ['almost_done', 'almost done', '即将完成', '快完成'],
+  APPROVED: ['approve', 'approved', 'pass', 'passed', '通过', '批准'],
+  CHANGES_REQUESTED: [
+    'request_changes',
+    'needs_changes',
+    'changes_required',
+    'reject',
+    'rejected',
+    '需要修改',
+    '请求修改',
+    '驳回',
+  ],
+  NORMAL_ISSUE: ['normal', '普通任务'],
+  WORKFLOW: ['workflow', '流程任务'],
+};
+const ENUM_DESCRIPTION_HINTS: Record<string, string> = {
+  PRIVATE: '仅创建者自己可见。',
+  TEAM_READONLY: '团队成员可见，但默认不允许协作编辑。',
+  TEAM_EDITABLE: '团队成员可见，并允许协作编辑。',
+  PUBLIC: '公开可见，通常只在明确需要时使用。',
+  LOW: '低级别。',
+  NORMAL: '默认级别。',
+  MEDIUM: '中等级别。',
+  HIGH: '高级别，需要优先处理或关注。',
+  URGENT: '最高优先级，需要立即推进。',
+  CRITICAL: '关键风险，需要立即关注。',
+  PLANNING: '处于规划和定义阶段。',
+  ACTIVE: '正在推进中。',
+  BLOCKED: '当前被阻塞。',
+  SHIPPING: '进入交付或上线收尾阶段。',
+  DONE: '已经完成。',
+  ARCHIVED: '已归档，不再活跃推进。',
+  TODO: '尚未开始。',
+  IN_PROGRESS: '正在执行。',
+  AMOST_DONE: '接近完成。',
+  APPROVED: '评审已通过。',
+  CHANGES_REQUESTED: '评审要求先修改后再继续。',
+};
 const ENUM_ALIAS_MAP: Record<string, string> = {
   PERSONAL: 'PRIVATE',
   SELF: 'PRIVATE',
@@ -130,6 +188,14 @@ function normalizeEnumToken(value: string) {
   return value.trim().replace(/[\s-]+/g, '_').toUpperCase();
 }
 
+function buildEnumHints(options: string[]): AiActionEnumHint[] {
+  return options.map((value) => ({
+    value,
+    aliases: ENUM_ALIAS_HINTS[value] ?? [],
+    description: ENUM_DESCRIPTION_HINTS[value],
+  }));
+}
+
 const ACTION_DEFINITIONS: AiActionDefinition[] = [
   {
     key: 'create_project',
@@ -147,6 +213,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: '项目标题。',
+        examples: ['AI 执行层建设', '移动端发布节奏治理'],
       },
       {
         name: 'brief',
@@ -154,6 +221,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '项目一句话结果定义。',
+        examples: ['让 AI 在可控权限下驱动真实协作对象。'],
       },
       {
         name: 'description',
@@ -161,6 +229,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '项目上下文说明。',
+        examples: ['补齐 action contract、确认机制与审计记录。'],
       },
       {
         name: 'phase',
@@ -168,6 +237,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '当前阶段或里程碑。',
+        examples: ['Architecture', 'Design review'],
       },
       {
         name: 'status',
@@ -176,6 +246,8 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         required: false,
         description: '项目协作状态。',
         options: PROJECT_STATUS_OPTIONS,
+        clarifyWhenAmbiguous: true,
+        enumHints: buildEnumHints(PROJECT_STATUS_OPTIONS),
       },
       {
         name: 'riskLevel',
@@ -184,6 +256,8 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         required: false,
         description: '项目当前风险级别。',
         options: PROJECT_RISK_OPTIONS,
+        clarifyWhenAmbiguous: true,
+        enumHints: buildEnumHints(PROJECT_RISK_OPTIONS),
       },
       {
         name: 'ownerMemberId',
@@ -191,6 +265,10 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '负责人 TeamMember ID。',
+        entityRef: 'member',
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
+        examples: ['Luke', '产品负责人'],
       },
       {
         name: 'visibility',
@@ -199,6 +277,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         required: false,
         description: '项目可见性策略。',
         options: VISIBILITY_OPTIONS,
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
+        enumHints: buildEnumHints(VISIBILITY_OPTIONS),
       },
     ],
     sampleInput: {
@@ -316,6 +397,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: 'Issue 标题。',
+        examples: ['定义 AI action contract', '补齐 review 请求链路'],
       },
       {
         name: 'description',
@@ -323,6 +405,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: 'Issue 描述。',
+        examples: ['补齐动作注册、确认策略与审计记录。'],
       },
       {
         name: 'projectId',
@@ -330,6 +413,10 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '归属 Project ID。',
+        entityRef: 'project',
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
+        examples: ['Synaply', 'JUST VIBE'],
       },
       {
         name: 'stateId',
@@ -337,6 +424,8 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: 'IssueState ID。',
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
       },
       {
         name: 'priority',
@@ -345,6 +434,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         required: false,
         description: 'Issue 优先级。',
         options: ISSUE_PRIORITY_OPTIONS,
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
+        enumHints: buildEnumHints(ISSUE_PRIORITY_OPTIONS),
       },
       {
         name: 'visibility',
@@ -353,6 +445,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         required: false,
         description: 'Issue 可见性。',
         options: VISIBILITY_OPTIONS,
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
+        enumHints: buildEnumHints(VISIBILITY_OPTIONS),
       },
       {
         name: 'assigneeIds',
@@ -360,6 +455,10 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string[]',
         required: false,
         description: '额外 assignee member IDs。',
+        entityRef: 'member',
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
+        examples: ['Luke', '设计负责人'],
       },
       {
         name: 'labelIds',
@@ -367,6 +466,8 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string[]',
         required: false,
         description: 'Label IDs。',
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
       },
     ],
     sampleInput: {
@@ -457,6 +558,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: '要写入 handoff prompt 的 Issue ID。',
+        entityRef: 'issue',
+        clarifyWhenAmbiguous: true,
+        examples: ['SYN-35', 'AI 执行层建设'],
       },
       {
         name: 'prompt',
@@ -464,6 +568,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: '可直接交给外部编码 agent 的完整 prompt。',
+        examples: ['# Synaply Coding Handoff'],
       },
     ],
     sampleInput: {
@@ -941,6 +1046,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: 'Workflow run Issue ID。',
+        entityRef: 'issue',
+        clarifyWhenAmbiguous: true,
+        examples: ['SYN-35', '设计评审流程'],
       },
       {
         name: 'resultText',
@@ -948,6 +1056,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '推进前记录的成果摘要。',
+        examples: ['action contract 与 audit schema 已对齐。'],
       },
       {
         name: 'comment',
@@ -955,6 +1064,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '推进备注。',
+        examples: ['推进到下一个评审节点。'],
       },
       {
         name: 'attachments',
@@ -1097,6 +1207,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: 'Workflow run Issue ID。',
+        entityRef: 'issue',
+        clarifyWhenAmbiguous: true,
+        examples: ['SYN-35', '设计评审流程'],
       },
       {
         name: 'targetUserId',
@@ -1104,6 +1217,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: '目标评审人 User ID。',
+        entityRef: 'user',
+        clarifyWhenAmbiguous: true,
+        examples: ['Luke', '设计负责人'],
       },
       {
         name: 'targetName',
@@ -1111,6 +1227,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '评审人展示名称。',
+        omitWhenUncertain: true,
       },
       {
         name: 'comment',
@@ -1118,6 +1235,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '补充说明。',
+        examples: ['请确认 action contract 是否覆盖 review / handoff。'],
       },
     ],
     sampleInput: {
@@ -1310,6 +1428,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: '要评论的 Issue ID。',
+        entityRef: 'issue',
+        clarifyWhenAmbiguous: true,
+        examples: ['SYN-35', 'AI 执行层建设'],
       },
       {
         name: 'content',
@@ -1317,6 +1438,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: '评论正文。',
+        examples: ['这一步的审计和确认链已经闭合，可以进入联调。'],
       },
       {
         name: 'parentId',
@@ -1324,6 +1446,8 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '用于回复已有评论。',
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
       },
     ],
     sampleInput: {
@@ -1396,7 +1520,7 @@ export class AiExecutionService {
 
     return {
       workspaceId,
-      version: 1,
+      version: 2,
       generatedAt: new Date().toISOString(),
       actions: ACTION_DEFINITIONS.map((definition) => ({
         key: definition.key,

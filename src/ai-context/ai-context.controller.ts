@@ -19,6 +19,8 @@ import { SearchDocsDto } from './dto/search-docs.dto';
 import { AssembleCodingPromptDto } from './dto/assemble-coding-prompt.dto';
 import { SearchProjectsDto } from './dto/search-projects.dto';
 import { ListIssuesDto } from './dto/list-issues.dto';
+import { SearchIssuesDto } from './dto/search-issues.dto';
+import { SearchWorkspaceMembersDto } from './dto/search-workspace-members.dto';
 
 @ApiTags('ai-context')
 @ApiBearerAuth()
@@ -120,6 +122,23 @@ export class AiContextController {
     return this.aiContextService.listIssues(workspaceId, req.user!.sub, query);
   }
 
+  @Get('issues/search')
+  @ApiOperation({ summary: '按关键词搜索当前 workspace 内可读 issue' })
+  searchIssues(
+    @Param('workspaceId') workspaceId: string,
+    @Req() req: Request,
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: SearchIssuesDto,
+  ) {
+    return this.aiContextService.searchIssues(
+      workspaceId,
+      req.user!.sub,
+      query.query ?? '',
+      query.projectId,
+      query.limit,
+    );
+  }
+
   @Get('issues/:issueId')
   @ApiOperation({ summary: '获取 issue 的深度详情，供 AI read tool 使用' })
   getIssueDetail(
@@ -159,6 +178,22 @@ export class AiContextController {
     query: SearchDocsDto,
   ) {
     return this.aiContextService.searchDocs(
+      workspaceId,
+      req.user!.sub,
+      query.query ?? '',
+      query.limit,
+    );
+  }
+
+  @Get('workspace-members/search')
+  @ApiOperation({ summary: '按关键词搜索当前 workspace 内可用成员' })
+  searchWorkspaceMembers(
+    @Param('workspaceId') workspaceId: string,
+    @Req() req: Request,
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: SearchWorkspaceMembersDto,
+  ) {
+    return this.aiContextService.searchWorkspaceMembers(
       workspaceId,
       req.user!.sub,
       query.query ?? '',

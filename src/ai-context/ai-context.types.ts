@@ -85,6 +85,22 @@ export interface AiProjectSearchResult {
   text: string;
 }
 
+export interface AiIssueSearchResult {
+  items: Array<{
+    id: string;
+    key?: string | null;
+    title: string;
+    description?: string | null;
+    state?: string | null;
+    projectId?: string | null;
+    projectName?: string | null;
+    updatedAt: string;
+    assigneeLabels: string[];
+    currentStepStatus?: string | null;
+  }>;
+  text: string;
+}
+
 export interface AiProjectDetail {
   project: Record<string, unknown>;
   summary: Record<string, unknown>;
@@ -114,6 +130,18 @@ export interface AiDocDetail {
 
 export interface AiDocSearchResult {
   items: Array<Record<string, unknown>>;
+  text: string;
+}
+
+export interface AiWorkspaceMemberSearchResult {
+  items: Array<{
+    teamMemberId: string;
+    userId: string;
+    name?: string | null;
+    email?: string | null;
+    role: string;
+    isCurrentActor: boolean;
+  }>;
   text: string;
 }
 
