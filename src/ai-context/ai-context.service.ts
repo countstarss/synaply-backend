@@ -10,6 +10,7 @@ import { ProjectService } from '../project/project.service';
 import { IssueService } from '../issue/issue.service';
 import { DocService } from '../doc/doc.service';
 import { AiExecutionService } from '../ai-execution/ai-execution.service';
+import { WorkflowService } from '../workflow/workflow.service';
 import {
   AiActorContextDetail,
   AiCodingPromptAssembly,
@@ -21,6 +22,7 @@ import {
   AiProjectDetail,
   AiProjectSearchResult,
   AiSurfaceSummary,
+  AiWorkflowSearchResult,
   AiWorkflowRunDetail,
   AiWorkspaceMemberSearchResult,
   AiWorkspaceSummaryDetail,
@@ -49,6 +51,7 @@ export class AiContextService {
     private readonly projectService: ProjectService,
     private readonly issueService: IssueService,
     private readonly docService: DocService,
+    private readonly workflowService: WorkflowService,
     private readonly aiExecutionService: AiExecutionService,
   ) {}
 
@@ -426,6 +429,79 @@ export class AiContextService {
             .join('\n')}`
         : `No issues matched query "${query}".`,
       2600,
+    );
+
+    return {
+      items,
+      text,
+    };
+  }
+
+  async searchWorkflows(
+    workspaceId: string,
+    userId: string,
+    query: string,
+    limit = 8,
+  ): Promise<AiWorkflowSearchResult> {
+    const normalizedQuery = query.trim().toLowerCase();
+    const workflows = (await this.workflowService.findAll(
+      workspaceId,
+      userId,
+    )) as LooseRecord[];
+
+    const items = workflows
+      .filter((workflow) => {
+        if (!normalizedQuery) {
+          return true;
+        }
+
+        const haystack = [
+          asStringOrFallback(workflow.name, ''),
+          asStringOrFallback(workflow.description, ''),
+          asStringOrFallback(workflow.version, ''),
+        ]
+          .join('\n')
+          .toLowerCase();
+
+        return haystack.includes(normalizedQuery);
+      })
+      .sort((left, right) => {
+        const leftName = asStringOrFallback(left.name, '').toLowerCase();
+        const rightName = asStringOrFallback(right.name, '').toLowerCase();
+        const leftExact = normalizedQuery
+          ? leftName === normalizedQuery
+          : false;
+        const rightExact = normalizedQuery
+          ? rightName === normalizedQuery
+          : false;
+
+        if (leftExact !== rightExact) {
+          return rightExact ? 1 : -1;
+        }
+
+        return byUpdatedAtDesc(left, right);
+      })
+      .slice(0, limit)
+      .map((workflow) => ({
+        id: asString(workflow.id),
+        name: asString(workflow.name),
+        description: asStringOrNull(workflow.description),
+        status: asStringOrNull(workflow.status),
+        visibility: asStringOrNull(workflow.visibility),
+        version: asStringOrNull(workflow.version),
+        updatedAt: formatTimestamp(workflow.updatedAt),
+      }));
+
+    const text = clamp(
+      items.length > 0
+        ? `Workflow search results:\n${items
+            .map(
+              (workflow) =>
+                `- ${workflow.name} (${workflow.id})${workflow.status ? ` [${workflow.status}]` : ''}${workflow.version ? ` / ${workflow.version}` : ''}`,
+            )
+            .join('\n')}`
+        : `No workflows matched query "${query}".`,
+      2400,
     );
 
     return {

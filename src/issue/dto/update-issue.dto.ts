@@ -10,6 +10,10 @@ export class UpdateIssueDto {
   @IsString()
   description?: string;
 
+  @IsOptional()
+  @IsString()
+  stateId?: string;
+
   // Workflow fields
   @IsOptional()
   @IsString()

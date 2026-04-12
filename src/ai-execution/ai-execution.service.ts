@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import {
   IssuePriority,
+  IssueStateCategory,
   IssueStatus,
   Prisma,
   Role,
@@ -16,6 +17,7 @@ import { IssueService } from '../issue/issue.service';
 import { DocService } from '../doc/doc.service';
 import { WorkflowService } from '../workflow/workflow.service';
 import { CommentService } from '../comment/comment.service';
+import { IssueStateService } from '../issue-state/issue-state.service';
 import { CreateProjectDto } from '../project/dto/create-project.dto';
 import { UpdateProjectDto } from '../project/dto/update-project.dto';
 import { CreateIssueDto } from '../issue/dto/create-issue.dto';
@@ -97,6 +99,7 @@ function formatValidationErrors(errors: ValidationError[]): string[] {
 const VISIBILITY_OPTIONS = Object.values(VisibilityType);
 const ISSUE_PRIORITY_OPTIONS = Object.values(IssuePriority);
 const ISSUE_STATUS_OPTIONS = Object.values(IssueStatus);
+const ISSUE_STATE_CATEGORY_OPTIONS = Object.values(IssueStateCategory);
 const PROJECT_STATUS_OPTIONS = Object.values(ProjectStatusValue);
 const PROJECT_RISK_OPTIONS = Object.values(ProjectRiskLevelValue);
 const WORKFLOW_REVIEW_OUTCOME_OPTIONS = Object.values(WorkflowReviewOutcome);
@@ -117,6 +120,8 @@ const ENUM_ALIAS_HINTS: Record<string, string[]> = {
   BLOCKED: ['blocked', '阻塞', '卡住'],
   SHIPPING: ['shipping', '发布中', '收尾中'],
   DONE: ['done', '完成', '已完成'],
+  BACKLOG: ['backlog', '待整理', '未排期'],
+  CANCELED: ['canceled', 'cancelled', '取消', '已取消'],
   ARCHIVED: ['archived', '归档', '已归档'],
   TODO: ['todo', '待处理', '待开始'],
   IN_PROGRESS: ['in_progress', '进行中', '处理中'],
@@ -151,6 +156,8 @@ const ENUM_DESCRIPTION_HINTS: Record<string, string> = {
   BLOCKED: '当前被阻塞。',
   SHIPPING: '进入交付或上线收尾阶段。',
   DONE: '已经完成。',
+  BACKLOG: '还在待整理或待排期阶段。',
+  CANCELED: '已经取消，不再继续推进。',
   ARCHIVED: '已归档，不再活跃推进。',
   TODO: '尚未开始。',
   IN_PROGRESS: '正在执行。',
@@ -511,6 +518,17 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         description: '新的描述。',
       },
       {
+        name: 'stateCategory',
+        label: '任务状态类别',
+        type: 'enum',
+        required: false,
+        description: 'Issue 状态类别，用于把任务切换到待办 / 进行中 / 完成 / 已取消。',
+        options: ISSUE_STATE_CATEGORY_OPTIONS,
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
+        enumHints: buildEnumHints(ISSUE_STATE_CATEGORY_OPTIONS),
+      },
+      {
         name: 'currentStepId',
         label: '当前步骤 ID',
         type: 'string',
@@ -536,6 +554,7 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
     sampleInput: {
       issueId: 'issue-id',
       title: '补齐 AI execution 审计链路',
+      stateCategory: IssueStateCategory.DONE,
     },
     buildSummary: (input) =>
       `将更新任务 ${readString(input, 'issueId') ?? '(缺少 issueId)'}。`,
@@ -947,6 +966,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: true,
         description: '已发布 Workflow 模板 ID。',
+        entityRef: 'workflow',
+        clarifyWhenAmbiguous: true,
+        examples: ['0409-托尔斯泰', '黑客松报名流程'],
       },
       {
         name: 'title',
@@ -968,6 +990,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         type: 'string',
         required: false,
         description: '归属项目。',
+        entityRef: 'project',
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
       },
       {
         name: 'priority',
@@ -976,6 +1001,9 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         required: false,
         description: 'Issue 优先级。',
         options: ISSUE_PRIORITY_OPTIONS,
+        clarifyWhenAmbiguous: true,
+        omitWhenUncertain: true,
+        enumHints: buildEnumHints(ISSUE_PRIORITY_OPTIONS),
       },
     ],
     sampleInput: {
@@ -1486,6 +1514,7 @@ export class AiExecutionService {
     private readonly docService: DocService,
     private readonly workflowService: WorkflowService,
     private readonly commentService: CommentService,
+    private readonly issueStateService: IssueStateService,
   ) {}
 
   async getCapabilities(workspaceId: string, userId: string) {
@@ -2003,9 +2032,26 @@ export class AiExecutionService {
 
       case 'update_issue': {
         const issueId = this.requireId(payload, 'issueId', 'issueId');
+        const stateCategory =
+          typeof payload.stateCategory === 'string' &&
+          ISSUE_STATE_CATEGORY_OPTIONS.includes(
+            payload.stateCategory as IssueStateCategory,
+          )
+            ? (payload.stateCategory as IssueStateCategory)
+            : null;
+        const resolvedState =
+          stateCategory
+            ? await this.issueStateService.getStateByCategory(
+                workspaceId,
+                stateCategory,
+              )
+            : null;
         const dto = this.parseDto(
           UpdateIssueDto,
-          this.omitKeys(payload, ['issueId']),
+          {
+            ...this.omitKeys(payload, ['issueId', 'stateCategory']),
+            ...(resolvedState ? { stateId: resolvedState.id } : {}),
+          },
         );
         return this.issueService.update(userId, workspaceId, issueId, dto);
       }

@@ -29,6 +29,7 @@ export type AiMessagePart =
   | AiToolResultPart
   | AiApprovalRequestPart
   | AiCodingPromptPart
+  | AiClarificationOptionPart
   | AiContextChipPart
   | AiErrorPart;
 
@@ -83,6 +84,16 @@ export interface AiCodingPromptPart {
   issueId?: string;
   prompt: string;
   generatedAt: string;
+}
+
+export interface AiClarificationOptionPart {
+  type: 'clarification-options';
+  title?: string;
+  options: Array<{
+    label: string;
+    value: string;
+    description?: string;
+  }>;
 }
 
 export interface AiContextChipPart {

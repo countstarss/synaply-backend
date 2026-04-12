@@ -20,6 +20,7 @@ import { AssembleCodingPromptDto } from './dto/assemble-coding-prompt.dto';
 import { SearchProjectsDto } from './dto/search-projects.dto';
 import { ListIssuesDto } from './dto/list-issues.dto';
 import { SearchIssuesDto } from './dto/search-issues.dto';
+import { SearchWorkflowsDto } from './dto/search-workflows.dto';
 import { SearchWorkspaceMembersDto } from './dto/search-workspace-members.dto';
 
 @ApiTags('ai-context')
@@ -150,6 +151,22 @@ export class AiContextController {
       workspaceId,
       req.user!.sub,
       issueId,
+    );
+  }
+
+  @Get('workflows/search')
+  @ApiOperation({ summary: '按关键词搜索当前 workspace 内可读 workflow 模板' })
+  searchWorkflows(
+    @Param('workspaceId') workspaceId: string,
+    @Req() req: Request,
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: SearchWorkflowsDto,
+  ) {
+    return this.aiContextService.searchWorkflows(
+      workspaceId,
+      req.user!.sub,
+      query.query ?? '',
+      query.limit,
     );
   }
 

@@ -101,6 +101,19 @@ export interface AiIssueSearchResult {
   text: string;
 }
 
+export interface AiWorkflowSearchResult {
+  items: Array<{
+    id: string;
+    name: string;
+    description?: string | null;
+    status?: string | null;
+    visibility?: string | null;
+    version?: string | null;
+    updatedAt: string;
+  }>;
+  text: string;
+}
+
 export interface AiProjectDetail {
   project: Record<string, unknown>;
   summary: Record<string, unknown>;

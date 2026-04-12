@@ -6,6 +6,7 @@ import { ProjectModule } from '../project/project.module';
 import { IssueModule } from '../issue/issue.module';
 import { DocModule } from '../doc/doc.module';
 import { AiExecutionModule } from '../ai-execution/ai-execution.module';
+import { WorkflowModule } from '../workflow/workflow.module';
 import { AiContextController } from './ai-context.controller';
 import { AiContextService } from './ai-context.service';
 
@@ -17,6 +18,7 @@ import { AiContextService } from './ai-context.service';
     ProjectModule,
     IssueModule,
     DocModule,
+    WorkflowModule,
     AiExecutionModule,
   ],
   controllers: [AiContextController],

@@ -7,6 +7,7 @@ import { IssueModule } from '../issue/issue.module';
 import { DocModule } from '../doc/doc.module';
 import { WorkflowModule } from '../workflow/workflow.module';
 import { CommentModule } from '../comment/comment.module';
+import { IssueStateModule } from '../issue-state/issue-state.module';
 import { AiExecutionController } from './ai-execution.controller';
 import { AiExecutionService } from './ai-execution.service';
 
@@ -20,6 +21,7 @@ import { AiExecutionService } from './ai-execution.service';
     DocModule,
     WorkflowModule,
     CommentModule,
+    IssueStateModule,
   ],
   controllers: [AiExecutionController],
   providers: [AiExecutionService],
