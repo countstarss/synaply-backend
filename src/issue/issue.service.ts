@@ -136,6 +136,13 @@ function mapRunStatusToActionType(
   }
 }
 
+function isWorkflowRunTransitionAllowed(
+  currentStatus: WorkflowRunStatus,
+  allowedStatuses: WorkflowRunStatus[],
+) {
+  return allowedStatuses.includes(currentStatus);
+}
+
 @Injectable()
 export class IssueService {
   constructor(
@@ -764,6 +771,11 @@ export class IssueService {
     }
 
     const snapshot = this.parseWorkflowSnapshot(issue.workflowSnapshot);
+    const latestMetadata = await this.findLatestWorkflowActivityMetadata(issueId);
+    const workflowRun = this.buildWorkflowRunSummary(
+      issue,
+      latestMetadata ? { metadata: latestMetadata } : null,
+    );
     const currentNode =
       this.getWorkflowNodeById(snapshot, issue.currentStepId) ||
       this.getWorkflowNodes(snapshot)[issue.currentStepIndex] ||
@@ -781,6 +793,8 @@ export class IssueService {
       issue,
       snapshot,
       currentNode,
+      latestMetadata,
+      workflowRun,
     };
   }
 
@@ -844,6 +858,39 @@ export class IssueService {
       currentNode,
       latestMetadata,
     };
+  }
+
+  private assertWorkflowRunStatusAllowed(
+    workflowRun: { runStatus: WorkflowRunStatus } | null | undefined,
+    allowedStatuses: WorkflowRunStatus[],
+    actionLabel: string,
+  ) {
+    const currentStatus = workflowRun?.runStatus ?? WORKFLOW_RUN_STATUSES.ACTIVE;
+
+    if (isWorkflowRunTransitionAllowed(currentStatus, allowedStatuses)) {
+      return;
+    }
+
+    switch (currentStatus) {
+      case WORKFLOW_RUN_STATUSES.WAITING_REVIEW:
+        throw new BadRequestException(
+          `当前步骤正在等待 review，完成 review 响应后才能${actionLabel}`,
+        );
+      case WORKFLOW_RUN_STATUSES.HANDOFF_PENDING:
+        throw new BadRequestException(
+          `当前步骤正在等待接管，目标成员接受 handoff 后才能${actionLabel}`,
+        );
+      case WORKFLOW_RUN_STATUSES.BLOCKED:
+        throw new BadRequestException(
+          `当前步骤已被阻塞，解除阻塞后才能${actionLabel}`,
+        );
+      case WORKFLOW_RUN_STATUSES.DONE:
+        throw new BadRequestException(
+          `当前 workflow run 已完成，不能再${actionLabel}`,
+        );
+      default:
+        throw new BadRequestException(`当前状态下不能${actionLabel}`);
+    }
   }
 
   private async fetchWorkflowTemplateForRun(
@@ -1382,8 +1429,14 @@ export class IssueService {
     issueId: string,
     dto: UpdateWorkflowRunStatusDto,
   ) {
-    const { actorId, issue, snapshot, currentNode } =
+    const { actorId, issue, snapshot, currentNode, workflowRun } =
       await this.buildWorkflowActorContext(userId, workspaceId, issueId);
+
+    this.assertWorkflowRunStatusAllowed(
+      workflowRun,
+      [WORKFLOW_RUN_STATUSES.ACTIVE],
+      '更新步骤状态',
+    );
 
     const assigneeMemberId = await this.resolveNodeAssigneeMemberId(
       workspaceId,
@@ -1441,8 +1494,14 @@ export class IssueService {
     issueId: string,
     dto: AdvanceWorkflowRunDto,
   ) {
-    const { actorId, issue, snapshot, currentNode } =
+    const { actorId, issue, snapshot, currentNode, workflowRun } =
       await this.buildWorkflowActorContext(userId, workspaceId, issueId);
+
+    this.assertWorkflowRunStatusAllowed(
+      workflowRun,
+      [WORKFLOW_RUN_STATUSES.ACTIVE],
+      '推进步骤',
+    );
 
     if (!currentNode) {
       throw new BadRequestException('当前 workflow run 没有有效的步骤节点');
@@ -1602,8 +1661,14 @@ export class IssueService {
     issueId: string,
     dto: RevertWorkflowRunDto,
   ) {
-    const { actorId, issue, snapshot, currentNode } =
+    const { actorId, issue, snapshot, currentNode, workflowRun } =
       await this.buildWorkflowActorContext(userId, workspaceId, issueId);
+
+    this.assertWorkflowRunStatusAllowed(
+      workflowRun,
+      [WORKFLOW_RUN_STATUSES.ACTIVE],
+      '回退步骤',
+    );
 
     if (!currentNode) {
       throw new BadRequestException('当前 workflow run 没有有效的步骤节点');
@@ -1669,8 +1734,14 @@ export class IssueService {
     issueId: string,
     dto: BlockWorkflowRunDto,
   ) {
-    const { actorId, issue, snapshot, currentNode } =
+    const { actorId, issue, snapshot, currentNode, workflowRun } =
       await this.buildWorkflowActorContext(userId, workspaceId, issueId);
+
+    this.assertWorkflowRunStatusAllowed(
+      workflowRun,
+      [WORKFLOW_RUN_STATUSES.ACTIVE],
+      '标记阻塞',
+    );
 
     await this.prisma.$transaction(async (tx) => {
       await tx.issue.update({
@@ -1713,8 +1784,14 @@ export class IssueService {
     issueId: string,
     dto: UnblockWorkflowRunDto,
   ) {
-    const { actorId, issue, snapshot, currentNode } =
+    const { actorId, issue, snapshot, currentNode, workflowRun } =
       await this.buildWorkflowActorContext(userId, workspaceId, issueId);
+
+    this.assertWorkflowRunStatusAllowed(
+      workflowRun,
+      [WORKFLOW_RUN_STATUSES.BLOCKED],
+      '解除阻塞',
+    );
 
     const restoreStatus = dto.restoreStatus ?? IssueStatus.IN_PROGRESS;
 
@@ -1759,11 +1836,21 @@ export class IssueService {
     issueId: string,
     dto: RequestWorkflowReviewDto,
   ) {
-    const { actorId, issue, snapshot, currentNode } =
+    const { actorId, issue, snapshot, currentNode, workflowRun } =
       await this.buildWorkflowActorContext(userId, workspaceId, issueId);
+
+    this.assertWorkflowRunStatusAllowed(
+      workflowRun,
+      [WORKFLOW_RUN_STATUSES.ACTIVE],
+      '请求 review',
+    );
 
     if (!dto.targetUserId) {
       throw new BadRequestException('请求 review 时必须指定目标成员');
+    }
+
+    if (dto.targetUserId === userId) {
+      throw new BadRequestException('不能把 review 请求发送给自己');
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -1876,11 +1963,21 @@ export class IssueService {
     issueId: string,
     dto: RequestWorkflowHandoffDto,
   ) {
-    const { actorId, issue, snapshot, currentNode } =
+    const { actorId, issue, snapshot, currentNode, workflowRun } =
       await this.buildWorkflowActorContext(userId, workspaceId, issueId);
+
+    this.assertWorkflowRunStatusAllowed(
+      workflowRun,
+      [WORKFLOW_RUN_STATUSES.ACTIVE],
+      '发起交接',
+    );
 
     if (!dto.targetUserId) {
       throw new BadRequestException('请求交接时必须指定目标成员');
+    }
+
+    if (dto.targetUserId === userId) {
+      throw new BadRequestException('不能把 handoff 请求发送给自己');
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -1971,8 +2068,14 @@ export class IssueService {
     issueId: string,
     dto: SubmitWorkflowRecordDto,
   ) {
-    const { actorId, issue, snapshot, currentNode } =
+    const { actorId, issue, snapshot, currentNode, workflowRun } =
       await this.buildWorkflowActorContext(userId, workspaceId, issueId);
+
+    this.assertWorkflowRunStatusAllowed(
+      workflowRun,
+      [WORKFLOW_RUN_STATUSES.ACTIVE],
+      '提交步骤记录',
+    );
 
     if (!currentNode) {
       throw new BadRequestException('当前 workflow run 没有有效的步骤节点');
