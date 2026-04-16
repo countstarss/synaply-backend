@@ -1509,30 +1509,32 @@ export class InboxService {
           metadata: signal.metadata as Prisma.InputJsonValue,
         };
 
-        if (!existing) {
-          await tx.inboxItem.create({
-            data: {
-              workspaceId,
-              targetUserId: userId,
-              dedupeKey: signal.dedupeKey,
-              status: 'unread',
-              ...baseData,
-            },
-          });
-          continue;
-        }
-
         const shouldReopen =
+          existing != null &&
           (existing.status === 'done' || existing.status === 'dismissed') &&
           signal.occurredAt.getTime() > existing.occurredAt.getTime();
         const expiredSnooze =
+          existing != null &&
           existing.status === 'snoozed' &&
           existing.snoozedUntil !== null &&
           existing.snoozedUntil.getTime() <= now.getTime();
 
-        await tx.inboxItem.update({
-          where: { id: existing.id },
-          data: {
+        await tx.inboxItem.upsert({
+          where: {
+            workspaceId_targetUserId_dedupeKey: {
+              workspaceId,
+              targetUserId: userId,
+              dedupeKey: signal.dedupeKey,
+            },
+          },
+          create: {
+            workspaceId,
+            targetUserId: userId,
+            dedupeKey: signal.dedupeKey,
+            status: 'unread',
+            ...baseData,
+          },
+          update: {
             ...baseData,
             ...(expiredSnooze
               ? {
