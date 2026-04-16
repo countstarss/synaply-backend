@@ -2523,6 +2523,8 @@ export const DocScalarFieldEnum = {
   description: 'description',
   type: 'type',
   status: 'status',
+  kind: 'kind',
+  templateKey: 'templateKey',
   visibility: 'visibility',
   parentId: 'parentId',
   projectId: 'projectId',
@@ -3094,6 +3096,20 @@ export type EnumDocStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'DocStatus[]'
  */
 export type ListEnumDocStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DocKind'
+ */
+export type EnumDocKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocKind'>
+    
+
+
+/**
+ * Reference to a field of type 'DocKind[]'
+ */
+export type ListEnumDocKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocKind[]'>
     
 
 

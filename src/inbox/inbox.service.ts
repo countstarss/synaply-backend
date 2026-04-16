@@ -1,10 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
+  DocKind,
+  DocType,
   Prisma,
   InboxItem as InboxItemRecord,
   IssuePriority,
   IssueStateCategory,
   IssueStatus,
+  Role,
+  VisibilityType,
+  WorkspaceType,
 } from '../../prisma/generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamMemberService } from '../common/services/team-member.service';
@@ -64,6 +69,32 @@ type ProjectSignalRecord = Prisma.ProjectGetPayload<{
   select: typeof projectSignalSelect;
 }>;
 
+const docSignalSelect = {
+  id: true,
+  title: true,
+  kind: true,
+  visibility: true,
+  projectId: true,
+  issueId: true,
+  workflowId: true,
+  creatorMemberId: true,
+  ownerMemberId: true,
+  lastEditedAt: true,
+} satisfies Prisma.DocSelect;
+
+type DocSignalRecord = Prisma.DocGetPayload<{
+  select: typeof docSignalSelect;
+}>;
+
+const workflowSignalSelect = {
+  id: true,
+  name: true,
+} satisfies Prisma.WorkflowSelect;
+
+type WorkflowSignalRecord = Prisma.WorkflowGetPayload<{
+  select: typeof workflowSignalSelect;
+}>;
+
 interface InboxSignalDraft {
   dedupeKey: string;
   type: InboxItemType;
@@ -96,11 +127,15 @@ const PRIORITY_ORDER: Record<InboxItemPriority, number> = {
 const TYPE_ORDER: Record<InboxItemType, number> = {
   'workflow.review.requested': 100,
   'workflow.handoff.requested': 96,
+  'doc.review.ready': 94,
+  'doc.handoff.ready': 93,
   'workflow.blocked': 92,
   'deadline.soon': 88,
   'issue.assigned': 84,
+  'doc.release.updated': 83,
   'issue.canceled': 82,
   'project.risk.flagged': 80,
+  'doc.decision.updated': 78,
   'digest.generated': 20,
 };
 
@@ -166,6 +201,575 @@ export class InboxService {
     }
 
     return issue.workflowRun?.currentAssigneeUserId === userId;
+  }
+
+  private canUserSeeDoc(
+    doc: DocSignalRecord,
+    workspaceType: WorkspaceType,
+    teamMemberId: string,
+    workspaceRole: Role,
+  ) {
+    if (workspaceType === WorkspaceType.PERSONAL) {
+      return true;
+    }
+
+    if (
+      doc.creatorMemberId === teamMemberId ||
+      doc.ownerMemberId === teamMemberId
+    ) {
+      return true;
+    }
+
+    if (workspaceRole === Role.OWNER || workspaceRole === Role.ADMIN) {
+      return true;
+    }
+
+    return doc.visibility !== VisibilityType.PRIVATE;
+  }
+
+  private isProjectOwner(project: ProjectSignalRecord | null, userId: string) {
+    return project?.owner?.user?.id === userId;
+  }
+
+  private getDocSignalContext(
+    workspaceType: WorkspaceType,
+    visibility: VisibilityType,
+  ) {
+    if (workspaceType === WorkspaceType.PERSONAL) {
+      return 'personal';
+    }
+
+    return visibility === VisibilityType.PRIVATE ? 'team-personal' : 'team';
+  }
+
+  private isIssueContextRelevant(
+    issue: WorkspaceIssue | null,
+    project: ProjectSignalRecord | null,
+    userId: string,
+    teamMemberId: string,
+  ) {
+    if (!issue) {
+      return false;
+    }
+
+    return (
+      this.isAssignedToUser(issue, userId, teamMemberId) ||
+      issue.creatorId === userId ||
+      issue.creatorMemberId === teamMemberId ||
+      this.isProjectOwner(project, userId)
+    );
+  }
+
+  private isProjectContextRelevant(
+    project: ProjectSignalRecord | null,
+    projectIssues: WorkspaceIssue[],
+    userId: string,
+    teamMemberId: string,
+  ) {
+    if (this.isProjectOwner(project, userId)) {
+      return true;
+    }
+
+    return projectIssues.some((issue) =>
+      this.isIssueContextRelevant(issue, project, userId, teamMemberId),
+    );
+  }
+
+  private buildDigestKindCounts(docs: DocSignalRecord[]) {
+    const counts = new Map<DocKind, number>();
+
+    for (const doc of docs) {
+      counts.set(doc.kind, (counts.get(doc.kind) ?? 0) + 1);
+    }
+
+    return Array.from(counts.entries()).map(([kind, count]) => ({
+      kind,
+      count,
+    }));
+  }
+
+  private getDigestPriority(
+    docs: DocSignalRecord[],
+    project: ProjectSignalRecord | null,
+  ): InboxItemPriority {
+    const kinds = new Set(docs.map((doc) => doc.kind));
+
+    if (
+      kinds.has(DocKind.RELEASE_CHECKLIST) &&
+      this.isCriticalRisk(project?.riskLevel)
+    ) {
+      return 'urgent';
+    }
+
+    if (
+      kinds.has(DocKind.REVIEW_PACKET) ||
+      kinds.has(DocKind.HANDOFF_PACKET) ||
+      kinds.has(DocKind.RELEASE_CHECKLIST)
+    ) {
+      return 'high';
+    }
+
+    if (
+      kinds.has(DocKind.PROJECT_BRIEF) ||
+      kinds.has(DocKind.DECISION_LOG)
+    ) {
+      return 'normal';
+    }
+
+    return 'low';
+  }
+
+  private buildDigestSignals(
+    docs: DocSignalRecord[],
+    workspaceName: string,
+    workspaceType: WorkspaceType,
+    workspaceRole: Role,
+    userId: string,
+    teamMemberId: string,
+    issueMap: Map<string, WorkspaceIssue>,
+    issuesByWorkflowId: Map<string, WorkspaceIssue[]>,
+    issuesByProjectId: Map<string, WorkspaceIssue[]>,
+    projectMap: Map<string, ProjectSignalRecord>,
+    workflowMap: Map<string, WorkflowSignalRecord>,
+  ): InboxSignalDraft[] {
+    const recentWindowMs = 7 * 24 * 60 * 60 * 1000;
+    const recentThreshold = Date.now() - recentWindowMs;
+    const groupedDocs = new Map<string, DocSignalRecord[]>();
+
+    for (const doc of docs) {
+      if (
+        !this.canUserSeeDoc(doc, workspaceType, teamMemberId, workspaceRole) ||
+        doc.creatorMemberId === teamMemberId ||
+        doc.kind === DocKind.GENERAL ||
+        doc.lastEditedAt.getTime() < recentThreshold
+      ) {
+        continue;
+      }
+
+      const groupKey = doc.issueId
+        ? `issue:${doc.issueId}`
+        : doc.workflowId
+          ? `workflow:${doc.workflowId}`
+          : doc.projectId
+            ? `project:${doc.projectId}`
+            : null;
+
+      if (!groupKey) {
+        continue;
+      }
+
+      const bucket = groupedDocs.get(groupKey) ?? [];
+      bucket.push(doc);
+      groupedDocs.set(groupKey, bucket);
+    }
+
+    const signals: InboxSignalDraft[] = [];
+
+    for (const [groupKey, groupDocs] of groupedDocs.entries()) {
+      const latestDoc = [...groupDocs].sort(
+        (left, right) => right.lastEditedAt.getTime() - left.lastEditedAt.getTime(),
+      )[0];
+
+      if (!latestDoc) {
+        continue;
+      }
+
+      const kindCounts = this.buildDigestKindCounts(groupDocs);
+      const shouldCreateDigest =
+        groupDocs.length > 1 ||
+        kindCounts.length > 1 ||
+        kindCounts.some(({ kind }) => kind === DocKind.PROJECT_BRIEF);
+
+      if (!shouldCreateDigest) {
+        continue;
+      }
+
+      const latestDocContext = this.getDocSignalContext(
+        workspaceType,
+        latestDoc.visibility,
+      );
+
+      if (groupKey.startsWith('issue:')) {
+        const issueId = groupKey.slice('issue:'.length);
+        const issue = issueMap.get(issueId) ?? null;
+
+        if (!issue) {
+          continue;
+        }
+
+        const project = issue.projectId
+          ? projectMap.get(issue.projectId) ?? null
+          : null;
+
+        if (
+          !this.isIssueContextRelevant(issue, project, userId, teamMemberId) &&
+          !this.isProjectOwner(project, userId)
+        ) {
+          continue;
+        }
+
+        const sourceType = getIssueSignalSourceType(issue);
+        const projectName = project?.name ?? issue.project?.name ?? workspaceName;
+
+        signals.push({
+          dedupeKey: `digest.generated:issue:${issue.id}:${userId}`,
+          type: 'digest.generated',
+          bucket: 'digest',
+          sourceType,
+          sourceId: issue.id,
+          projectId: project?.id ?? null,
+          projectName,
+          issueId: issue.id,
+          issueKey: issue.key ?? null,
+          workflowRunId: sourceType === 'workflow' ? issue.id : null,
+          docId: latestDoc.id,
+          actorUserId: null,
+          title: `Doc digest updated for ${issue.title}`,
+          summary: `${groupDocs.length} collaboration docs changed around ${issue.title}.`,
+          priority: this.getDigestPriority(groupDocs, project),
+          requiresAction: false,
+          actionLabel: 'Open latest doc',
+          occurredAt: latestDoc.lastEditedAt,
+          metadata: {
+            managedBySync: true,
+            docContext: latestDocContext,
+            docKind: latestDoc.kind,
+            docTitle: latestDoc.title,
+            latestDocTitle: latestDoc.title,
+            digestDocCount: groupDocs.length,
+            digestKinds: kindCounts,
+            digestTargetType: sourceType,
+            digestTargetLabel: issue.title,
+          },
+        });
+
+        continue;
+      }
+
+      if (groupKey.startsWith('workflow:')) {
+        const workflowId = groupKey.slice('workflow:'.length);
+        const workflow = workflowMap.get(workflowId) ?? null;
+        const workflowIssues = issuesByWorkflowId.get(workflowId) ?? [];
+        const relevantIssue =
+          workflowIssues.find((issue) =>
+            this.isIssueContextRelevant(
+              issue,
+              issue.projectId ? projectMap.get(issue.projectId) ?? null : null,
+              userId,
+              teamMemberId,
+            ),
+          ) ?? null;
+        const project =
+          (latestDoc.projectId ? projectMap.get(latestDoc.projectId) ?? null : null) ??
+          (relevantIssue?.projectId
+            ? projectMap.get(relevantIssue.projectId) ?? null
+            : null);
+
+        if (
+          !relevantIssue &&
+          !this.isProjectContextRelevant(
+            project,
+            project?.id ? issuesByProjectId.get(project.id) ?? [] : [],
+            userId,
+            teamMemberId,
+          )
+        ) {
+          continue;
+        }
+
+        signals.push({
+          dedupeKey: `digest.generated:workflow:${workflowId}:${userId}`,
+          type: 'digest.generated',
+          bucket: 'digest',
+          sourceType: 'workflow',
+          sourceId: workflowId,
+          projectId: project?.id ?? null,
+          projectName: project?.name ?? workspaceName,
+          issueId: relevantIssue?.id ?? null,
+          issueKey: relevantIssue?.key ?? null,
+          workflowRunId: relevantIssue?.id ?? null,
+          docId: latestDoc.id,
+          actorUserId: null,
+          title: `Workflow doc digest updated for ${workflow?.name ?? workspaceName}`,
+          summary: `${groupDocs.length} collaboration docs changed in this workflow context.`,
+          priority: this.getDigestPriority(groupDocs, project),
+          requiresAction: false,
+          actionLabel: 'Open latest doc',
+          occurredAt: latestDoc.lastEditedAt,
+          metadata: {
+            managedBySync: true,
+            docContext: latestDocContext,
+            docKind: latestDoc.kind,
+            docTitle: latestDoc.title,
+            latestDocTitle: latestDoc.title,
+            digestDocCount: groupDocs.length,
+            digestKinds: kindCounts,
+            digestTargetType: 'workflow',
+            digestTargetLabel:
+              workflow?.name ?? project?.name ?? relevantIssue?.title ?? workspaceName,
+          },
+        });
+
+        continue;
+      }
+
+      const projectId = groupKey.slice('project:'.length);
+      const project = projectMap.get(projectId) ?? null;
+      const projectIssues = issuesByProjectId.get(projectId) ?? [];
+
+      if (
+        !this.isProjectContextRelevant(project, projectIssues, userId, teamMemberId)
+      ) {
+        continue;
+      }
+
+      const projectName = project?.name ?? workspaceName;
+
+      signals.push({
+        dedupeKey: `digest.generated:project:${projectId}:${userId}`,
+        type: 'digest.generated',
+        bucket: 'digest',
+        sourceType: 'project',
+        sourceId: projectId,
+        projectId,
+        projectName,
+        issueId: null,
+        issueKey: null,
+        workflowRunId: null,
+        docId: latestDoc.id,
+        actorUserId: null,
+        title: `Project doc digest updated for ${projectName}`,
+        summary: `${groupDocs.length} collaboration docs changed in ${projectName}.`,
+        priority: this.getDigestPriority(groupDocs, project),
+        requiresAction: false,
+        actionLabel: 'Open latest doc',
+        occurredAt: latestDoc.lastEditedAt,
+        metadata: {
+          managedBySync: true,
+          docContext: latestDocContext,
+          docKind: latestDoc.kind,
+          docTitle: latestDoc.title,
+          latestDocTitle: latestDoc.title,
+          digestDocCount: groupDocs.length,
+          digestKinds: kindCounts,
+          digestTargetType: 'project',
+          digestTargetLabel: projectName,
+        },
+      });
+    }
+
+    return signals;
+  }
+
+  private buildDocSignal(
+    doc: DocSignalRecord,
+    workspaceName: string,
+    workspaceType: WorkspaceType,
+    workspaceRole: Role,
+    userId: string,
+    teamMemberId: string,
+    issueMap: Map<string, WorkspaceIssue>,
+    issuesByWorkflowId: Map<string, WorkspaceIssue[]>,
+    projectMap: Map<string, ProjectSignalRecord>,
+  ): InboxSignalDraft | null {
+    if (
+      !this.canUserSeeDoc(doc, workspaceType, teamMemberId, workspaceRole) ||
+      doc.creatorMemberId === teamMemberId
+    ) {
+      return null;
+    }
+
+    const directIssue = doc.issueId ? (issueMap.get(doc.issueId) ?? null) : null;
+    const workflowIssues = doc.workflowId
+      ? (issuesByWorkflowId.get(doc.workflowId) ?? [])
+      : [];
+    const relevantWorkflowIssue =
+      workflowIssues.find((issue) =>
+        this.isIssueContextRelevant(
+          issue,
+          issue.projectId ? projectMap.get(issue.projectId) ?? null : null,
+          userId,
+          teamMemberId,
+        ),
+      ) ?? null;
+    const issue = directIssue ?? relevantWorkflowIssue;
+    const project =
+      (doc.projectId ? projectMap.get(doc.projectId) ?? null : null) ??
+      (issue?.projectId ? projectMap.get(issue.projectId) ?? null : null);
+    const projectName = project?.name ?? issue?.project?.name ?? workspaceName;
+    const issueId = issue?.id ?? null;
+    const issueKey = issue?.key ?? null;
+    const workflowRunId =
+      issue && getIssueSignalSourceType(issue) === 'workflow' ? issue.id : null;
+    const issueRelevant = this.isIssueContextRelevant(
+      issue,
+      project,
+      userId,
+      teamMemberId,
+    );
+    const docContext = this.getDocSignalContext(workspaceType, doc.visibility);
+
+    switch (doc.kind) {
+      case DocKind.DECISION_LOG: {
+        if (!issueRelevant && !this.isProjectOwner(project, userId)) {
+          return null;
+        }
+
+        return {
+          dedupeKey: `doc.decision.updated:${doc.id}:${userId}`,
+          type: 'doc.decision.updated',
+          bucket: 'following',
+          sourceType: 'doc',
+          sourceId: doc.id,
+          projectId: project?.id ?? null,
+          projectName,
+          issueId,
+          issueKey,
+          workflowRunId,
+          docId: doc.id,
+          actorUserId: null,
+          title: `Decision updated: ${doc.title}`,
+          summary:
+            issue?.title != null
+              ? `The latest decision now affects ${issue.title}.`
+              : `A project decision changed in ${projectName}.`,
+          priority: 'normal',
+          requiresAction: false,
+          actionLabel: 'Open decision log',
+          occurredAt: doc.lastEditedAt,
+          metadata: {
+            managedBySync: true,
+            docKind: doc.kind,
+            docContext,
+            docTitle: doc.title,
+          },
+        };
+      }
+
+      case DocKind.REVIEW_PACKET: {
+        if (!issue) {
+          return null;
+        }
+
+        const isReviewTarget =
+          issue.workflowRun?.runStatus === 'WAITING_REVIEW' &&
+          issue.workflowRun.targetUserId === userId;
+
+        if (!isReviewTarget && !issueRelevant) {
+          return null;
+        }
+
+        return {
+          dedupeKey: `doc.review.ready:${doc.id}:${userId}`,
+          type: 'doc.review.ready',
+          bucket: isReviewTarget ? 'needs-response' : 'needs-attention',
+          sourceType: 'doc',
+          sourceId: doc.id,
+          projectId: project?.id ?? null,
+          projectName,
+          issueId,
+          issueKey,
+          workflowRunId,
+          docId: doc.id,
+          actorUserId: null,
+          title: `Review packet ready: ${doc.title}`,
+          summary: isReviewTarget
+            ? `The latest review context is ready for ${issue.title}.`
+            : `Review context was updated for ${issue.title}.`,
+          priority: isReviewTarget ? 'high' : this.normalizePriority(issue.priority),
+          requiresAction: isReviewTarget,
+          actionLabel: isReviewTarget ? 'Open review packet' : 'Open review context',
+          occurredAt: doc.lastEditedAt,
+          metadata: {
+            managedBySync: true,
+            docKind: doc.kind,
+            docContext,
+            docTitle: doc.title,
+          },
+        };
+      }
+
+      case DocKind.HANDOFF_PACKET: {
+        if (!issue) {
+          return null;
+        }
+
+        const isHandoffTarget =
+          issue.workflowRun?.runStatus === 'HANDOFF_PENDING' &&
+          issue.workflowRun.targetUserId === userId;
+
+        if (!isHandoffTarget && !issueRelevant) {
+          return null;
+        }
+
+        return {
+          dedupeKey: `doc.handoff.ready:${doc.id}:${userId}`,
+          type: 'doc.handoff.ready',
+          bucket: isHandoffTarget ? 'needs-response' : 'needs-attention',
+          sourceType: 'doc',
+          sourceId: doc.id,
+          projectId: project?.id ?? null,
+          projectName,
+          issueId,
+          issueKey,
+          workflowRunId,
+          docId: doc.id,
+          actorUserId: null,
+          title: `Handoff packet ready: ${doc.title}`,
+          summary: isHandoffTarget
+            ? `The handoff context is ready before you take over ${issue.title}.`
+            : `Handoff context was updated for ${issue.title}.`,
+          priority: isHandoffTarget ? 'high' : this.normalizePriority(issue.priority),
+          requiresAction: isHandoffTarget,
+          actionLabel: isHandoffTarget
+            ? 'Open handoff packet'
+            : 'Open handoff context',
+          occurredAt: doc.lastEditedAt,
+          metadata: {
+            managedBySync: true,
+            docKind: doc.kind,
+            docContext,
+            docTitle: doc.title,
+          },
+        };
+      }
+
+      case DocKind.RELEASE_CHECKLIST: {
+        if (!issueRelevant && !this.isProjectOwner(project, userId)) {
+          return null;
+        }
+
+        return {
+          dedupeKey: `doc.release.updated:${doc.id}:${userId}`,
+          type: 'doc.release.updated',
+          bucket: 'needs-attention',
+          sourceType: 'doc',
+          sourceId: doc.id,
+          projectId: project?.id ?? null,
+          projectName,
+          issueId,
+          issueKey,
+          workflowRunId,
+          docId: doc.id,
+          actorUserId: null,
+          title: `Release checklist updated: ${doc.title}`,
+          summary: `The latest launch readiness notes for ${projectName} were updated.`,
+          priority: project?.riskLevel === 'CRITICAL' ? 'urgent' : 'high',
+          requiresAction: false,
+          actionLabel: 'Open release checklist',
+          occurredAt: doc.lastEditedAt,
+          metadata: {
+            managedBySync: true,
+            docKind: doc.kind,
+            docContext,
+            docTitle: doc.title,
+          },
+        };
+      }
+
+      default:
+        return null;
+    }
   }
 
   private normalizePriority(priority: IssuePriority | null | undefined) {
@@ -666,10 +1270,15 @@ export class InboxService {
   private async collectSignalsForUser(
     workspaceId: string,
     workspaceName: string,
+    workspaceType: WorkspaceType,
+    workspaceRole: Role,
     userId: string,
     teamMemberId: string,
   ) {
-    const [issues, projects] = await Promise.all([
+    const recentDocThreshold = new Date(
+      Date.now() - 14 * 24 * 60 * 60 * 1000,
+    );
+    const [issues, projects, docs] = await Promise.all([
       this.issueService.findAll(workspaceId, userId, {
         sortBy: 'updatedAt',
         sortOrder: 'desc',
@@ -681,11 +1290,71 @@ export class InboxService {
         },
         select: projectSignalSelect,
       }),
+      this.prisma.doc.findMany({
+        where: {
+          workspaceId,
+          type: DocType.DOCUMENT,
+          isDeleted: false,
+          isArchived: false,
+          kind: {
+            not: DocKind.GENERAL,
+          },
+          lastEditedAt: {
+            gte: recentDocThreshold,
+          },
+        },
+        select: docSignalSelect,
+      }),
     ]);
+    const workflowIds = Array.from(
+      new Set(
+        docs
+          .map((doc) => doc.workflowId)
+          .filter((workflowId): workflowId is string => Boolean(workflowId)),
+      ),
+    );
+    const workflows =
+      workflowIds.length > 0
+        ? await this.prisma.workflow.findMany({
+            where: {
+              workspaceId,
+              id: {
+                in: workflowIds,
+              },
+            },
+            select: workflowSignalSelect,
+          })
+        : [];
 
     const projectMap = new Map<string, ProjectSignalRecord>();
     for (const project of projects) {
       projectMap.set(project.id, project);
+    }
+
+    const workflowMap = new Map<string, WorkflowSignalRecord>();
+    for (const workflow of workflows) {
+      workflowMap.set(workflow.id, workflow);
+    }
+
+    const issueMap = new Map<string, WorkspaceIssue>();
+    const issuesByWorkflowId = new Map<string, WorkspaceIssue[]>();
+    const issuesByProjectId = new Map<string, WorkspaceIssue[]>();
+    for (const issue of issues) {
+      issueMap.set(issue.id, issue);
+
+      if (issue.projectId) {
+        const projectIssues = issuesByProjectId.get(issue.projectId) ?? [];
+        projectIssues.push(issue);
+        issuesByProjectId.set(issue.projectId, projectIssues);
+      }
+
+      if (!issue.workflowId) {
+        continue;
+      }
+
+      const workflowIssues = issuesByWorkflowId.get(issue.workflowId) ?? [];
+      workflowIssues.push(issue);
+      issuesByWorkflowId.set(issue.workflowId, workflowIssues);
     }
 
     const signals: InboxSignalDraft[] = [];
@@ -748,17 +1417,57 @@ export class InboxService {
       }
     }
 
+    for (const doc of docs) {
+      const docSignal = this.buildDocSignal(
+        doc,
+        workspaceName,
+        workspaceType,
+        workspaceRole,
+        userId,
+        teamMemberId,
+        issueMap,
+        issuesByWorkflowId,
+        projectMap,
+      );
+
+      if (docSignal) {
+        signals.push(docSignal);
+      }
+    }
+
+    signals.push(
+      ...this.buildDigestSignals(
+        docs,
+        workspaceName,
+        workspaceType,
+        workspaceRole,
+        userId,
+        teamMemberId,
+        issueMap,
+        issuesByWorkflowId,
+        issuesByProjectId,
+        projectMap,
+        workflowMap,
+      ),
+    );
+
     return signals;
   }
 
   private async syncUserInboxState(workspaceId: string, userId: string) {
     const { workspace, teamMemberId } =
       await this.teamMemberService.validateWorkspaceAccess(userId, workspaceId);
+    const workspaceRole =
+      workspace.type === WorkspaceType.PERSONAL
+        ? Role.OWNER
+        : workspace.team?.members?.[0]?.role ?? Role.MEMBER;
 
     const now = new Date();
     const signals = await this.collectSignalsForUser(
       workspaceId,
       workspace.name,
+      workspace.type,
+      workspaceRole,
       userId,
       teamMemberId,
     );

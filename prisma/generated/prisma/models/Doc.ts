@@ -43,6 +43,8 @@ export type DocMinAggregateOutputType = {
   description: string | null
   type: $Enums.DocType | null
   status: $Enums.DocStatus | null
+  kind: $Enums.DocKind | null
+  templateKey: string | null
   visibility: $Enums.VisibilityType | null
   parentId: string | null
   projectId: string | null
@@ -68,6 +70,8 @@ export type DocMaxAggregateOutputType = {
   description: string | null
   type: $Enums.DocType | null
   status: $Enums.DocStatus | null
+  kind: $Enums.DocKind | null
+  templateKey: string | null
   visibility: $Enums.VisibilityType | null
   parentId: string | null
   projectId: string | null
@@ -93,6 +97,8 @@ export type DocCountAggregateOutputType = {
   description: number
   type: number
   status: number
+  kind: number
+  templateKey: number
   visibility: number
   parentId: number
   projectId: number
@@ -128,6 +134,8 @@ export type DocMinAggregateInputType = {
   description?: true
   type?: true
   status?: true
+  kind?: true
+  templateKey?: true
   visibility?: true
   parentId?: true
   projectId?: true
@@ -153,6 +161,8 @@ export type DocMaxAggregateInputType = {
   description?: true
   type?: true
   status?: true
+  kind?: true
+  templateKey?: true
   visibility?: true
   parentId?: true
   projectId?: true
@@ -178,6 +188,8 @@ export type DocCountAggregateInputType = {
   description?: true
   type?: true
   status?: true
+  kind?: true
+  templateKey?: true
   visibility?: true
   parentId?: true
   projectId?: true
@@ -290,6 +302,8 @@ export type DocGroupByOutputType = {
   description: string | null
   type: $Enums.DocType
   status: $Enums.DocStatus
+  kind: $Enums.DocKind
+  templateKey: string | null
   visibility: $Enums.VisibilityType
   parentId: string | null
   projectId: string | null
@@ -338,6 +352,8 @@ export type DocWhereInput = {
   description?: Prisma.StringNullableFilter<"Doc"> | string | null
   type?: Prisma.EnumDocTypeFilter<"Doc"> | $Enums.DocType
   status?: Prisma.EnumDocStatusFilter<"Doc"> | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFilter<"Doc"> | $Enums.DocKind
+  templateKey?: Prisma.StringNullableFilter<"Doc"> | string | null
   visibility?: Prisma.EnumVisibilityTypeFilter<"Doc"> | $Enums.VisibilityType
   parentId?: Prisma.StringNullableFilter<"Doc"> | string | null
   projectId?: Prisma.StringNullableFilter<"Doc"> | string | null
@@ -373,6 +389,8 @@ export type DocOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   visibility?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   projectId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -412,6 +430,8 @@ export type DocWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Doc"> | string | null
   type?: Prisma.EnumDocTypeFilter<"Doc"> | $Enums.DocType
   status?: Prisma.EnumDocStatusFilter<"Doc"> | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFilter<"Doc"> | $Enums.DocKind
+  templateKey?: Prisma.StringNullableFilter<"Doc"> | string | null
   visibility?: Prisma.EnumVisibilityTypeFilter<"Doc"> | $Enums.VisibilityType
   parentId?: Prisma.StringNullableFilter<"Doc"> | string | null
   projectId?: Prisma.StringNullableFilter<"Doc"> | string | null
@@ -446,6 +466,8 @@ export type DocOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   visibility?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   projectId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -479,6 +501,8 @@ export type DocScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Doc"> | string | null
   type?: Prisma.EnumDocTypeWithAggregatesFilter<"Doc"> | $Enums.DocType
   status?: Prisma.EnumDocStatusWithAggregatesFilter<"Doc"> | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindWithAggregatesFilter<"Doc"> | $Enums.DocKind
+  templateKey?: Prisma.StringNullableWithAggregatesFilter<"Doc"> | string | null
   visibility?: Prisma.EnumVisibilityTypeWithAggregatesFilter<"Doc"> | $Enums.VisibilityType
   parentId?: Prisma.StringNullableWithAggregatesFilter<"Doc"> | string | null
   projectId?: Prisma.StringNullableWithAggregatesFilter<"Doc"> | string | null
@@ -501,6 +525,8 @@ export type DocCreateInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -531,6 +557,8 @@ export type DocUncheckedCreateInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -555,6 +583,8 @@ export type DocUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -585,6 +615,8 @@ export type DocUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -612,6 +644,8 @@ export type DocCreateManyInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -634,6 +668,8 @@ export type DocUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -654,6 +690,8 @@ export type DocUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -694,6 +732,8 @@ export type DocCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
@@ -723,6 +763,8 @@ export type DocMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
@@ -748,6 +790,8 @@ export type DocMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  templateKey?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
@@ -1053,6 +1097,10 @@ export type EnumDocStatusFieldUpdateOperationsInput = {
   set?: $Enums.DocStatus
 }
 
+export type EnumDocKindFieldUpdateOperationsInput = {
+  set?: $Enums.DocKind
+}
+
 export type DocUpdateOneWithoutChildrenNestedInput = {
   create?: Prisma.XOR<Prisma.DocCreateWithoutChildrenInput, Prisma.DocUncheckedCreateWithoutChildrenInput>
   connectOrCreate?: Prisma.DocCreateOrConnectWithoutChildrenInput
@@ -1143,6 +1191,8 @@ export type DocCreateWithoutCreatorMemberInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1171,6 +1221,8 @@ export type DocUncheckedCreateWithoutCreatorMemberInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -1205,6 +1257,8 @@ export type DocCreateWithoutOwnerMemberInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1233,6 +1287,8 @@ export type DocUncheckedCreateWithoutOwnerMemberInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -1289,6 +1345,8 @@ export type DocScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"Doc"> | string | null
   type?: Prisma.EnumDocTypeFilter<"Doc"> | $Enums.DocType
   status?: Prisma.EnumDocStatusFilter<"Doc"> | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFilter<"Doc"> | $Enums.DocKind
+  templateKey?: Prisma.StringNullableFilter<"Doc"> | string | null
   visibility?: Prisma.EnumVisibilityTypeFilter<"Doc"> | $Enums.VisibilityType
   parentId?: Prisma.StringNullableFilter<"Doc"> | string | null
   projectId?: Prisma.StringNullableFilter<"Doc"> | string | null
@@ -1327,6 +1385,8 @@ export type DocCreateWithoutWorkspaceInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1355,6 +1415,8 @@ export type DocUncheckedCreateWithoutWorkspaceInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -1405,6 +1467,8 @@ export type DocCreateWithoutProjectInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1434,6 +1498,8 @@ export type DocUncheckedCreateWithoutProjectInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   issueId?: string | null
@@ -1483,6 +1549,8 @@ export type DocCreateWithoutWorkflowInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1512,6 +1580,8 @@ export type DocUncheckedCreateWithoutWorkflowInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -1561,6 +1631,8 @@ export type DocCreateWithoutIssueInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1590,6 +1662,8 @@ export type DocUncheckedCreateWithoutIssueInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -1639,6 +1713,8 @@ export type DocCreateWithoutChildrenInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1668,6 +1744,8 @@ export type DocUncheckedCreateWithoutChildrenInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -1696,6 +1774,8 @@ export type DocCreateWithoutParentInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1725,6 +1805,8 @@ export type DocUncheckedCreateWithoutParentInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   projectId?: string | null
   issueId?: string | null
@@ -1769,6 +1851,8 @@ export type DocUpdateWithoutChildrenInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1798,6 +1882,8 @@ export type DocUncheckedUpdateWithoutChildrenInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1837,6 +1923,8 @@ export type DocCreateWithoutRevisionsInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1866,6 +1954,8 @@ export type DocUncheckedCreateWithoutRevisionsInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -1894,6 +1984,8 @@ export type DocCreateWithoutLatestRevisionInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   icon?: string | null
   coverImage?: string | null
@@ -1923,6 +2015,8 @@ export type DocUncheckedCreateWithoutLatestRevisionInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -1962,6 +2056,8 @@ export type DocUpdateWithoutRevisionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1991,6 +2087,8 @@ export type DocUncheckedUpdateWithoutRevisionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2025,6 +2123,8 @@ export type DocUpdateWithoutLatestRevisionInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2054,6 +2154,8 @@ export type DocUncheckedUpdateWithoutLatestRevisionInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2079,6 +2181,8 @@ export type DocCreateManyCreatorMemberInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -2103,6 +2207,8 @@ export type DocCreateManyOwnerMemberInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -2125,6 +2231,8 @@ export type DocUpdateWithoutCreatorMemberInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2153,6 +2261,8 @@ export type DocUncheckedUpdateWithoutCreatorMemberInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2179,6 +2289,8 @@ export type DocUncheckedUpdateManyWithoutCreatorMemberInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2201,6 +2313,8 @@ export type DocUpdateWithoutOwnerMemberInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2229,6 +2343,8 @@ export type DocUncheckedUpdateWithoutOwnerMemberInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2255,6 +2371,8 @@ export type DocUncheckedUpdateManyWithoutOwnerMemberInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2279,6 +2397,8 @@ export type DocCreateManyWorkspaceInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -2301,6 +2421,8 @@ export type DocUpdateWithoutWorkspaceInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2329,6 +2451,8 @@ export type DocUncheckedUpdateWithoutWorkspaceInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2355,6 +2479,8 @@ export type DocUncheckedUpdateManyWithoutWorkspaceInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2380,6 +2506,8 @@ export type DocCreateManyProjectInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   issueId?: string | null
@@ -2401,6 +2529,8 @@ export type DocUpdateWithoutProjectInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2430,6 +2560,8 @@ export type DocUncheckedUpdateWithoutProjectInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2456,6 +2588,8 @@ export type DocUncheckedUpdateManyWithoutProjectInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2480,6 +2614,8 @@ export type DocCreateManyWorkflowInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -2501,6 +2637,8 @@ export type DocUpdateWithoutWorkflowInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2530,6 +2668,8 @@ export type DocUncheckedUpdateWithoutWorkflowInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2556,6 +2696,8 @@ export type DocUncheckedUpdateManyWithoutWorkflowInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2580,6 +2722,8 @@ export type DocCreateManyIssueInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   parentId?: string | null
   projectId?: string | null
@@ -2601,6 +2745,8 @@ export type DocUpdateWithoutIssueInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2630,6 +2776,8 @@ export type DocUncheckedUpdateWithoutIssueInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2656,6 +2804,8 @@ export type DocUncheckedUpdateManyWithoutIssueInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2680,6 +2830,8 @@ export type DocCreateManyParentInput = {
   description?: string | null
   type: $Enums.DocType
   status?: $Enums.DocStatus
+  kind?: $Enums.DocKind
+  templateKey?: string | null
   visibility?: $Enums.VisibilityType
   projectId?: string | null
   issueId?: string | null
@@ -2701,6 +2853,8 @@ export type DocUpdateWithoutParentInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   coverImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2730,6 +2884,8 @@ export type DocUncheckedUpdateWithoutParentInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2756,6 +2912,8 @@ export type DocUncheckedUpdateManyWithoutParentInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumDocTypeFieldUpdateOperationsInput | $Enums.DocType
   status?: Prisma.EnumDocStatusFieldUpdateOperationsInput | $Enums.DocStatus
+  kind?: Prisma.EnumDocKindFieldUpdateOperationsInput | $Enums.DocKind
+  templateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityTypeFieldUpdateOperationsInput | $Enums.VisibilityType
   projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2820,6 +2978,8 @@ export type DocSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   description?: boolean
   type?: boolean
   status?: boolean
+  kind?: boolean
+  templateKey?: boolean
   visibility?: boolean
   parentId?: boolean
   projectId?: boolean
@@ -2856,6 +3016,8 @@ export type DocSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   description?: boolean
   type?: boolean
   status?: boolean
+  kind?: boolean
+  templateKey?: boolean
   visibility?: boolean
   parentId?: boolean
   projectId?: boolean
@@ -2889,6 +3051,8 @@ export type DocSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   description?: boolean
   type?: boolean
   status?: boolean
+  kind?: boolean
+  templateKey?: boolean
   visibility?: boolean
   parentId?: boolean
   projectId?: boolean
@@ -2922,6 +3086,8 @@ export type DocSelectScalar = {
   description?: boolean
   type?: boolean
   status?: boolean
+  kind?: boolean
+  templateKey?: boolean
   visibility?: boolean
   parentId?: boolean
   projectId?: boolean
@@ -2938,7 +3104,7 @@ export type DocSelectScalar = {
   lastEditedAt?: boolean
 }
 
-export type DocOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "creatorMemberId" | "ownerMemberId" | "title" | "description" | "type" | "status" | "visibility" | "parentId" | "projectId" | "issueId" | "workflowId" | "icon" | "coverImage" | "sortOrder" | "isArchived" | "isDeleted" | "latestRevisionId" | "createdAt" | "updatedAt" | "lastEditedAt", ExtArgs["result"]["doc"]>
+export type DocOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "creatorMemberId" | "ownerMemberId" | "title" | "description" | "type" | "status" | "kind" | "templateKey" | "visibility" | "parentId" | "projectId" | "issueId" | "workflowId" | "icon" | "coverImage" | "sortOrder" | "isArchived" | "isDeleted" | "latestRevisionId" | "createdAt" | "updatedAt" | "lastEditedAt", ExtArgs["result"]["doc"]>
 export type DocInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   creatorMember?: boolean | Prisma.TeamMemberDefaultArgs<ExtArgs>
@@ -2996,6 +3162,8 @@ export type $DocPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     description: string | null
     type: $Enums.DocType
     status: $Enums.DocStatus
+    kind: $Enums.DocKind
+    templateKey: string | null
     visibility: $Enums.VisibilityType
     parentId: string | null
     projectId: string | null
@@ -3451,6 +3619,8 @@ export interface DocFieldRefs {
   readonly description: Prisma.FieldRef<"Doc", 'String'>
   readonly type: Prisma.FieldRef<"Doc", 'DocType'>
   readonly status: Prisma.FieldRef<"Doc", 'DocStatus'>
+  readonly kind: Prisma.FieldRef<"Doc", 'DocKind'>
+  readonly templateKey: Prisma.FieldRef<"Doc", 'String'>
   readonly visibility: Prisma.FieldRef<"Doc", 'VisibilityType'>
   readonly parentId: Prisma.FieldRef<"Doc", 'String'>
   readonly projectId: Prisma.FieldRef<"Doc", 'String'>

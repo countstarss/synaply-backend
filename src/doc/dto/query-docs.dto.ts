@@ -42,6 +42,22 @@ export class QueryDocsDto {
   projectId?: string;
 
   @ApiPropertyOptional({
+    description: '按 issue 过滤文档',
+  })
+  @IsOptional()
+  @Transform(emptyStringToUndefined)
+  @IsUUID()
+  issueId?: string;
+
+  @ApiPropertyOptional({
+    description: '按 workflow 过滤文档',
+  })
+  @IsOptional()
+  @Transform(emptyStringToUndefined)
+  @IsUUID()
+  workflowId?: string;
+
+  @ApiPropertyOptional({
     description: '是否包含归档文档',
     default: false,
   })

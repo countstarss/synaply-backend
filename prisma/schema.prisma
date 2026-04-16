@@ -200,6 +200,8 @@ model Doc {
   description      String?
   type             DocType
   status           DocStatus      @default(ACTIVE)
+  kind             DocKind        @default(GENERAL)
+  templateKey      String?        @map("template_key")
   visibility       VisibilityType @default(PRIVATE)
   parentId         String?        @map("parent_id")
   projectId        String?        @map("project_id")
@@ -229,6 +231,7 @@ model Doc {
   @@index([workspaceId])
   @@index([workspaceId, isArchived])
   @@index([workspaceId, parentId])
+  @@index([workspaceId, kind])
   @@index([projectId])
   @@index([issueId])
   @@index([workflowId])
@@ -706,6 +709,15 @@ enum DocType {
 enum DocStatus {
   ACTIVE
   ARCHIVED
+}
+
+enum DocKind {
+  GENERAL
+  PROJECT_BRIEF
+  DECISION_LOG
+  REVIEW_PACKET
+  HANDOFF_PACKET
+  RELEASE_CHECKLIST
 }
 
 enum DocChangeSource {

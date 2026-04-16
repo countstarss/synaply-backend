@@ -2,9 +2,13 @@ export const INBOX_ITEM_TYPES = [
   'workflow.review.requested',
   'workflow.handoff.requested',
   'workflow.blocked',
+  'doc.review.ready',
+  'doc.handoff.ready',
   'issue.assigned',
   'issue.canceled',
+  'doc.release.updated',
   'project.risk.flagged',
+  'doc.decision.updated',
   'deadline.soon',
   'digest.generated',
 ] as const;

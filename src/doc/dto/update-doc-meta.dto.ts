@@ -1,6 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
-import { VisibilityType } from '../../../prisma/generated/prisma/client';
+import {
+  DocKind,
+  VisibilityType,
+} from '../../../prisma/generated/prisma/client';
+import { emptyStringToUndefined } from './transformers';
 
 export class UpdateDocMetaDto {
   @ApiPropertyOptional({
@@ -34,6 +39,24 @@ export class UpdateDocMetaDto {
   @IsString()
   @MaxLength(500)
   coverImage?: string;
+
+  @ApiPropertyOptional({
+    description: '文档协作语义类型',
+    enum: DocKind,
+  })
+  @IsOptional()
+  @IsEnum(DocKind)
+  kind?: DocKind;
+
+  @ApiPropertyOptional({
+    description: '文档模板 key',
+    example: 'project-brief-v1',
+  })
+  @IsOptional()
+  @Transform(emptyStringToUndefined)
+  @IsString()
+  @MaxLength(100)
+  templateKey?: string;
 
   @ApiPropertyOptional({
     description: '可见性',

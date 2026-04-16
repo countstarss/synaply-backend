@@ -226,6 +226,8 @@ export const DocScalarFieldEnum = {
   description: 'description',
   type: 'type',
   status: 'status',
+  kind: 'kind',
+  templateKey: 'templateKey',
   visibility: 'visibility',
   parentId: 'parentId',
   projectId: 'projectId',

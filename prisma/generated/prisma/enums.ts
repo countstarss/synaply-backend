@@ -155,6 +155,18 @@ export const DocStatus = {
 export type DocStatus = (typeof DocStatus)[keyof typeof DocStatus]
 
 
+export const DocKind = {
+  GENERAL: 'GENERAL',
+  PROJECT_BRIEF: 'PROJECT_BRIEF',
+  DECISION_LOG: 'DECISION_LOG',
+  REVIEW_PACKET: 'REVIEW_PACKET',
+  HANDOFF_PACKET: 'HANDOFF_PACKET',
+  RELEASE_CHECKLIST: 'RELEASE_CHECKLIST'
+} as const
+
+export type DocKind = (typeof DocKind)[keyof typeof DocKind]
+
+
 export const DocChangeSource = {
   CREATE: 'CREATE',
   EDITOR: 'EDITOR',

@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  DocKind,
   Prisma,
   Role,
   VisibilityType,
@@ -18,7 +19,11 @@ import { CreateFolderDto } from './dto/create-folder.dto';
 import { CreateDocRevisionDto } from './dto/create-doc-revision.dto';
 import { DocContextValue, QueryDocsDto } from './dto/query-docs.dto';
 import { UpdateDocMetaDto } from './dto/update-doc-meta.dto';
-import { DocChangeSourceValue, DocTypeValue } from './doc.constants';
+import {
+  DocChangeSourceValue,
+  DocKindValue,
+  DocTypeValue,
+} from './doc.constants';
 
 const DEFAULT_DOC_CONTENT = [
   {
@@ -39,6 +44,8 @@ type DocRow = {
   description: string | null;
   type: keyof typeof DocTypeValue | DocTypeValue;
   status: string;
+  kind: keyof typeof DocKindValue | DocKindValue;
+  template_key: string | null;
   visibility: VisibilityType;
   parent_id: string | null;
   project_id: string | null;
@@ -85,6 +92,8 @@ export class DocService {
     const docs = await this.fetchDocs(this.prisma, workspaceId, {
       includeArchived: query.includeArchived ?? false,
       projectId: query.projectId,
+      issueId: query.issueId,
+      workflowId: query.workflowId,
     });
 
     return docs
@@ -183,6 +192,7 @@ export class DocService {
     const revisionId = randomUUID();
     const visibility =
       dto.visibility ?? this.getDefaultVisibility(workspace.type, false);
+    const kind = dto.kind ?? DocKindValue.GENERAL;
     const contentSnapshot = this.parseSnapshot(dto.content);
     const metadataSnapshot = this.buildMetadataSnapshot({
       title: dto.title.trim() || '未命名文档',
@@ -199,6 +209,8 @@ export class DocService {
           "title",
           "type",
           "visibility",
+          "kind",
+          "template_key",
           "parent_id",
           "project_id",
           "issue_id",
@@ -216,6 +228,8 @@ export class DocService {
           ${metadataSnapshot.title as string},
           ${DocTypeValue.DOCUMENT}::"DocType",
           ${visibility}::"VisibilityType",
+          ${kind}::"DocKind",
+          ${dto.templateKey ?? null},
           ${dto.parentDocument ?? null},
           ${dto.projectId ?? null},
           ${dto.issueId ?? null},
@@ -397,6 +411,14 @@ export class DocService {
       updates.push(
         Prisma.sql`"visibility" = ${dto.visibility}::"VisibilityType"`,
       );
+    }
+
+    if (dto.kind !== undefined) {
+      updates.push(Prisma.sql`"kind" = ${dto.kind}::"DocKind"`);
+    }
+
+    if (dto.templateKey !== undefined) {
+      updates.push(Prisma.sql`"template_key" = ${dto.templateKey ?? null}`);
     }
 
     updates.push(Prisma.sql`"updated_at" = NOW()`);
@@ -709,6 +731,8 @@ export class DocService {
     options: {
       includeArchived: boolean;
       projectId?: string;
+      issueId?: string;
+      workflowId?: string;
     },
   ) {
     const conditions: Prisma.Sql[] = [
@@ -724,6 +748,14 @@ export class DocService {
       conditions.push(Prisma.sql`d."project_id" = ${options.projectId}`);
     }
 
+    if (options.issueId) {
+      conditions.push(Prisma.sql`d."issue_id" = ${options.issueId}`);
+    }
+
+    if (options.workflowId) {
+      conditions.push(Prisma.sql`d."workflow_id" = ${options.workflowId}`);
+    }
+
     return executor.$queryRaw<DocRow[]>(Prisma.sql`
       SELECT
         d."id",
@@ -734,6 +766,8 @@ export class DocService {
         d."description",
         d."type",
         d."status",
+        d."kind",
+        d."template_key",
         d."visibility",
         d."parent_id",
         d."project_id",
@@ -778,6 +812,8 @@ export class DocService {
         d."description",
         d."type",
         d."status",
+        d."kind",
+        d."template_key",
         d."visibility",
         d."parent_id",
         d."project_id",
@@ -977,6 +1013,19 @@ export class DocService {
       _id: doc.id,
       title: doc.title,
       type: doc.type === DocTypeValue.FOLDER ? 'folder' : 'document',
+      kind:
+        doc.kind === DocKindValue.PROJECT_BRIEF
+          ? DocKind.PROJECT_BRIEF
+          : doc.kind === DocKindValue.DECISION_LOG
+            ? DocKind.DECISION_LOG
+            : doc.kind === DocKindValue.REVIEW_PACKET
+              ? DocKind.REVIEW_PACKET
+              : doc.kind === DocKindValue.HANDOFF_PACKET
+                ? DocKind.HANDOFF_PACKET
+                : doc.kind === DocKindValue.RELEASE_CHECKLIST
+                  ? DocKind.RELEASE_CHECKLIST
+                  : DocKind.GENERAL,
+      templateKey: doc.template_key ?? undefined,
       content:
         doc.type === DocTypeValue.DOCUMENT
           ? this.serializeSnapshot(doc.latest_content_snapshot)
