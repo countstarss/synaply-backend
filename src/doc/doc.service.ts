@@ -179,13 +179,17 @@ export class DocService {
       dto.issueId,
       dto.workflowId,
     );
-    await this.validateParentFolderAccess(
+    const resolvedScope = await this.resolveCreationScope(
       workspaceId,
-      dto.parentDocument,
+      {
+        parentDocument: dto.parentDocument,
+        projectId: dto.projectId,
+        issueId: dto.issueId,
+        workflowId: dto.workflowId,
+      },
       workspace.type,
       teamMemberId,
       workspaceRole,
-      'create',
     );
 
     const docId = randomUUID();
@@ -230,10 +234,10 @@ export class DocService {
           ${visibility}::"VisibilityType",
           ${kind}::"DocKind",
           ${dto.templateKey ?? null},
-          ${dto.parentDocument ?? null},
-          ${dto.projectId ?? null},
-          ${dto.issueId ?? null},
-          ${dto.workflowId ?? null},
+          ${resolvedScope.parentId ?? null},
+          ${resolvedScope.projectId ?? null},
+          ${resolvedScope.issueId ?? null},
+          ${resolvedScope.workflowId ?? null},
           ${dto.order ?? 0},
           NOW(),
           NOW(),
@@ -301,13 +305,17 @@ export class DocService {
       dto.issueId,
       dto.workflowId,
     );
-    await this.validateParentFolderAccess(
+    const resolvedScope = await this.resolveCreationScope(
       workspaceId,
-      dto.parentDocument,
+      {
+        parentDocument: dto.parentDocument,
+        projectId: dto.projectId,
+        issueId: dto.issueId,
+        workflowId: dto.workflowId,
+      },
       workspace.type,
       teamMemberId,
       workspaceRole,
-      'create',
     );
 
     const folderId = randomUUID();
@@ -339,10 +347,10 @@ export class DocService {
         ${dto.description?.trim() || null},
         ${DocTypeValue.FOLDER}::"DocType",
         ${dto.visibility ?? this.getDefaultVisibility(workspace.type, true)}::"VisibilityType",
-        ${dto.parentDocument ?? null},
-        ${dto.projectId ?? null},
-        ${dto.issueId ?? null},
-        ${dto.workflowId ?? null},
+        ${resolvedScope.parentId ?? null},
+        ${resolvedScope.projectId ?? null},
+        ${resolvedScope.issueId ?? null},
+        ${resolvedScope.workflowId ?? null},
         ${dto.order ?? 0},
         NOW(),
         NOW(),
@@ -385,6 +393,22 @@ export class DocService {
       existing.type !== DocTypeValue.FOLDER
     ) {
       throw new BadRequestException('只有文件夹可以更新描述');
+    }
+
+    if (this.isProjectRootFolder(existing) && dto.title !== undefined) {
+      throw new BadRequestException(
+        '项目根文件夹名称会跟随项目同步，不能直接重命名',
+      );
+    }
+
+    if (
+      this.isProjectRootFolder(existing) &&
+      dto.visibility !== undefined &&
+      dto.visibility !== existing.visibility
+    ) {
+      throw new BadRequestException(
+        '项目根文件夹可见性会跟随项目同步，不能单独修改',
+      );
     }
 
     const updates: Prisma.Sql[] = [];
@@ -609,6 +633,12 @@ export class DocService {
       throw new ForbiddenException('没有权限删除该文档');
     }
 
+    if (this.isProjectRootFolder(existing)) {
+      throw new BadRequestException(
+        '项目根文件夹会跟随项目生命周期，不能直接删除',
+      );
+    }
+
     if (existing.type === DocTypeValue.FOLDER) {
       const children = await this.prisma.$queryRaw<Array<{ count: bigint }>>(
         Prisma.sql`
@@ -725,6 +755,103 @@ export class DocService {
     }
   }
 
+  private async resolveCreationScope(
+    workspaceId: string,
+    scope: {
+      parentDocument?: string;
+      projectId?: string;
+      issueId?: string;
+      workflowId?: string;
+    },
+    workspaceType: WorkspaceType,
+    teamMemberId: string,
+    workspaceRole: Role,
+  ) {
+    let parent: DocRow | null = null;
+
+    if (scope.parentDocument) {
+      await this.validateParentFolderAccess(
+        workspaceId,
+        scope.parentDocument,
+        workspaceType,
+        teamMemberId,
+        workspaceRole,
+        'create',
+      );
+      parent = await this.getDocOrThrow(
+        this.prisma,
+        workspaceId,
+        scope.parentDocument,
+      );
+    }
+
+    const resolvedProjectId = this.resolveScopedRelationId(
+      'projectId',
+      scope.projectId,
+      Boolean(parent),
+      parent?.project_id ?? undefined,
+    );
+    const resolvedIssueId = this.resolveScopedRelationId(
+      'issueId',
+      scope.issueId,
+      Boolean(parent),
+      parent?.issue_id ?? undefined,
+    );
+    const resolvedWorkflowId = this.resolveScopedRelationId(
+      'workflowId',
+      scope.workflowId,
+      Boolean(parent),
+      parent?.workflow_id ?? undefined,
+    );
+
+    if (!parent && workspaceType === WorkspaceType.TEAM && resolvedProjectId) {
+      parent = await this.ensureProjectRootFolder(
+        this.prisma,
+        workspaceId,
+        resolvedProjectId,
+        teamMemberId,
+      );
+
+      if (!this.canWriteDoc(parent, workspaceType, teamMemberId, workspaceRole)) {
+        throw new ForbiddenException('没有权限在该项目文件夹中创建内容');
+      }
+    }
+
+    return {
+      parentId: parent?.id ?? undefined,
+      projectId: resolvedProjectId,
+      issueId: resolvedIssueId,
+      workflowId: resolvedWorkflowId,
+    };
+  }
+
+  private resolveScopedRelationId(
+    field: 'projectId' | 'issueId' | 'workflowId',
+    explicitValue?: string,
+    hasParent = false,
+    inheritedValue?: string,
+  ) {
+    if (!hasParent) {
+      return inheritedValue ?? explicitValue;
+    }
+
+    if (
+      explicitValue &&
+      inheritedValue &&
+      explicitValue !== inheritedValue
+    ) {
+      throw new BadRequestException(`${field} 与父级文件夹的上下文不一致`);
+    }
+
+    if (explicitValue && !inheritedValue) {
+      throw new BadRequestException(
+        `父级文件夹没有绑定 ${field}，子内容也不能单独挂到其他范围下`,
+      );
+    }
+
+    return inheritedValue ?? explicitValue;
+  }
+
   private async fetchDocs(
     executor: QueryExecutor,
     workspaceId: string,
@@ -795,6 +922,102 @@ export class DocService {
         ON latest."id" = d."latest_revision_id"
       WHERE ${Prisma.join(conditions, ' AND ')}
     `);
+  }
+
+  private async getProjectRootFolder(
+    executor: QueryExecutor,
+    workspaceId: string,
+    projectId: string,
+  ) {
+    const projectDocs = await this.fetchDocs(executor, workspaceId, {
+      includeArchived: true,
+      projectId,
+    });
+
+    return (
+      projectDocs.find(
+        (doc) =>
+          doc.type === DocTypeValue.FOLDER &&
+          doc.project_id === projectId &&
+          !doc.parent_id &&
+          !doc.is_deleted,
+      ) ?? null
+    );
+  }
+
+  private async ensureProjectRootFolder(
+    executor: QueryExecutor,
+    workspaceId: string,
+    projectId: string,
+    teamMemberId: string,
+  ) {
+    const existing = await this.getProjectRootFolder(
+      executor,
+      workspaceId,
+      projectId,
+    );
+
+    if (existing) {
+      return existing;
+    }
+
+    const projects = await executor.$queryRaw<
+      Array<{
+        name: string;
+        visibility: VisibilityType;
+        owner_member_id: string;
+      }>
+    >(Prisma.sql`
+      SELECT "name", "visibility", "owner_member_id"
+      FROM "projects"
+      WHERE "id" = ${projectId}
+        AND "workspace_id" = ${workspaceId}
+      LIMIT 1
+    `);
+    const project = projects[0];
+
+    if (!project) {
+      throw new BadRequestException('projectId 不属于当前工作空间');
+    }
+
+    const folderId = randomUUID();
+
+    await executor.$executeRaw(Prisma.sql`
+      INSERT INTO "docs" (
+        "id",
+        "workspace_id",
+        "creator_member_id",
+        "owner_member_id",
+        "title",
+        "description",
+        "type",
+        "visibility",
+        "parent_id",
+        "project_id",
+        "sort_order",
+        "created_at",
+        "updated_at",
+        "last_edited_at"
+      )
+      VALUES (
+        ${folderId},
+        ${workspaceId},
+        ${teamMemberId},
+        ${project.owner_member_id},
+        ${project.name},
+        ${null},
+        ${DocTypeValue.FOLDER}::"DocType",
+        ${project.visibility}::"VisibilityType",
+        ${null},
+        ${projectId},
+        ${0},
+        NOW(),
+        NOW(),
+        NOW()
+      )
+    `);
+
+    return this.getDocOrThrow(executor, workspaceId, folderId);
   }
 
   private async getDocOrThrow(
@@ -963,6 +1186,10 @@ export class DocService {
     teamMemberId: string,
     workspaceRole: Role,
   ) {
+    if (this.isProjectRootFolder(doc)) {
+      return false;
+    }
+
     if (workspaceType === WorkspaceType.PERSONAL) {
       return true;
     }
@@ -975,6 +1202,14 @@ export class DocService {
     }
 
     return workspaceRole === Role.OWNER || workspaceRole === Role.ADMIN;
+  }
+
+  private isProjectRootFolder(doc: DocRow) {
+    return (
+      doc.type === DocTypeValue.FOLDER &&
+      Boolean(doc.project_id) &&
+      !doc.parent_id
+    );
   }
 
   private compareDocs(left: DocRow, right: DocRow) {
@@ -1050,6 +1285,7 @@ export class DocService {
       createdAt: this.asDate(doc.created_at).getTime(),
       updatedAt: this.asDate(doc.updated_at).getTime(),
       lastEditedAt: this.asDate(doc.last_edited_at).getTime(),
+      isProjectRootFolder: this.isProjectRootFolder(doc),
       canEdit: this.canWriteDoc(
         doc,
         workspaceType,

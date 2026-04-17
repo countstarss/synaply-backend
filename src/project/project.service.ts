@@ -19,6 +19,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PermissionService } from '../common/services/permission.service';
 import { ProjectRiskLevelValue, ProjectStatusValue } from './project.constants';
+import { DocTypeValue } from '../doc/doc.constants';
 
 const projectSummaryIssueSelect = {
   id: true,
@@ -153,6 +154,8 @@ type ProjectReadModel = {
   } | null;
 };
 
+type ProjectQueryExecutor = PrismaService | Prisma.TransactionClient;
+
 @Injectable()
 export class ProjectService {
   constructor(
@@ -185,46 +188,58 @@ export class ProjectService {
 
     const projectId = randomUUID();
 
-    await this.prisma.$executeRaw(
-      Prisma.sql`
-        INSERT INTO "projects" (
-          "id",
-          "name",
-          "description",
-          "brief",
-          "status",
-          "phase",
-          "risk_level",
-          "workspace_id",
-          "created_at",
-          "updated_at",
-          "creator_id",
-          "owner_member_id",
-          "last_sync_at",
-          "visibility"
-        )
-        VALUES (
-          ${projectId},
-          ${createProjectDto.name},
-          ${createProjectDto.description ?? null},
-          ${createProjectDto.brief ?? null},
-          ${createProjectDto.status ?? ProjectStatusValue.ACTIVE}::"ProjectStatus",
-          ${createProjectDto.phase ?? null},
-          ${createProjectDto.riskLevel ?? ProjectRiskLevelValue.LOW}::"ProjectRiskLevel",
-          ${workspaceId},
-          NOW(),
-          NOW(),
-          ${teamMemberId},
-          ${ownerMemberId},
-          ${
-            createProjectDto.lastSyncAt
-              ? new Date(createProjectDto.lastSyncAt)
-              : null
-          },
-          ${visibility}::"VisibilityType"
-        )
-      `,
-    );
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw(
+        Prisma.sql`
+          INSERT INTO "projects" (
+            "id",
+            "name",
+            "description",
+            "brief",
+            "status",
+            "phase",
+            "risk_level",
+            "workspace_id",
+            "created_at",
+            "updated_at",
+            "creator_id",
+            "owner_member_id",
+            "last_sync_at",
+            "visibility"
+          )
+          VALUES (
+            ${projectId},
+            ${createProjectDto.name},
+            ${createProjectDto.description ?? null},
+            ${createProjectDto.brief ?? null},
+            ${createProjectDto.status ?? ProjectStatusValue.ACTIVE}::"ProjectStatus",
+            ${createProjectDto.phase ?? null},
+            ${createProjectDto.riskLevel ?? ProjectRiskLevelValue.LOW}::"ProjectRiskLevel",
+            ${workspaceId},
+            NOW(),
+            NOW(),
+            ${teamMemberId},
+            ${ownerMemberId},
+            ${
+              createProjectDto.lastSyncAt
+                ? new Date(createProjectDto.lastSyncAt)
+                : null
+            },
+            ${visibility}::"VisibilityType"
+          )
+        `,
+      );
+
+      if (workspace.type === 'TEAM') {
+        await this.syncProjectRootFolder(tx, {
+          workspaceId,
+          projectId,
+          ownerMemberId,
+          title: createProjectDto.name,
+          visibility,
+        });
+      }
+    });
 
     return this.findOne(workspaceId, projectId, userId);
   }
@@ -355,7 +370,7 @@ export class ProjectService {
     );
 
     this.ensureProjectManagementPermission(workspace, userId, '更新');
-    await this.findProjectOrThrow(workspaceId, projectId);
+    const existingProject = await this.findProjectOrThrow(workspaceId, projectId);
 
     const ownerMemberId =
       updateProjectDto.ownerMemberId !== undefined
@@ -411,14 +426,26 @@ export class ProjectService {
 
     updates.push(Prisma.sql`"updated_at" = NOW()`);
 
-    await this.prisma.$executeRaw(
-      Prisma.sql`
-        UPDATE "projects"
-        SET ${Prisma.join(updates, ', ')}
-        WHERE "id" = ${projectId}
-          AND "workspace_id" = ${workspaceId}
-      `,
-    );
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw(
+        Prisma.sql`
+          UPDATE "projects"
+          SET ${Prisma.join(updates, ', ')}
+          WHERE "id" = ${projectId}
+            AND "workspace_id" = ${workspaceId}
+        `,
+      );
+
+      if (workspace.type === 'TEAM') {
+        await this.syncProjectRootFolder(tx, {
+          workspaceId,
+          projectId,
+          ownerMemberId: ownerMemberId ?? existingProject.ownerMemberId,
+          title: updateProjectDto.name ?? existingProject.name,
+          visibility: updateProjectDto.visibility ?? existingProject.visibility,
+        });
+      }
+    });
 
     return this.findOne(workspaceId, projectId, userId);
   }
@@ -474,6 +501,20 @@ export class ProjectService {
         });
       }
 
+      const docCounts = await tx.$queryRaw<
+        Array<{ deleted_doc_count: bigint; deleted_folder_count: bigint }>
+      >(Prisma.sql`
+        SELECT
+          COUNT(*) FILTER (
+            WHERE "type" = ${DocTypeValue.DOCUMENT}::"DocType"
+          )::bigint AS "deleted_doc_count",
+          COUNT(*) FILTER (
+            WHERE "type" = ${DocTypeValue.FOLDER}::"DocType"
+          )::bigint AS "deleted_folder_count"
+        FROM "docs"
+        WHERE "project_id" = ${projectId}
+      `);
+
       await tx.$executeRaw(
         Prisma.sql`
           DELETE FROM "docs"
@@ -488,6 +529,8 @@ export class ProjectService {
       return {
         ...project,
         deletedIssueCount: issueIds.length,
+        deletedDocCount: Number(docCounts[0]?.deleted_doc_count ?? 0),
+        deletedFolderCount: Number(docCounts[0]?.deleted_folder_count ?? 0),
       };
     });
   }
@@ -1016,6 +1059,98 @@ export class ProjectService {
     return value instanceof Date
       ? value.toISOString()
       : new Date(value).toISOString();
+  }
+
+  private async syncProjectRootFolder(
+    executor: ProjectQueryExecutor,
+    params: {
+      workspaceId: string;
+      projectId: string;
+      ownerMemberId: string;
+      title: string;
+      visibility: VisibilityType;
+    },
+  ) {
+    const existing = await this.getProjectRootFolder(
+      executor,
+      params.workspaceId,
+      params.projectId,
+    );
+
+    if (!existing) {
+      await executor.$executeRaw(
+        Prisma.sql`
+          INSERT INTO "docs" (
+            "id",
+            "workspace_id",
+            "creator_member_id",
+            "owner_member_id",
+            "title",
+            "description",
+            "type",
+            "visibility",
+            "parent_id",
+            "project_id",
+            "sort_order",
+            "created_at",
+            "updated_at",
+            "last_edited_at"
+          )
+          VALUES (
+            ${randomUUID()},
+            ${params.workspaceId},
+            ${params.ownerMemberId},
+            ${params.ownerMemberId},
+            ${params.title},
+            ${null},
+            ${DocTypeValue.FOLDER}::"DocType",
+            ${params.visibility}::"VisibilityType",
+            ${null},
+            ${params.projectId},
+            ${0},
+            NOW(),
+            NOW(),
+            NOW()
+          )
+        `,
+      );
+      return;
+    }
+
+    await executor.$executeRaw(
+      Prisma.sql`
+        UPDATE "docs"
+        SET
+          "owner_member_id" = ${params.ownerMemberId},
+          "title" = ${params.title},
+          "visibility" = ${params.visibility}::"VisibilityType",
+          "updated_at" = NOW(),
+          "last_edited_at" = NOW()
+        WHERE "id" = ${existing.id}
+      `,
+    );
+  }
+
+  private async getProjectRootFolder(
+    executor: ProjectQueryExecutor,
+    workspaceId: string,
+    projectId: string,
+  ) {
+    const folders = await executor.$queryRaw<Array<{ id: string }>>(
+      Prisma.sql`
+        SELECT "id"
+        FROM "docs"
+        WHERE "workspace_id" = ${workspaceId}
+          AND "project_id" = ${projectId}
+          AND "parent_id" IS NULL
+          AND "type" = ${DocTypeValue.FOLDER}::"DocType"
+          AND "is_deleted" = false
+        ORDER BY "created_at" ASC
+        LIMIT 1
+      `,
+    );
+
+    return folders[0] ?? null;
   }
 
   private async findProjectOrThrow(workspaceId: string, projectId: string) {
