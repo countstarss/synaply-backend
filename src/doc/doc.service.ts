@@ -812,7 +812,9 @@ export class DocService {
         teamMemberId,
       );
 
-      if (!this.canWriteDoc(parent, workspaceType, teamMemberId, workspaceRole)) {
+      if (
+        !this.canWriteDoc(parent, workspaceType, teamMemberId, workspaceRole)
+      ) {
         throw new ForbiddenException('没有权限在该项目文件夹中创建内容');
       }
     }
@@ -835,11 +837,7 @@ export class DocService {
       return inheritedValue ?? explicitValue;
     }
 
-    if (
-      explicitValue &&
-      inheritedValue &&
-      explicitValue !== inheritedValue
-    ) {
+    if (explicitValue && inheritedValue && explicitValue !== inheritedValue) {
       throw new BadRequestException(`${field} 与父级文件夹的上下文不一致`);
     }
 

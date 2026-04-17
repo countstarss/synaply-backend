@@ -370,7 +370,10 @@ export class ProjectService {
     );
 
     this.ensureProjectManagementPermission(workspace, userId, '更新');
-    const existingProject = await this.findProjectOrThrow(workspaceId, projectId);
+    const existingProject = await this.findProjectOrThrow(
+      workspaceId,
+      projectId,
+    );
 
     const ownerMemberId =
       updateProjectDto.ownerMemberId !== undefined
