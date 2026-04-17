@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class AdvanceWorkflowRunDto {
   @ApiPropertyOptional({
@@ -21,4 +21,18 @@ export class AdvanceWorkflowRunDto {
   })
   @IsOptional()
   attachments?: unknown;
+
+  @ApiPropertyOptional({
+    description: 'Whether the final workflow completion has been confirmed with the team',
+  })
+  @IsOptional()
+  @IsBoolean()
+  completionConfirmed?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Issue title typed by the user to confirm final workflow completion',
+  })
+  @IsOptional()
+  @IsString()
+  issueTitleConfirmation?: string;
 }

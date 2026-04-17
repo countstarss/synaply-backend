@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   DocKind,
   DocType,
@@ -166,8 +171,41 @@ export class InboxService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly teamMemberService: TeamMemberService,
+    @Inject(forwardRef(() => IssueService))
     private readonly issueService: IssueService,
   ) {}
+
+  async syncInboxForUsers(workspaceId: string, userIds: string[]) {
+    const uniqueUserIds = Array.from(
+      new Set(userIds.filter((userId): userId is string => Boolean(userId))),
+    );
+
+    if (uniqueUserIds.length === 0) {
+      return;
+    }
+
+    const results = await Promise.allSettled(
+      uniqueUserIds.map((userId) =>
+        this.syncUserInboxState(workspaceId, userId),
+      ),
+    );
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        return;
+      }
+
+      const userId = uniqueUserIds[index];
+      const message =
+        result.reason instanceof Error
+          ? result.reason.message
+          : 'unknown inbox sync error';
+
+      console.warn(
+        `Failed to sync inbox for workspace ${workspaceId} and user ${userId}: ${message}`,
+      );
+    });
+  }
 
   private isCompleted(issue: WorkspaceIssue) {
     return Boolean(
@@ -309,10 +347,7 @@ export class InboxService {
       return 'high';
     }
 
-    if (
-      kinds.has(DocKind.PROJECT_BRIEF) ||
-      kinds.has(DocKind.DECISION_LOG)
-    ) {
+    if (kinds.has(DocKind.PROJECT_BRIEF) || kinds.has(DocKind.DECISION_LOG)) {
       return 'normal';
     }
 
@@ -367,7 +402,8 @@ export class InboxService {
 
     for (const [groupKey, groupDocs] of groupedDocs.entries()) {
       const latestDoc = [...groupDocs].sort(
-        (left, right) => right.lastEditedAt.getTime() - left.lastEditedAt.getTime(),
+        (left, right) =>
+          right.lastEditedAt.getTime() - left.lastEditedAt.getTime(),
       )[0];
 
       if (!latestDoc) {
@@ -398,7 +434,7 @@ export class InboxService {
         }
 
         const project = issue.projectId
-          ? projectMap.get(issue.projectId) ?? null
+          ? (projectMap.get(issue.projectId) ?? null)
           : null;
 
         if (
@@ -409,7 +445,8 @@ export class InboxService {
         }
 
         const sourceType = getIssueSignalSourceType(issue);
-        const projectName = project?.name ?? issue.project?.name ?? workspaceName;
+        const projectName =
+          project?.name ?? issue.project?.name ?? workspaceName;
 
         signals.push({
           dedupeKey: `digest.generated:issue:${issue.id}:${userId}`,
@@ -454,22 +491,26 @@ export class InboxService {
           workflowIssues.find((issue) =>
             this.isIssueContextRelevant(
               issue,
-              issue.projectId ? projectMap.get(issue.projectId) ?? null : null,
+              issue.projectId
+                ? (projectMap.get(issue.projectId) ?? null)
+                : null,
               userId,
               teamMemberId,
             ),
           ) ?? null;
         const project =
-          (latestDoc.projectId ? projectMap.get(latestDoc.projectId) ?? null : null) ??
+          (latestDoc.projectId
+            ? (projectMap.get(latestDoc.projectId) ?? null)
+            : null) ??
           (relevantIssue?.projectId
-            ? projectMap.get(relevantIssue.projectId) ?? null
+            ? (projectMap.get(relevantIssue.projectId) ?? null)
             : null);
 
         if (
           !relevantIssue &&
           !this.isProjectContextRelevant(
             project,
-            project?.id ? issuesByProjectId.get(project.id) ?? [] : [],
+            project?.id ? (issuesByProjectId.get(project.id) ?? []) : [],
             userId,
             teamMemberId,
           )
@@ -506,7 +547,10 @@ export class InboxService {
             digestKinds: kindCounts,
             digestTargetType: 'workflow',
             digestTargetLabel:
-              workflow?.name ?? project?.name ?? relevantIssue?.title ?? workspaceName,
+              workflow?.name ??
+              project?.name ??
+              relevantIssue?.title ??
+              workspaceName,
           },
         });
 
@@ -518,7 +562,12 @@ export class InboxService {
       const projectIssues = issuesByProjectId.get(projectId) ?? [];
 
       if (
-        !this.isProjectContextRelevant(project, projectIssues, userId, teamMemberId)
+        !this.isProjectContextRelevant(
+          project,
+          projectIssues,
+          userId,
+          teamMemberId,
+        )
       ) {
         continue;
       }
@@ -579,7 +628,9 @@ export class InboxService {
       return null;
     }
 
-    const directIssue = doc.issueId ? (issueMap.get(doc.issueId) ?? null) : null;
+    const directIssue = doc.issueId
+      ? (issueMap.get(doc.issueId) ?? null)
+      : null;
     const workflowIssues = doc.workflowId
       ? (issuesByWorkflowId.get(doc.workflowId) ?? [])
       : [];
@@ -587,15 +638,15 @@ export class InboxService {
       workflowIssues.find((issue) =>
         this.isIssueContextRelevant(
           issue,
-          issue.projectId ? projectMap.get(issue.projectId) ?? null : null,
+          issue.projectId ? (projectMap.get(issue.projectId) ?? null) : null,
           userId,
           teamMemberId,
         ),
       ) ?? null;
     const issue = directIssue ?? relevantWorkflowIssue;
     const project =
-      (doc.projectId ? projectMap.get(doc.projectId) ?? null : null) ??
-      (issue?.projectId ? projectMap.get(issue.projectId) ?? null : null);
+      (doc.projectId ? (projectMap.get(doc.projectId) ?? null) : null) ??
+      (issue?.projectId ? (projectMap.get(issue.projectId) ?? null) : null);
     const projectName = project?.name ?? issue?.project?.name ?? workspaceName;
     const issueId = issue?.id ?? null;
     const issueKey = issue?.key ?? null;
@@ -676,9 +727,13 @@ export class InboxService {
           summary: isReviewTarget
             ? `The latest review context is ready for ${issue.title}.`
             : `Review context was updated for ${issue.title}.`,
-          priority: isReviewTarget ? 'high' : this.normalizePriority(issue.priority),
+          priority: isReviewTarget
+            ? 'high'
+            : this.normalizePriority(issue.priority),
           requiresAction: isReviewTarget,
-          actionLabel: isReviewTarget ? 'Open review packet' : 'Open review context',
+          actionLabel: isReviewTarget
+            ? 'Open review packet'
+            : 'Open review context',
           occurredAt: doc.lastEditedAt,
           metadata: {
             managedBySync: true,
@@ -719,7 +774,9 @@ export class InboxService {
           summary: isHandoffTarget
             ? `The handoff context is ready before you take over ${issue.title}.`
             : `Handoff context was updated for ${issue.title}.`,
-          priority: isHandoffTarget ? 'high' : this.normalizePriority(issue.priority),
+          priority: isHandoffTarget
+            ? 'high'
+            : this.normalizePriority(issue.priority),
           requiresAction: isHandoffTarget,
           actionLabel: isHandoffTarget
             ? 'Open handoff packet'
@@ -1275,9 +1332,7 @@ export class InboxService {
     userId: string,
     teamMemberId: string,
   ) {
-    const recentDocThreshold = new Date(
-      Date.now() - 14 * 24 * 60 * 60 * 1000,
-    );
+    const recentDocThreshold = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
     const [issues, projects, docs] = await Promise.all([
       this.issueService.findAll(workspaceId, userId, {
         sortBy: 'updatedAt',
@@ -1460,7 +1515,7 @@ export class InboxService {
     const workspaceRole =
       workspace.type === WorkspaceType.PERSONAL
         ? Role.OWNER
-        : workspace.team?.members?.[0]?.role ?? Role.MEMBER;
+        : (workspace.team?.members?.[0]?.role ?? Role.MEMBER);
 
     const now = new Date();
     const signals = await this.collectSignalsForUser(

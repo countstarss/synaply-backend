@@ -1,8 +1,10 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -41,6 +43,7 @@ import {
   type WorkflowActivityMetadata,
   type WorkflowRunStatus,
 } from './workflow-run.constants';
+import { InboxService } from '../inbox/inbox.service';
 
 const issueDetailInclude = {
   state: true,
@@ -150,7 +153,32 @@ export class IssueService {
     private readonly teamMemberService: TeamMemberService,
     private readonly issueStateService: IssueStateService,
     private readonly permissionService: PermissionService,
+    @Inject(forwardRef(() => InboxService))
+    private readonly inboxService: InboxService,
   ) {}
+
+  private async syncInboxForUsers(
+    workspaceId: string,
+    userIds: Array<string | null | undefined>,
+  ) {
+    const normalizedUserIds = Array.from(
+      new Set(userIds.filter((userId): userId is string => Boolean(userId))),
+    );
+
+    if (normalizedUserIds.length === 0) {
+      return;
+    }
+
+    try {
+      await this.inboxService.syncInboxForUsers(workspaceId, normalizedUserIds);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'unknown inbox sync error';
+      console.warn(
+        `Failed to sync inbox for workspace ${workspaceId}: ${message}`,
+      );
+    }
+  }
 
   private async ensureIssueInWorkspace(issueId: string, workspaceId: string) {
     const issue = await this.prisma.issue.findFirst({
@@ -771,7 +799,8 @@ export class IssueService {
     }
 
     const snapshot = this.parseWorkflowSnapshot(issue.workflowSnapshot);
-    const latestMetadata = await this.findLatestWorkflowActivityMetadata(issueId);
+    const latestMetadata =
+      await this.findLatestWorkflowActivityMetadata(issueId);
     const workflowRun = this.buildWorkflowRunSummary(
       issue,
       latestMetadata ? { metadata: latestMetadata } : null,
@@ -865,7 +894,8 @@ export class IssueService {
     allowedStatuses: WorkflowRunStatus[],
     actionLabel: string,
   ) {
-    const currentStatus = workflowRun?.runStatus ?? WORKFLOW_RUN_STATUSES.ACTIVE;
+    const currentStatus =
+      workflowRun?.runStatus ?? WORKFLOW_RUN_STATUSES.ACTIVE;
 
     if (isWorkflowRunTransitionAllowed(currentStatus, allowedStatuses)) {
       return;
@@ -1057,6 +1087,10 @@ export class IssueService {
     const initialDirectAssigneeId =
       directAssigneeId ||
       (await this.resolveNodeAssigneeMemberId(workspaceId, startNode));
+    const initialAssigneeUserId =
+      (await this.resolveTeamMemberUserId(initialDirectAssigneeId)) ||
+      startNode.data?.assigneeId ||
+      null;
 
     const normalizedAssigneeIds = Array.from(
       new Set([
@@ -1159,6 +1193,8 @@ export class IssueService {
 
       return issue.id;
     });
+
+    await this.syncInboxForUsers(workspaceId, [userId, initialAssigneeUserId]);
 
     return this.findOne(userId, workspaceId, createdIssueId);
   }
@@ -1516,6 +1552,37 @@ export class IssueService {
       workspaceId,
       next?.node,
     );
+    const nextAssigneeUserId =
+      (await this.resolveTeamMemberUserId(nextAssigneeMemberId)) ||
+      next?.node.data?.assigneeId ||
+      null;
+    const normalizedIssueTitle = issue.title.trim();
+    const normalizedTitleConfirmation =
+      dto.issueTitleConfirmation?.trim() || null;
+    const doneState = !next
+      ? await this.issueStateService.getStateByCategory(
+          workspaceId,
+          IssueStateCategory.DONE,
+        )
+      : null;
+
+    if (!next) {
+      if (dto.completionConfirmed !== true) {
+        throw new BadRequestException(
+          '结束这个 workflow issue 前，请先确认已经和团队完成最终确认',
+        );
+      }
+
+      if (!normalizedTitleConfirmation) {
+        throw new BadRequestException(
+          '结束这个 workflow issue 前，请先输入当前 issue 标题',
+        );
+      }
+
+      if (normalizedTitleConfirmation !== normalizedIssueTitle) {
+        throw new BadRequestException('输入的 issue 标题不匹配，无法结束流程');
+      }
+    }
 
     await this.prisma.$transaction(async (tx) => {
       if (dto.resultText || dto.attachments) {
@@ -1589,6 +1656,7 @@ export class IssueService {
           where: { id: issueId },
           data: {
             currentStepStatus: IssueStatus.DONE,
+            stateId: doneState?.id ?? issue.stateId,
           },
         });
 
@@ -1652,6 +1720,8 @@ export class IssueService {
       });
     });
 
+    await this.syncInboxForUsers(workspaceId, [userId, nextAssigneeUserId]);
+
     return this.getWorkflowRun(userId, workspaceId, issueId);
   }
 
@@ -1687,6 +1757,10 @@ export class IssueService {
       workspaceId,
       previous.node,
     );
+    const previousAssigneeUserId =
+      (await this.resolveTeamMemberUserId(previousAssigneeMemberId)) ||
+      previous.node.data?.assigneeId ||
+      null;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.issue.update({
@@ -1724,6 +1798,8 @@ export class IssueService {
         },
       });
     });
+
+    await this.syncInboxForUsers(workspaceId, [userId, previousAssigneeUserId]);
 
     return this.getWorkflowRun(userId, workspaceId, issueId);
   }
@@ -1890,6 +1966,8 @@ export class IssueService {
       });
     });
 
+    await this.syncInboxForUsers(workspaceId, [userId, dto.targetUserId]);
+
     return this.getWorkflowRun(userId, workspaceId, issueId);
   }
 
@@ -1911,6 +1989,8 @@ export class IssueService {
     const nextStepStatus = isApproved
       ? IssueStatus.DONE
       : IssueStatus.IN_PROGRESS;
+    const assigneeUserId =
+      latestMetadata.assigneeUserId ?? currentNode?.data?.assigneeId ?? null;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.issue.update({
@@ -1938,10 +2018,7 @@ export class IssueService {
           currentStepId: issue.currentStepId,
           currentStepName: currentNode?.data?.label ?? null,
           currentStepIndex: issue.currentStepIndex,
-          assigneeUserId:
-            latestMetadata.assigneeUserId ??
-            currentNode?.data?.assigneeId ??
-            null,
+          assigneeUserId,
           assigneeName:
             latestMetadata.assigneeName ??
             currentNode?.data?.assigneeName ??
@@ -1953,6 +2030,8 @@ export class IssueService {
         },
       });
     });
+
+    await this.syncInboxForUsers(workspaceId, [userId, assigneeUserId]);
 
     return this.getWorkflowRun(userId, workspaceId, issueId);
   }
@@ -2007,6 +2086,8 @@ export class IssueService {
       });
     });
 
+    await this.syncInboxForUsers(workspaceId, [userId, dto.targetUserId]);
+
     return this.getWorkflowRun(userId, workspaceId, issueId);
   }
 
@@ -2023,6 +2104,8 @@ export class IssueService {
         issueId,
         WORKFLOW_RUN_EVENT_TYPES.HANDOFF_REQUESTED,
       );
+    const previousAssigneeUserId =
+      latestMetadata.assigneeUserId ?? currentNode?.data?.assigneeId ?? null;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.issue.update({
@@ -2058,6 +2141,8 @@ export class IssueService {
         },
       });
     });
+
+    await this.syncInboxForUsers(workspaceId, [userId, previousAssigneeUserId]);
 
     return this.getWorkflowRun(userId, workspaceId, issueId);
   }
