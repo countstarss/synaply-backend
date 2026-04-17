@@ -1014,6 +1014,17 @@ export class InboxService {
 
         if (item.status === 'unread') {
           state.unread += 1;
+
+          if (item.bucket === 'needs-response') {
+            state.unreadByView.primary += 1;
+          } else if (
+            item.bucket === 'needs-attention' ||
+            item.bucket === 'following'
+          ) {
+            state.unreadByView.other += 1;
+          } else {
+            state.unreadByView.digest += 1;
+          }
         }
 
         return state;
@@ -1026,6 +1037,13 @@ export class InboxService {
         unread: 0,
         snoozed: 0,
         done: 0,
+        unreadByView: {
+          primary: 0,
+          other: 0,
+          digest: 0,
+          later: 0,
+          cleared: 0,
+        },
       },
     );
 

@@ -75,6 +75,13 @@ export interface InboxSummary {
   unread: number;
   snoozed: number;
   done: number;
+  unreadByView: {
+    primary: number;
+    other: number;
+    digest: number;
+    later: number;
+    cleared: number;
+  };
 }
 
 export interface InboxFeedItem {
