@@ -905,9 +905,19 @@ export class AiContextService {
         return haystack.includes(normalizedQuery);
       })
       .sort((left, right) => {
-        const leftName = (left.user.name ?? left.user.email ?? '').toLowerCase();
-        const rightName = (right.user.name ?? right.user.email ?? '').toLowerCase();
-        const leftExact = normalizedQuery ? leftName === normalizedQuery : false;
+        const leftName = (
+          left.user.name ??
+          left.user.email ??
+          ''
+        ).toLowerCase();
+        const rightName = (
+          right.user.name ??
+          right.user.email ??
+          ''
+        ).toLowerCase();
+        const leftExact = normalizedQuery
+          ? leftName === normalizedQuery
+          : false;
         const rightExact = normalizedQuery
           ? rightName === normalizedQuery
           : false;

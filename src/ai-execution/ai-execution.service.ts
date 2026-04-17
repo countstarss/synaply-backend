@@ -168,17 +168,17 @@ const ENUM_DESCRIPTION_HINTS: Record<string, string> = {
 const ENUM_ALIAS_MAP: Record<string, string> = {
   PERSONAL: 'PRIVATE',
   SELF: 'PRIVATE',
-  '仅自己': 'PRIVATE',
+  仅自己: 'PRIVATE',
   私有: 'PRIVATE',
   TEAM: 'TEAM_READONLY',
   TEAM_READ_ONLY: 'TEAM_READONLY',
   READONLY: 'TEAM_READONLY',
-  '团队': 'TEAM_READONLY',
-  '团队可见': 'TEAM_READONLY',
-  '团队只读': 'TEAM_READONLY',
+  团队: 'TEAM_READONLY',
+  团队可见: 'TEAM_READONLY',
+  团队只读: 'TEAM_READONLY',
   TEAM_EDIT: 'TEAM_EDITABLE',
   EDITABLE: 'TEAM_EDITABLE',
-  '团队可编辑': 'TEAM_EDITABLE',
+  团队可编辑: 'TEAM_EDITABLE',
   公开: 'PUBLIC',
   ALMOST_DONE: 'AMOST_DONE',
   APPROVE: 'APPROVED',
@@ -192,7 +192,10 @@ const ENUM_ALIAS_MAP: Record<string, string> = {
 };
 
 function normalizeEnumToken(value: string) {
-  return value.trim().replace(/[\s-]+/g, '_').toUpperCase();
+  return value
+    .trim()
+    .replace(/[\s-]+/g, '_')
+    .toUpperCase();
 }
 
 function buildEnumHints(options: string[]): AiActionEnumHint[] {
@@ -522,7 +525,8 @@ const ACTION_DEFINITIONS: AiActionDefinition[] = [
         label: '任务状态类别',
         type: 'enum',
         required: false,
-        description: 'Issue 状态类别，用于把任务切换到待办 / 进行中 / 完成 / 已取消。',
+        description:
+          'Issue 状态类别，用于把任务切换到待办 / 进行中 / 完成 / 已取消。',
         options: ISSUE_STATE_CATEGORY_OPTIONS,
         clarifyWhenAmbiguous: true,
         omitWhenUncertain: true,
@@ -2039,20 +2043,16 @@ export class AiExecutionService {
           )
             ? (payload.stateCategory as IssueStateCategory)
             : null;
-        const resolvedState =
-          stateCategory
-            ? await this.issueStateService.getStateByCategory(
-                workspaceId,
-                stateCategory,
-              )
-            : null;
-        const dto = this.parseDto(
-          UpdateIssueDto,
-          {
-            ...this.omitKeys(payload, ['issueId', 'stateCategory']),
-            ...(resolvedState ? { stateId: resolvedState.id } : {}),
-          },
-        );
+        const resolvedState = stateCategory
+          ? await this.issueStateService.getStateByCategory(
+              workspaceId,
+              stateCategory,
+            )
+          : null;
+        const dto = this.parseDto(UpdateIssueDto, {
+          ...this.omitKeys(payload, ['issueId', 'stateCategory']),
+          ...(resolvedState ? { stateId: resolvedState.id } : {}),
+        });
         return this.issueService.update(userId, workspaceId, issueId, dto);
       }
 
